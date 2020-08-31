@@ -60,7 +60,7 @@ When the HerokuX provider block does not contain an `api_key` argument, the miss
 from the environment via the `HEROKU_API_KEY` environment variables respectively:
 
 ```hcl
-provider "heroku" {}
+provider "herokux" {}
 ```
 
 ```shell
