@@ -53,7 +53,7 @@ The following arguments are supported:
     - Use with caution if you already defined the dyno type in a `heroku_formation.size` resource attribute.
     Defining different values can lead to an infinite `plan` delta.
 
-* `set_notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
+* `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
 for a dyno formation. The only currently valid value is `["app"]`, which will turn on email notifications.
 
 * `period` - (Optional) `<number>` Not sure what this does at the moment but the valid options are `1`, `5`, and `10`.

@@ -88,6 +88,17 @@ func (f *FormationMonitor) GetName() string {
 	return *f.Name
 }
 
+// HasNotificationChannels checks if FormationMonitor has any NotificationChannels.
+func (f *FormationMonitor) HasNotificationChannels() bool {
+	if f == nil || f.NotificationChannels == nil {
+		return false
+	}
+	if len(f.NotificationChannels) == 0 {
+		return false
+	}
+	return true
+}
+
 // GetNotificationPeriod returns the NotificationPeriod field if it's non-nil, zero value otherwise.
 func (f *FormationMonitor) GetNotificationPeriod() int {
 	if f == nil || f.NotificationPeriod == nil {
