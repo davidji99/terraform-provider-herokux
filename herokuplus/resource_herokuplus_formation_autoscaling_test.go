@@ -1,0 +1,61 @@
+package herokuplus
+
+import (
+	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"testing"
+)
+
+func TestAccHerokuplusFormationAutoscaling_Basic(t *testing.T) {
+	appID := testAccConfig.GetAppIDorSkip(t)
+	formationName := "web"
+	minQuantity := acctest.RandIntRange(1, 8)
+	maxQuantity := minQuantity + 2
+	p95ResponseTime := acctest.RandIntRange(500, 1000)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuplusFormationAutoscaling_basic(appID, formationName, minQuantity, maxQuantity, p95ResponseTime),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "app_id", appID),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "formation_name", formationName),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "is_active", "true"),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "min_quantity", fmt.Sprintf("%d", minQuantity)),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "max_quantity", fmt.Sprintf("%d", maxQuantity)),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "dyno_type", "performance-l"),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "set_notification_channels.0", "app"),
+					resource.TestCheckResourceAttr(
+						"herokuplus_formation_autoscaling.foobar", "period", "1"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckHerokuplusFormationAutoscaling_basic(appID, formationName string, min, max, p95 int) string {
+	return fmt.Sprintf(`
+resource "herokuplus_formation_autoscaling" "foobar" {
+	app_id = "%s"
+	formation_name = "%s"
+	is_active = true
+	min_quantity = %d
+	max_quantity = %d
+	desired_p95_response_time = %d
+	dyno_type = "performance-l"
+	set_notification_channels = ["app"]
+}
+`, appID, formationName, min, max, p95)
+}
