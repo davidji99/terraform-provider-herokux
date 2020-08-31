@@ -37,4 +37,4 @@ jobs:
         run: make build
 
       - name: Run make test
-        run: make testacc TEST="./rollbar/"
+        run: make testacc TEST="./herokuplus/"
