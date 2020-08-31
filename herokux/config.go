@@ -1,9 +1,9 @@
-package herokuplus
+package herokux
 
 import (
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokuplus/api"
-	"github.com/davidji99/terraform-provider-herokuplus/version"
+	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -20,7 +20,7 @@ func NewConfig() *Config {
 }
 
 func (c *Config) initializeAPI() error {
-	userAgent := fmt.Sprintf("terraform-provider-herokuplus/v%s", version.ProviderVersion)
+	userAgent := fmt.Sprintf("terraform-provider-herokux/v%s", version.ProviderVersion)
 
 	api, clientInitErr := api.New(api.APIToken(c.token), api.CustomHTTPHeaders(c.Headers),
 		api.UserAgent(userAgent), api.BaseURL(c.url))

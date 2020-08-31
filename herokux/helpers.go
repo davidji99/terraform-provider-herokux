@@ -1,4 +1,4 @@
-package herokuplus
+package herokux
 
 import (
 	"fmt"

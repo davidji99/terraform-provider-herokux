@@ -1,6 +1,6 @@
 TEST?=$$(go list ./... |grep -v 'vendor')
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
-PKG_NAME=herokuplus
+PKG_NAME=herokux
 WEBSITE_REPO=github.com/davidji99/${PKG_NAME}
 OS := $(shell uname | tr '[:upper:]' '[:lower:]')
 VERSION := $(shell go run ${PKG_NAME}/version.go)

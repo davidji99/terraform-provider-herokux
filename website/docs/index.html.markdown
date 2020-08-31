@@ -1,25 +1,82 @@
 ---
-layout: "scaffolding"
-page_title: "Provider: Scaffolding"
-sidebar_current: "docs-scaffolding-index"
+layout: "herokux"
+page_title: "Provider: HerokuX"
+sidebar_current: "docs-herokux-index"
 description: |-
-  Terraform provider scaffolding.
+  Use the HerokuX provider to interact with the resources backed by undocumented Heroku APIs.
 ---
 
-# Scaffolding Provider
+# HerokuX Provider
 
-Use this paragraph to give a high-level overview of your provider, and any configuration it requires.
+The HerokuX provider interacts with undocumented Heroku APIs to provide additional resources not available
+in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku.
 
-Use the navigation to the left to read about the available resources.
+-> **IMPORTANT!**
+This provider should be treated as experimental and be used with caution when terraforming resources in environments
+that receive customer traffic. Furthermore, the resources may change in behavior at any given time to match any API changes.
+
+## Contributing
+
+Development happens in the [GitHub repo](https://github.com/davidji99/terraform-provider-herokux):
+
+* [Releases](https://github.com/davidji99/terraform-provider-herokux/releases)
+* [Issues](https://github.com/davidji99/terraform-provider-herokux/issues)
 
 ## Example Usage
 
 ```hcl
-provider "scaffolding" {
+# Configure the HerokuX provider
+provider "herokux" {
+  # ...
 }
 
-# Example resource configuration
-resource "scaffolding_resource" "example" {
+# Create a new project
+resource "herokux_formation_autoscaling" "service-x" {
   # ...
 }
 ```
+
+## Authentication
+
+The HerokuX provider offers a flexible means of providing credentials for authentication.
+The following methods are supported, listed in order of precedence, and explained below:
+
+- Static credentials
+- Environment variables
+
+### Static credentials
+
+Credentials can be provided statically by adding an `api_key` arguments to the HerokuX provider block:
+
+```hcl
+provider "herokux" {
+  api_key = var.heroku_api_key
+}
+```
+
+### Environment variables
+
+When the HerokuX provider block does not contain an `api_key` argument, the missing credentials will be sourced
+from the environment via the `HEROKU_API_KEY` environment variables respectively:
+
+```hcl
+provider "heroku" {}
+```
+
+```shell
+$ export HEROKU_API_KEY="SOME_KEY"
+$ terraform plan
+Refreshing Terraform state in-memory prior to plan...
+```
+
+In order to prevent duplicate environment variables, the HerokuX provider uses the same environment variable name
+as the Heroku provider to retrieve the API key. This will be the only common variable name between the two providers.
+
+## Argument Reference
+
+The following arguments are supported:
+
+* `api_key` - (Required) Heroku API token. It must be provided, but it can also
+  be sourced from [other locations](#Authentication).
+
+* `headers` - (Optional) Additional API headers.

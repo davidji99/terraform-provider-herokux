@@ -1,4 +1,4 @@
-module github.com/davidji99/terraform-provider-herokuplus
+module github.com/davidji99/terraform-provider-herokux
 
 go 1.14
 

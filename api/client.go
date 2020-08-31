@@ -15,7 +15,7 @@ const (
 	MetricAPIBaseURL = "https://api.metrics.heroku.com"
 
 	// DefaultUserAgent is the user agent used when making API calls.
-	DefaultUserAgent = "herokuplus-go"
+	DefaultUserAgent = "herokux-go"
 
 	// DefaultAcceptHeader is the default and required Accept header.
 	DefaultAcceptHeader = "application/vnd.heroku+json; version=3"

@@ -1,9 +1,9 @@
-package herokuplus
+package herokux
 
 import (
 	"context"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokuplus/api"
+	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -70,13 +70,19 @@ func resourceHerokuplusFormationAutoscaling() *schema.Resource {
 				ValidateFunc: validation.StringInSlice(ValidDynoTypesForAutoscaling, true),
 			},
 
-			"set_notification_channels": {
+			"notification_channels": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Optional: true,
 				Computed: true,
+			},
+
+			"notification_period": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
 			},
 
 			"period": {
@@ -186,6 +192,13 @@ func resourceHerokuplusFormationAutoscalingRead(ctx context.Context, d *schema.R
 	d.Set("period", monitor.GetPeriod())
 	d.Set("action_type", monitor.GetActionType())
 	d.Set("operation", monitor.GetOperation())
+	d.Set("notification_period", monitor.GetNotificationPeriod())
+
+	notChannels := make([]string, 0)
+	if monitor.HasNotificationChannels() {
+		notChannels = monitor.NotificationChannels
+	}
+	d.Set("notification_channels", notChannels)
 
 	return nil
 }
@@ -272,16 +285,21 @@ func constructAutoscalingOpts(d *schema.ResourceData) *api.AutoscalingRequest {
 		opts.DesiredP95RespTime = vs
 	}
 
-	if v, ok := d.GetOk("set_notification_channels"); ok {
+	notificationChannels := make([]string, 0)
+	if v, ok := d.GetOk("notification_channels"); ok {
 		raw := v.([]interface{})
 
-		vs := make([]string, 0)
 		for _, r := range raw {
-			vs = append(vs, r.(string))
+			notificationChannels = append(notificationChannels, r.(string))
 		}
+	}
+	log.Printf("[DEBUG] notification_channels is : %v", notificationChannels)
+	opts.NotificationChannels = notificationChannels
 
-		log.Printf("[DEBUG] set_notification_channels is : %v", vs)
-		opts.NotificationChannels = vs
+	if v, ok := d.GetOk("notification_period"); ok {
+		vs := v.(int)
+		log.Printf("[DEBUG] notification_period is : %d", vs)
+		opts.Period = vs
 	}
 
 	if v, ok := d.GetOk("period"); ok {

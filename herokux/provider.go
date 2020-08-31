@@ -1,8 +1,8 @@
-package herokuplus
+package herokux
 
 import (
 	"context"
-	"github.com/davidji99/terraform-provider-herokuplus/api"
+	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
@@ -32,7 +32,7 @@ func New() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{},
 		ResourcesMap: map[string]*schema.Resource{
-			"herokuplus_formation_autoscaling": resourceHerokuplusFormationAutoscaling(),
+			"herokux_formation_autoscaling": resourceHerokuplusFormationAutoscaling(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
