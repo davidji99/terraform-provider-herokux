@@ -1,5 +1,8 @@
-module github.com/hashicorp/terraform-provider-scaffolding
+module github.com/davidji99/terraform-provider-herokuplus
 
-go 1.12
+go 1.14
 
-require github.com/hashicorp/terraform-plugin-sdk v1.4.1
+require (
+	github.com/davidji99/simpleresty v0.2.3
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.1
+)

@@ -1,9 +1,24 @@
-Hi there,
+---
+name: Issue Template
+about: Report a bug, feature, or enhancement
+title: ''
+labels: needs_triaging
+assignees: davidji99
 
-Thank you for opening an issue. Please note that we try to keep the Terraform issue tracker reserved for bug reports and feature requests. For general usage questions, please see: https://www.terraform.io/community.html.
+---
+
+Hi there,
 
 ### Terraform Version
 Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
+
+### Herokuplus Provider Version
+Run `terraform -v` to show core and any provider versions. A sample output could be:
+
+```
+Terraform v0.12.20
++ provider.herokuplus v0.1.0
+```
 
 ### Affected Resource(s)
 Please list the resources as a list, for example:
@@ -20,7 +35,7 @@ If this issue appears to affect multiple resources, it may be an issue with Terr
 ```
 
 ### Debug Output
-Please provider a link to a GitHub Gist containing the complete debug output: https://www.terraform.io/docs/internals/debugging.html. Please do NOT paste the debug output in the issue; just paste a link to the Gist.
+Please provider a link to a GitHub Gist containing the complete debug output: https://www.terraform.io/docs/internals/debugging.html. Please do NOT paste the debug output in the issue; just paste a link to the Gist. Please MAKE SURE to mask any sensitive values.
 
 ### Panic Output
 If Terraform produced a panic, please provide a link to a GitHub Gist containing the output of the `crash.log`.
