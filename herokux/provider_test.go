@@ -30,5 +30,5 @@ func TestProvider_impl(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	testAccConfig.GetOrAbort(t, helper.TestConfigHerokuplusAPIKey)
+	testAccConfig.GetOrAbort(t, helper.TestConfigHerokuxAPIKey)
 }

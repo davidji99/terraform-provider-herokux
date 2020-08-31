@@ -9,7 +9,7 @@ $ make test
 
 ## Acceptance Tests
 
-You can run the complete suite of Herokuplus acceptance tests by doing the following:
+You can run the complete suite of HerokuX acceptance tests by doing the following:
 
 ```bash
 $ make testacc TEST="./herokux/" 2>&1 | tee test.log
@@ -18,13 +18,13 @@ $ make testacc TEST="./herokux/" 2>&1 | tee test.log
 To run a single acceptance test in isolation replace the last line above with:
 
 ```bash
-$ make testacc TEST="./herokux/" TESTARGS='-run=TestAccHerokuplusFormationAutoscaling_Basic'
+$ make testacc TEST="./herokux/" TESTARGS='-run=TestAccHerokuxFormationAutoscaling_Basic'
 ```
 
-A set of tests can be selected by passing `TESTARGS` a substring. For example, to run all Herokuplus formation autoscaling tests:
+A set of tests can be selected by passing `TESTARGS` a substring. For example, to run all HerokuX formation autoscaling tests:
 
 ```bash
-$ make testacc TEST="./herokux/" TESTARGS='-run=HerokuplusFormationAutoscaling'
+$ make testacc TEST="./herokux/" TESTARGS='-run=HerokuxFormationAutoscaling'
 ```
 
 ### Test Parameters
@@ -33,12 +33,12 @@ The following parameters are available for running the test. The absence of some
 
 * **TF_ACC** (`integer`) **Required** - must be set to `1`.
 * **HEROKU_API_KEY** (`string`) **Required**  - A valid Heroku API key.
-* **HEROKUPLUS_APP_ID** (`string`) - THe UUID of an existing app.
+* **HEROKUX_APP_ID** (`string`) - THe UUID of an existing app.
 
 **For example:**
 ```bash
 export TF_ACC=1
 export HEROKU_API_KEY=...
-export HEROKUPLUS_APP_ID=...
-$ make testacc TEST="./HerokuplusFormationAutoscaling/" 2>&1 | tee test.log
+export HEROKUX_APP_ID=...
+$ make testacc TEST="./HerokuxFormationAutoscaling/" 2>&1 | tee test.log
 ```

@@ -11,14 +11,14 @@ import (
 type TestConfigKey int
 
 const (
-	TestConfigHerokuplusAPIKey TestConfigKey = iota
+	TestConfigHerokuxAPIKey TestConfigKey = iota
 	TestConfigAppID
 	TestConfigAcceptanceTestKey
 )
 
 var testConfigKeyToEnvName = map[TestConfigKey]string{
-	TestConfigHerokuplusAPIKey:  "HEROKU_API_KEY",
-	TestConfigAppID:             "HEROKUPLUS_APP_ID",
+	TestConfigHerokuxAPIKey:     "HEROKU_API_KEY",
+	TestConfigAppID:             "HEROKUX_APP_ID",
 	TestConfigAcceptanceTestKey: resource.TestEnvVar,
 }
 

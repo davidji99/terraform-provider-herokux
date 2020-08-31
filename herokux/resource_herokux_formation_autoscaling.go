@@ -15,15 +15,15 @@ var (
 		"private-l", "shield-s", "shield-m", "shield-l"}
 )
 
-func resourceHerokuplusFormationAutoscaling() *schema.Resource {
+func resourceHerokuxFormationAutoscaling() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuplusFormationAutoscalingCreate,
-		ReadContext:   resourceHerokuplusFormationAutoscalingRead,
-		UpdateContext: resourceHerokuplusFormationAutoscalingUpdate,
-		DeleteContext: resourceHerokuplusFormationAutoscalingDelete,
+		CreateContext: resourceHerokuxFormationAutoscalingCreate,
+		ReadContext:   resourceHerokuxFormationAutoscalingRead,
+		UpdateContext: resourceHerokuxFormationAutoscalingUpdate,
+		DeleteContext: resourceHerokuxFormationAutoscalingDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuplusFormationAutoscalingImport,
+			StateContext: resourceHerokuxFormationAutoscalingImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -110,7 +110,7 @@ func resourceHerokuplusFormationAutoscaling() *schema.Resource {
 	}
 }
 
-func resourceHerokuplusFormationAutoscalingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
 	// Parse te import ID for the appID and formationName
@@ -129,7 +129,7 @@ func resourceHerokuplusFormationAutoscalingImport(ctx context.Context, d *schema
 
 	d.SetId(fmt.Sprintf("%s:%s:%s", monitor.GetAppID(), monitor.GetProcessType(), monitor.GetID()))
 
-	readErr := resourceHerokuplusFormationAutoscalingRead(ctx, d, meta)
+	readErr := resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 	if readErr.HasError() {
 		return nil, fmt.Errorf(readErr[0].Summary)
 	}
@@ -137,7 +137,7 @@ func resourceHerokuplusFormationAutoscalingImport(ctx context.Context, d *schema
 	return []*schema.ResourceData{d}, nil
 }
 
-func resourceHerokuplusFormationAutoscalingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	// Get app id and formation name
@@ -167,10 +167,10 @@ func resourceHerokuplusFormationAutoscalingCreate(ctx context.Context, d *schema
 	// Set the ID to be a composite of the APP_ID, FORMATION_NAME, and MONITOR_ID
 	d.SetId(fmt.Sprintf("%s:%s:%s", appID, formationName, monitorID))
 
-	return resourceHerokuplusFormationAutoscalingRead(ctx, d, meta)
+	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
 
-func resourceHerokuplusFormationAutoscalingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
@@ -203,7 +203,7 @@ func resourceHerokuplusFormationAutoscalingRead(ctx context.Context, d *schema.R
 	return nil
 }
 
-func resourceHerokuplusFormationAutoscalingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	// Get app id and formation name
@@ -221,10 +221,10 @@ func resourceHerokuplusFormationAutoscalingUpdate(ctx context.Context, d *schema
 		return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
 	}
 
-	return resourceHerokuplusFormationAutoscalingRead(ctx, d, meta)
+	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
 
-func resourceHerokuplusFormationAutoscalingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	//client := meta.(*Config).API
 	//
 	//resourceID, parseErr := parseCompositeID(d.Id(), 3)
