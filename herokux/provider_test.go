@@ -1,9 +1,9 @@
-package herokuplus
+package herokux
 
 import (
 	"testing"
 
-	helper "github.com/davidji99/terraform-provider-herokuplus/helper/test"
+	helper "github.com/davidji99/terraform-provider-herokux/helper/test"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -14,7 +14,7 @@ var testAccConfig *helper.TestConfig
 func init() {
 	testAccProvider = New()
 	testAccProviders = map[string]*schema.Provider{
-		"herokuplus": testAccProvider,
+		"herokux": testAccProvider,
 	}
 	testAccConfig = helper.NewTestConfig()
 }

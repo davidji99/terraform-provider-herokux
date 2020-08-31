@@ -12,19 +12,19 @@ $ make test
 You can run the complete suite of Herokuplus acceptance tests by doing the following:
 
 ```bash
-$ make testacc TEST="./herokuplus/" 2>&1 | tee test.log
+$ make testacc TEST="./herokux/" 2>&1 | tee test.log
 ```
 
 To run a single acceptance test in isolation replace the last line above with:
 
 ```bash
-$ make testacc TEST="./herokuplus/" TESTARGS='-run=TestAccHerokuplusFormationAutoscaling_Basic'
+$ make testacc TEST="./herokux/" TESTARGS='-run=TestAccHerokuplusFormationAutoscaling_Basic'
 ```
 
 A set of tests can be selected by passing `TESTARGS` a substring. For example, to run all Herokuplus formation autoscaling tests:
 
 ```bash
-$ make testacc TEST="./herokuplus/" TESTARGS='-run=HerokuplusFormationAutoscaling'
+$ make testacc TEST="./herokux/" TESTARGS='-run=HerokuplusFormationAutoscaling'
 ```
 
 ### Test Parameters

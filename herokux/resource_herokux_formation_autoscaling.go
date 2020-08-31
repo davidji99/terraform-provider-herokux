@@ -1,9 +1,9 @@
-package herokuplus
+package herokux
 
 import (
 	"context"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokuplus/api"
+	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"

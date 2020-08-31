@@ -1,0 +1,31 @@
+<% wrap_layout :inner do %>
+  <% content_for :sidebar do %>
+    <div class="docs-sidebar hidden-print affix-top" role="complementary">
+      <ul class="nav docs-sidenav">
+        <li<%= sidebar_current("docs-home") %>>
+            <a href="/docs/providers/index.html">All Providers</a>
+        </li>
+
+        <li<%= sidebar_current("docs-herokux-index") %>>
+            <a href="/docs/providers/herokux/index.html">Herokuplus Provider</a>
+        </li>
+
+        <li<%= sidebar_current("docs-herokux-datasource") %>>
+        <a href="#">Data Sources</a>
+            <ul class="nav nav-visible">
+            </ul>
+
+        <li<%= sidebar_current("docs-herokux-resource") %>>
+        <a href="#">Resources</a>
+            <ul class="nav nav-visible">
+                <li<%= sidebar_current("docs-herokux-resource-formation-autoscaling") %>>
+                  <a href="/docs/providers/herokux/r/formation_autoscaling.html">herokux_formation_autoscaling</a>
+                </li>
+            </ul>
+        </li>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= yield %>
+  <% end %>

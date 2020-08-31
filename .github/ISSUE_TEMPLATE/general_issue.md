@@ -17,7 +17,7 @@ Run `terraform -v` to show core and any provider versions. A sample output could
 
 ```
 Terraform v0.12.20
-+ provider.herokuplus v0.1.0
++ provider.herokux v0.1.0
 ```
 
 ### Affected Resource(s)

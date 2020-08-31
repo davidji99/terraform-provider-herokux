@@ -1,4 +1,4 @@
-package herokuplus
+package herokux
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ func TestAccHerokuplusFormationAutoscaling_importBasic(t *testing.T) {
 				Config: testAccCheckHerokuplusFormationAutoscaling_basic(appID, formationName, minQuantity, maxQuantity, p95ResponseTime),
 			},
 			{
-				ResourceName:      "herokuplus_formation_autoscaling.foobar",
+				ResourceName:      "herokux_formation_autoscaling.foobar",
 				ImportStateId:     fmt.Sprintf("%s:%s", appID, formationName),
 				ImportState:       true,
 				ImportStateVerify: true,
