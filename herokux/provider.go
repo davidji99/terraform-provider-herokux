@@ -32,7 +32,7 @@ func New() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{},
 		ResourcesMap: map[string]*schema.Resource{
-			"herokux_formation_autoscaling": resourceHerokuplusFormationAutoscaling(),
+			"herokux_formation_autoscaling": resourceHerokuxFormationAutoscaling(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
@@ -40,7 +40,7 @@ func New() *schema.Provider {
 }
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	log.Println("[INFO] Initializing Herokuplus Provider")
+	log.Println("[INFO] Initializing Herokux Provider")
 
 	config := NewConfig()
 
@@ -56,7 +56,7 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 		return nil, diag.FromErr(err)
 	}
 
-	log.Printf("[DEBUG] Herokuplus Provider initialized")
+	log.Printf("[DEBUG] Herokux Provider initialized")
 
 	return config, nil
 }

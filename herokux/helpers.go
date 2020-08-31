@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// getAppId extracts the app attribute generically from a Heroku resource.
+// getAppId extracts the app attribute generically from a HerokuX resource.
 func getAppId(d *schema.ResourceData) string {
 	var appName string
 	if v, ok := d.GetOk("app_id"); ok {
@@ -19,7 +19,7 @@ func getAppId(d *schema.ResourceData) string {
 	return appName
 }
 
-// getFormationName extracts the formation name attribute generically from a Heroku resource.
+// getFormationName extracts the formation name attribute generically from a HerokuX resource.
 func getFormationName(d *schema.ResourceData) string {
 	var formationName string
 	if v, ok := d.GetOk("formation_name"); ok {

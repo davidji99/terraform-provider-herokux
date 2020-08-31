@@ -12,7 +12,7 @@ Hi there,
 ### Terraform Version
 Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
 
-### Herokuplus Provider Version
+### HerokuX Provider Version
 Run `terraform -v` to show core and any provider versions. A sample output could be:
 
 ```

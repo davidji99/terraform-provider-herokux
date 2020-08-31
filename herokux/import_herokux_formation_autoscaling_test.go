@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestAccHerokuplusFormationAutoscaling_importBasic(t *testing.T) {
+func TestAccHerokuxFormationAutoscaling_importBasic(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
 	formationName := "web"
 	minQuantity := acctest.RandIntRange(1, 8)
@@ -21,7 +21,7 @@ func TestAccHerokuplusFormationAutoscaling_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuplusFormationAutoscaling_basic(appID, formationName, minQuantity, maxQuantity, p95ResponseTime),
+				Config: testAccCheckHerokuxFormationAutoscaling_basic(appID, formationName, minQuantity, maxQuantity, p95ResponseTime),
 			},
 			{
 				ResourceName:      "herokux_formation_autoscaling.foobar",
