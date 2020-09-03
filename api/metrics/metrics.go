@@ -7,11 +7,13 @@ import (
 	"time"
 )
 
+// Metrics represents Heroku's Metrics APIs.
 type Metrics struct {
 	http   *simpleresty.Client
 	config *config2.Config
 }
 
+// New constructs a client to interface with the Heroku Metrics APIs.
 func New(config *config2.Config) *Metrics {
 	m := &Metrics{http: simpleresty.NewWithBaseURL(config.MetricsBaseURL), config: config}
 	m.setHeaders()
