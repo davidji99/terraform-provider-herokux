@@ -33,6 +33,10 @@ jobs:
       - name: Run go vet
         run: go vet ./...
 
+      - name: Ensure generating accessors produces a zero diff
+        shell: bash
+        run: cd api && go run gen-accessors.go && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+
       - name: Run make build
         run: make build
 
