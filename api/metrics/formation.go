@@ -4,13 +4,47 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davidji99/simpleresty"
-	"github.com/davidji99/terraform-provider-herokux/api"
 	"log"
 )
 
+// FormationMonitor represents a formation monitor.
+type FormationMonitor struct {
+	ID                   *string  `json:"id,omitempty"`
+	AppID                *string  `json:"app_id,omitempty"`
+	MetricUUID           *string  `json:"metric_uuid,omitempty"`
+	ProcessType          *string  `json:"process_type,omitempty"`
+	Name                 *string  `json:"name,omitempty"`
+	Value                *int     `json:"value,omitempty"`
+	Operation            *string  `json:"op,omitempty"`
+	Period               *int     `json:"period,omitempty"`
+	IsActive             *bool    `json:"is_active"`
+	State                *string  `json:"state,omitempty"`
+	ActionType           *string  `json:"action_type,omitempty"`
+	NotificationChannels []string `json:"notification_channels,omitempty"`
+	NotificationPeriod   *int     `json:"notification_period"`
+	MinQuantity          *int     `json:"min_quantity"`
+	MaxQuantity          *int     `json:"max_quantity"`
+	ForecastPeriod       *int     `json:"forecast_period,omitempty"`
+}
+
+// AutoscalingRequest represents a request to autoscale an app dyno's formation.
+type AutoscalingRequest struct {
+	DynoSize             string   `json:"dyno_size,omitempty"`
+	IsActive             bool     `json:"is_active"`
+	MaxQuantity          int      `json:"max_quantity,omitempty"`
+	MinQuantity          int      `json:"min_quantity,omitempty"`
+	NotificationChannels []string `json:"notification_channels"`
+	NotificationPeriod   int      `json:"notification_period"`
+	DesiredP95RespTime   int      `json:"value,omitempty"`
+	Period               int      `json:"period,omitempty"`
+	ActionType           string   `json:"action_type,omitempty"`
+	Operation            string   `json:"op,omitempty"`
+	Quantity             int      `json:"quantity,omitempty"`
+}
+
 // ListMonitors lists all monitors for a formation.
-func (m *Metrics) ListMonitors(appID, formationName string) ([]*api.FormationMonitor, *simpleresty.Response, error) {
-	var result []*api.FormationMonitor
+func (m *Metrics) ListMonitors(appID, formationName string) ([]*FormationMonitor, *simpleresty.Response, error) {
+	var result []*FormationMonitor
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
 
 	// Execute the request
@@ -23,8 +57,8 @@ func (m *Metrics) ListMonitors(appID, formationName string) ([]*api.FormationMon
 //
 // This endpoint returns text/plain; charset=utf-8 despite passing in the correct request headers.
 // This we need to manually unmarshall the response into the appropriate struct.
-func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*api.FormationMonitor, *simpleresty.Response, error) {
-	var result api.FormationMonitor
+func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*FormationMonitor, *simpleresty.Response, error) {
+	var result FormationMonitor
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
 
 	// Execute the request
@@ -42,7 +76,7 @@ func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*api.Forma
 }
 
 // FindMonitorByName gets a single monitor for a formation by its associated app ID and formation name/process type.
-func (m *Metrics) FindMonitorByName(appID, formationName string) (*api.FormationMonitor, *simpleresty.Response, error) {
+func (m *Metrics) FindMonitorByName(appID, formationName string) (*FormationMonitor, *simpleresty.Response, error) {
 	monitors, response, listErr := m.ListMonitors(appID, formationName)
 	if listErr != nil {
 		return nil, response, listErr
@@ -58,7 +92,7 @@ func (m *Metrics) FindMonitorByName(appID, formationName string) (*api.Formation
 }
 
 // SetAutoscale modifies the autoscaling properties for an app dyno formation.
-func (m *Metrics) SetAutoscale(appID, formationName, monitorID string, opts *api.AutoscalingRequest) (bool, *simpleresty.Response, error) {
+func (m *Metrics) SetAutoscale(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
 
 	opts.Operation = "GREATER_OR_EQUAL"

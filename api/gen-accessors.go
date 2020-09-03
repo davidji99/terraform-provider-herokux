@@ -1,6 +1,7 @@
 // +build ignore
 
 // gen-accessors generates accessor methods for structs with pointer fields.
+// Copied form https://github.com/google/go-github/blob/master/github/gen-accessors.go and modified by @davidji99.
 package main
 
 import (
@@ -54,30 +55,51 @@ func main() {
 	flag.Parse()
 	fset := token.NewFileSet()
 
-	pkgs, err := parser.ParseDir(fset, ".", sourceFilter, 0)
+	files, err := ioutil.ReadDir("./")
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 
-	for pkgName, pkg := range pkgs {
-		t := &templateData{
-			filename: pkgName + fileSuffix,
-			Year:     2020,
-			Package:  pkgName,
-			Imports:  map[string]string{},
+	// Start with the root directory
+	folder_paths := []string{"."}
+
+	// Get all files (including folders) of the current directory.
+	// Save only the file path(s) that are folders.
+	for _, f := range files {
+		if f.IsDir() {
+			folder_paths = append(folder_paths, f.Name())
 		}
-		for filename, f := range pkg.Files {
-			logf("Processing %v...", filename)
-			if err := t.processAST(f); err != nil {
+	}
+	logf("List of folders %v...", folder_paths)
+
+	// Iterate through all folder paths and generate any struct field accessors.
+	for _, fp := range folder_paths {
+		pkgs, err := parser.ParseDir(fset, fp, sourceFilter, 0)
+
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		for pkgName, pkg := range pkgs {
+			t := &templateData{
+				filename: pkgName + fileSuffix,
+				Year:     2020,
+				Package:  pkgName,
+				Imports:  map[string]string{},
+			}
+			for filename, f := range pkg.Files {
+				logf("Processing %v...", filename)
+				if err := t.processAST(f); err != nil {
+					log.Fatal(err)
+				}
+			}
+			if err := t.dump(fp); err != nil {
 				log.Fatal(err)
 			}
 		}
-		if err := t.dump(); err != nil {
-			log.Fatal(err)
-		}
+		logf("Done.")
 	}
-	logf("Done.")
 }
 
 func (t *templateData) processAST(f *ast.File) error {
@@ -166,7 +188,7 @@ func sourceFilter(fi os.FileInfo) bool {
 	return !strings.HasSuffix(fi.Name(), "_test.go") && !strings.HasSuffix(fi.Name(), fileSuffix)
 }
 
-func (t *templateData) dump() error {
+func (t *templateData) dump(path string) error {
 	if len(t.Getters) == 0 {
 		logf("No getters for %v; skipping.", t.filename)
 		return nil
@@ -185,7 +207,7 @@ func (t *templateData) dump() error {
 	}
 
 	logf("Writing %v...", t.filename)
-	return ioutil.WriteFile(t.filename, clean, 0644)
+	return ioutil.WriteFile(fmt.Sprintf("%s/%s", path, t.filename), clean, 0644)
 }
 
 func newGetter(receiverType, fieldName, fieldType, zeroValue string, namedStruct, arrayOfStructs bool) *getter {

@@ -3,7 +3,7 @@ package herokux
 import (
 	"context"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -233,7 +233,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	//}
 	//
 	//// Setting default values for the PATCH request to disable the autoscaling
-	//opts := &api.AutoscalingRequest{IsActive: false, Period: 1, MinQuantity: 1, MaxQuantity: 2, DesiredP95RespTime: 1000}
+	//opts := &metrics.AutoscalingRequest{IsActive: false, Period: 1, MinQuantity: 1, MaxQuantity: 2, DesiredP95RespTime: 1000}
 	//
 	//isSet, resp, setErr := client.Formations.SetAutoscale(resourceID[0], resourceID[1], resourceID[2], opts)
 	//if setErr != nil {
@@ -252,8 +252,8 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	return nil
 }
 
-func constructAutoscalingOpts(d *schema.ResourceData) *api.AutoscalingRequest {
-	opts := &api.AutoscalingRequest{}
+func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingRequest {
+	opts := &metrics.AutoscalingRequest{}
 
 	if v, ok := d.GetOk("is_active"); ok {
 		vs := v.(bool)
