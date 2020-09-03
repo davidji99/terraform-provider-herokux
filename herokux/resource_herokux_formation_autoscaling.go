@@ -3,7 +3,7 @@ package herokux
 import (
 	"context"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -122,7 +122,7 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 	appID := importID[0]
 	formationName := importID[1]
 
-	monitor, _, findErr := client.Formations.FindMonitorByName(appID, formationName)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName)
 	if findErr != nil {
 		return nil, findErr
 	}
@@ -148,14 +148,14 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	// First, find the monitor ID. This ID isn't exposed in the UI so we are going to programmatically
 	// retrieve it from the API for resource creation.
-	monitor, _, findErr := client.Formations.FindMonitorByName(appID, formationName)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName)
 	if findErr != nil {
 		return diag.FromErr(findErr)
 	}
 
 	monitorID := monitor.GetID()
 
-	isSet, resp, setErr := client.Formations.SetAutoscale(appID, formationName, monitorID, opts)
+	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -178,7 +178,7 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 		return diag.FromErr(parseErr)
 	}
 
-	monitor, _, getErr := client.Formations.GetMonitor(resourceID[0], resourceID[1], resourceID[2])
+	monitor, _, getErr := client.Metrics.GetMonitor(resourceID[0], resourceID[1], resourceID[2])
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
@@ -212,7 +212,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 	opts := constructAutoscalingOpts(d)
 
-	isSet, resp, setErr := client.Formations.SetAutoscale(appID, formationName, d.Id(), opts)
+	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, d.Id(), opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -233,7 +233,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	//}
 	//
 	//// Setting default values for the PATCH request to disable the autoscaling
-	//opts := &api.AutoscalingRequest{IsActive: false, Period: 1, MinQuantity: 1, MaxQuantity: 2, DesiredP95RespTime: 1000}
+	//opts := &metrics.AutoscalingRequest{IsActive: false, Period: 1, MinQuantity: 1, MaxQuantity: 2, DesiredP95RespTime: 1000}
 	//
 	//isSet, resp, setErr := client.Formations.SetAutoscale(resourceID[0], resourceID[1], resourceID[2], opts)
 	//if setErr != nil {
@@ -252,8 +252,8 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	return nil
 }
 
-func constructAutoscalingOpts(d *schema.ResourceData) *api.AutoscalingRequest {
-	opts := &api.AutoscalingRequest{}
+func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingRequest {
+	opts := &metrics.AutoscalingRequest{}
 
 	if v, ok := d.GetOk("is_active"); ok {
 		vs := v.(bool)

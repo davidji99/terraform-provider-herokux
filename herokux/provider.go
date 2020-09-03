@@ -17,10 +17,16 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_KEY", nil),
 			},
 
-			"url": {
+			"metrics_api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_URL", api.DefaultAPIBaseURL),
+				DefaultFunc: schema.EnvDefaultFunc("HEROKU_METRICS_API_URL", api.DefaultMetricAPIBaseURL),
+			},
+
+			"postgres_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKU_POSTGRES_API_URL", api.DefaultPostgresAPIBaseURL),
 			},
 
 			"headers": {

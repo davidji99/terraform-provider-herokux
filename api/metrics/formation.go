@@ -1,4 +1,4 @@
-package api
+package metrics
 
 import (
 	"encoding/json"
@@ -6,12 +6,6 @@ import (
 	"github.com/davidji99/simpleresty"
 	"log"
 )
-
-// FormationsService handles communication with the formation related
-// methods of the Heroku API.
-//
-// Heroku API docs: N/A
-type FormationsService service
 
 // FormationMonitor represents a formation monitor.
 type FormationMonitor struct {
@@ -49,14 +43,12 @@ type AutoscalingRequest struct {
 }
 
 // ListMonitors lists all monitors for a formation.
-func (f *FormationsService) ListMonitors(appID, formationName string) ([]*FormationMonitor, *simpleresty.Response, error) {
-	f.client.http.SetBaseURL(MetricAPIBaseURL)
-
+func (m *Metrics) ListMonitors(appID, formationName string) ([]*FormationMonitor, *simpleresty.Response, error) {
 	var result []*FormationMonitor
-	urlStr := f.client.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
+	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
 
 	// Execute the request
-	response, getErr := f.client.http.Get(urlStr, &result, nil)
+	response, getErr := m.http.Get(urlStr, &result, nil)
 
 	return result, response, getErr
 }
@@ -65,14 +57,12 @@ func (f *FormationsService) ListMonitors(appID, formationName string) ([]*Format
 //
 // This endpoint returns text/plain; charset=utf-8 despite passing in the correct request headers.
 // This we need to manually unmarshall the response into the appropriate struct.
-func (f *FormationsService) GetMonitor(appID, formationName, monitorID string) (*FormationMonitor, *simpleresty.Response, error) {
-	f.client.http.SetBaseURL(MetricAPIBaseURL)
-
+func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*FormationMonitor, *simpleresty.Response, error) {
 	var result FormationMonitor
-	urlStr := f.client.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
+	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
 
 	// Execute the request
-	response, getErr := f.client.http.Get(urlStr, nil, nil)
+	response, getErr := m.http.Get(urlStr, nil, nil)
 	if getErr != nil {
 		return nil, response, getErr
 	}
@@ -86,10 +76,8 @@ func (f *FormationsService) GetMonitor(appID, formationName, monitorID string) (
 }
 
 // FindMonitorByName gets a single monitor for a formation by its associated app ID and formation name/process type.
-func (f *FormationsService) FindMonitorByName(appID, formationName string) (*FormationMonitor, *simpleresty.Response, error) {
-	f.client.http.SetBaseURL(MetricAPIBaseURL)
-
-	monitors, response, listErr := f.ListMonitors(appID, formationName)
+func (m *Metrics) FindMonitorByName(appID, formationName string) (*FormationMonitor, *simpleresty.Response, error) {
+	monitors, response, listErr := m.ListMonitors(appID, formationName)
 	if listErr != nil {
 		return nil, response, listErr
 	}
@@ -104,17 +92,15 @@ func (f *FormationsService) FindMonitorByName(appID, formationName string) (*For
 }
 
 // SetAutoscale modifies the autoscaling properties for an app dyno formation.
-func (f *FormationsService) SetAutoscale(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
-	f.client.http.SetBaseURL(MetricAPIBaseURL)
-
-	urlStr := f.client.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
+func (m *Metrics) SetAutoscale(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
+	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
 
 	opts.Operation = "GREATER_OR_EQUAL"
 
 	log.Printf("%+v\n", opts)
 
 	// Execute the request
-	response, updateErr := f.client.http.Patch(urlStr, nil, opts)
+	response, updateErr := m.http.Patch(urlStr, nil, opts)
 	if updateErr != nil {
 		return false, response, updateErr
 	}
