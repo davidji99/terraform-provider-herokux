@@ -91,3 +91,5 @@ Only a single `timeouts` block may be specified and it supports the following ar
   * `mtls_provision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be provisioned on a database.
 
   * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be deprovisioned from a database.
+
+  * `mtls_iprule_create_timeout` - (Optional) The number of minutes to wait for an MTLS IP rule to be created/authorized for a database.

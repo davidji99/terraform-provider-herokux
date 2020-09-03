@@ -69,11 +69,7 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 	config := meta.(*Config)
 	client := config.API
 
-	var dbName string
-	if v, ok := d.GetOk("database_name"); ok {
-		dbName = v.(string)
-		log.Printf("[DEBUG] database_name is : %s", dbName)
-	}
+	dbName := getDatabaseName(d)
 
 	// Enable MTLS
 	log.Printf("[DEBUG] Enabling MTLS on database %s", dbName)
@@ -92,7 +88,7 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for MTLS to be operational on %s: %s", d.Id(), err.Error())
+		return diag.Errorf("error waiting for MTLS to be operational on %s: %s", dbName, err.Error())
 	}
 
 	// Set the resource ID to be the database name

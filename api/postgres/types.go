@@ -30,9 +30,11 @@ type MTLSIPRuleStatus string
 var MTLSIPRuleStatuses = struct {
 	AUTHORIZING MTLSIPRuleStatus
 	AUTHORIZED  MTLSIPRuleStatus
+	UNKNOWN     MTLSIPRuleStatus
 }{
 	AUTHORIZED:  "Authorized",
 	AUTHORIZING: "Authorizing",
+	UNKNOWN:     "Unknown",
 }
 
 // ToString is a helper method to return the string of a MTLSIPRuleStatus.

@@ -48,7 +48,15 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
+
 						"mtls_deprovision_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+
+						"mtls_iprule_create_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      10,
@@ -64,6 +72,7 @@ func New() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_formation_autoscaling": resourceHerokuxFormationAutoscaling(),
 			"herokux_postgres_mtls":         resourceHerokuxPostgresMTLS(),
+			"herokux_postgres_mtls_iprule":  resourceHerokuxPostgresMTLSIPRule(),
 		},
 
 		ConfigureContextFunc: providerConfigure,
