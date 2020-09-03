@@ -63,7 +63,7 @@ func main() {
 	for pkgName, pkg := range pkgs {
 		t := &templateData{
 			filename: pkgName + fileSuffix,
-			Year:     2017,
+			Year:     2020,
 			Package:  pkgName,
 			Imports:  map[string]string{},
 		}

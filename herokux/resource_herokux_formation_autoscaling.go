@@ -122,7 +122,7 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 	appID := importID[0]
 	formationName := importID[1]
 
-	monitor, _, findErr := client.Formations.FindMonitorByName(appID, formationName)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName)
 	if findErr != nil {
 		return nil, findErr
 	}
@@ -148,14 +148,14 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	// First, find the monitor ID. This ID isn't exposed in the UI so we are going to programmatically
 	// retrieve it from the API for resource creation.
-	monitor, _, findErr := client.Formations.FindMonitorByName(appID, formationName)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName)
 	if findErr != nil {
 		return diag.FromErr(findErr)
 	}
 
 	monitorID := monitor.GetID()
 
-	isSet, resp, setErr := client.Formations.SetAutoscale(appID, formationName, monitorID, opts)
+	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -178,7 +178,7 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 		return diag.FromErr(parseErr)
 	}
 
-	monitor, _, getErr := client.Formations.GetMonitor(resourceID[0], resourceID[1], resourceID[2])
+	monitor, _, getErr := client.Metrics.GetMonitor(resourceID[0], resourceID[1], resourceID[2])
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
@@ -212,7 +212,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 	opts := constructAutoscalingOpts(d)
 
-	isSet, resp, setErr := client.Formations.SetAutoscale(appID, formationName, d.Id(), opts)
+	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, d.Id(), opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
