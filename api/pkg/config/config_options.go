@@ -8,7 +8,7 @@ import (
 // Option is a functional option for configuring the API client.
 type Option func(*Config) error
 
-// MetricsBaseURL
+// MetricsBaseURL allows for a custom URL.
 func MetricsBaseURL(url string) Option {
 	return func(c *Config) error {
 		if err := validateBaseURLOption(url); err != nil {
@@ -20,7 +20,7 @@ func MetricsBaseURL(url string) Option {
 	}
 }
 
-// PostgresBaseURL
+// PostgresBaseURL allows for a custom URL.
 func PostgresBaseURL(url string) Option {
 	return func(c *Config) error {
 		if err := validateBaseURLOption(url); err != nil {
@@ -32,7 +32,7 @@ func PostgresBaseURL(url string) Option {
 	}
 }
 
-// UserAgent allows overriding of the default User Agent.
+// UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {
 		c.UserAgent = userAgent
@@ -40,7 +40,7 @@ func UserAgent(userAgent string) Option {
 	}
 }
 
-// CustomHTTPHeaders sets additional HTTPHeaders
+// CustomHTTPHeaders allows for additional HTTPHeaders.
 func CustomHTTPHeaders(headers map[string]string) Option {
 	return func(c *Config) error {
 		c.CustomHTTPHeaders = headers
@@ -56,13 +56,9 @@ func APIToken(token string) Option {
 	}
 }
 
-// BasicAuth takes an username and password parameter & sets Base64 encoding of the two parameters joined by a single colon (:).
+// BasicAuth sets Base64 encoding of the username and password parameters joined by a single colon (:).
 func BasicAuth(username, password string) Option {
 	return func(c *Config) error {
-		if username == "" || password == "" {
-			return fmt.Errorf("both username and password must be set for Basic authentication")
-		}
-
 		userPass := fmt.Sprintf("%s:%s", username, password)
 		c.BasicAuth = base64.StdEncoding.EncodeToString([]byte(userPass))
 
@@ -70,7 +66,7 @@ func BasicAuth(username, password string) Option {
 	}
 }
 
-// ContentTypeHeader
+// ContentTypeHeader allows for a custom Content-Type header.
 func ContentTypeHeader(s string) Option {
 	return func(c *Config) error {
 		c.ContentTypeHeader = s
@@ -78,7 +74,7 @@ func ContentTypeHeader(s string) Option {
 	}
 }
 
-// AcceptHeader
+// AcceptHeader allows for a custom Aceept header.
 func AcceptHeader(s string) Option {
 	return func(c *Config) error {
 		c.AcceptHeader = s
@@ -86,6 +82,7 @@ func AcceptHeader(s string) Option {
 	}
 }
 
+// validateBaseURLOption ensures that any custom base URLs do not end with a trailing slash.
 func validateBaseURLOption(url string) error {
 	// Validate that there is no trailing slashes before setting the custom baseURL
 	if url[len(url)-1:] == "/" {

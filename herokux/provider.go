@@ -5,6 +5,7 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 )
 
@@ -34,11 +35,35 @@ func New() *schema.Provider {
 				Elem:     schema.TypeString,
 				Optional: true,
 			},
+
+			"timeouts": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"mtls_provision_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+						"mtls_deprovision_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+					},
+				},
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{},
+
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_formation_autoscaling": resourceHerokuxFormationAutoscaling(),
+			"herokux_postgres_mtls":         resourceHerokuxPostgresMTLS(),
 		},
 
 		ConfigureContextFunc: providerConfigure,

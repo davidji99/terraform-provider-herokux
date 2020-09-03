@@ -7,11 +7,13 @@ import (
 	"time"
 )
 
+// Postgres represents Heroku's Metrics APIs.
 type Postgres struct {
 	http   *simpleresty.Client
 	config *config2.Config
 }
 
+// New constructs a client to interface with the Heroku Postgres APIs.
 func New(config *config2.Config) *Postgres {
 	p := &Postgres{http: simpleresty.NewWithBaseURL(config.PostgresBaseURL), config: config}
 	p.setHeaders()

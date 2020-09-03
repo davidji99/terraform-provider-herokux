@@ -33,7 +33,8 @@ The following parameters are available for running the test. The absence of some
 
 * **TF_ACC** (`integer`) **Required** - must be set to `1`.
 * **HEROKU_API_KEY** (`string`) **Required**  - A valid Heroku API key.
-* **HEROKUX_APP_ID** (`string`) - THe UUID of an existing app.
+* **HEROKUX_APP_ID** (`string`) - The UUID of an existing app.
+* **HEROKUX_DB_NAME** (`string`) - The name of an existing postgres database.
 
 **For example:**
 ```bash

@@ -13,12 +13,14 @@ type TestConfigKey int
 const (
 	TestConfigHerokuxAPIKey TestConfigKey = iota
 	TestConfigAppID
+	TestConfigDatabaseName
 	TestConfigAcceptanceTestKey
 )
 
 var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigHerokuxAPIKey:     "HEROKU_API_KEY",
 	TestConfigAppID:             "HEROKUX_APP_ID",
+	TestConfigDatabaseName:      "HEROKUX_DB_NAME",
 	TestConfigAcceptanceTestKey: resource.TestEnvVar,
 }
 
@@ -72,4 +74,8 @@ func (t *TestConfig) SkipUnlessAccTest(testing *testing.T) {
 
 func (t *TestConfig) GetAppIDorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigAppID)
+}
+
+func (t *TestConfig) GetDBNameorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigDatabaseName)
 }

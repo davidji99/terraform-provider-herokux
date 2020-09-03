@@ -75,7 +75,7 @@ The following attributes are exported:
 
 ## Import
 
-Existing formation autoscaling settingss can be imported using the combination
+Existing formation autoscaling settings can be imported using the combination
 of the application UUID, a colon, and the formation name.
 
 For example:

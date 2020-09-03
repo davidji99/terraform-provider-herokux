@@ -1,5 +1,6 @@
 package config
 
+// Config represents all configuration options available to user to customize the Client.
 type Config struct {
 	// MetricsBaseURL is the base URL for Heroku's metrics API.
 	MetricsBaseURL string
@@ -13,7 +14,7 @@ type Config struct {
 	// CustomHTTPHeaders are any additional user defined headers.
 	CustomHTTPHeaders map[string]string
 
-	// APIToken
+	// APIToken is the Heroku API key.
 	APIToken string
 
 	// BasicAuth represents a base64 encoded string
