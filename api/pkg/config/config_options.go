@@ -59,10 +59,6 @@ func APIToken(token string) Option {
 // BasicAuth sets Base64 encoding of the username and password parameters joined by a single colon (:).
 func BasicAuth(username, password string) Option {
 	return func(c *Config) error {
-		if username == "" || password == "" {
-			return fmt.Errorf("both username and password must be set for Basic authentication")
-		}
-
 		userPass := fmt.Sprintf("%s:%s", username, password)
 		c.BasicAuth = base64.StdEncoding.EncodeToString([]byte(userPass))
 

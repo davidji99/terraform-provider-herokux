@@ -8,16 +8,28 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
+const (
+	DefaultMTLSProvisionTimeout       = int64(10)
+	DefaultMTLSMTLSDeprovisionTimeout = int64(10)
+)
+
 type Config struct {
 	API         *api.Client
 	metricsURL  string
 	postgresURL string
 	token       string
 	Headers     map[string]string
+
+	// Custom Timeouts
+	MTLSProvisionTimeout   int64
+	MTLSDeprovisionTimeout int64
 }
 
 func NewConfig() *Config {
-	config := &Config{}
+	config := &Config{
+		MTLSProvisionTimeout:   DefaultMTLSProvisionTimeout,
+		MTLSDeprovisionTimeout: DefaultMTLSMTLSDeprovisionTimeout,
+	}
 	return config
 }
 
@@ -25,7 +37,8 @@ func (c *Config) initializeAPI() error {
 	userAgent := fmt.Sprintf("terraform-provider-herokux/v%s", version.ProviderVersion)
 
 	api, clientInitErr := api.New(config.APIToken(c.token), config.CustomHTTPHeaders(c.Headers),
-		config.UserAgent(userAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL))
+		config.UserAgent(userAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
+		config.BasicAuth("", c.token))
 	if clientInitErr != nil {
 		return clientInitErr
 	}
@@ -55,6 +68,22 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("postgres_api_url"); ok {
 		vs := v.(string)
 		c.postgresURL = vs
+	}
+
+	if v, ok := d.GetOk("timeouts"); ok {
+		vL := v.([]interface{})
+		if len(vL) > 1 {
+			return fmt.Errorf("provider configuration error: only 1 delays config is permitted")
+		}
+		for _, v := range vL {
+			delaysConfig := v.(map[string]interface{})
+			if v, ok := delaysConfig["mtls_provision_timeout"].(int); ok {
+				c.MTLSProvisionTimeout = int64(v)
+			}
+			if v, ok := delaysConfig["mtls_deprovision_timeout"].(int); ok {
+				c.MTLSDeprovisionTimeout = int64(v)
+			}
+		}
 	}
 
 	return nil

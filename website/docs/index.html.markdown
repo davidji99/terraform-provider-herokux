@@ -84,3 +84,10 @@ The following arguments are supported:
 * `postgres_api_url` - (Optional) Custom Postgres API url
 
 * `headers` - (Optional) Additional API headers.
+
+* `timeouts` - (Optional) Timeouts help certain resources to be properly created or deleted before proceeding with further actions.
+Only a single `timeouts` block may be specified and it supports the following arguments:
+
+  * `mtls_provision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be provisioned on a database.
+
+  * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be deprovisioned from a database.
