@@ -11,6 +11,7 @@ import (
 const (
 	DefaultMTLSProvisionTimeout       = int64(10)
 	DefaultMTLSMTLSDeprovisionTimeout = int64(10)
+	DefaultMTLSIPRuleCreateTimeout    = int64(10)
 )
 
 type Config struct {
@@ -21,14 +22,16 @@ type Config struct {
 	Headers     map[string]string
 
 	// Custom Timeouts
-	MTLSProvisionTimeout   int64
-	MTLSDeprovisionTimeout int64
+	MTLSProvisionTimeout    int64
+	MTLSDeprovisionTimeout  int64
+	MTLSIPRuleCreateTimeout int64
 }
 
 func NewConfig() *Config {
 	config := &Config{
-		MTLSProvisionTimeout:   DefaultMTLSProvisionTimeout,
-		MTLSDeprovisionTimeout: DefaultMTLSMTLSDeprovisionTimeout,
+		MTLSProvisionTimeout:    DefaultMTLSProvisionTimeout,
+		MTLSDeprovisionTimeout:  DefaultMTLSMTLSDeprovisionTimeout,
+		MTLSIPRuleCreateTimeout: DefaultMTLSIPRuleCreateTimeout,
 	}
 	return config
 }
@@ -81,6 +84,10 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 				c.MTLSProvisionTimeout = int64(v)
 			}
 			if v, ok := delaysConfig["mtls_deprovision_timeout"].(int); ok {
+				c.MTLSDeprovisionTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["mtls_iprule_create_timeout"].(int); ok {
 				c.MTLSDeprovisionTimeout = int64(v)
 			}
 		}

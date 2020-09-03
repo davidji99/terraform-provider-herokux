@@ -9,6 +9,24 @@ description: |-
 # herokux\_postgres\_mtls
 
 This resource manages the MTLS configuration of a postgres database in Heroku.
+This resource can only be used on Private or Shield Heroku Postgres databases.
+
+It is also possible to deprovision an MTLS configuration that has existing IP rules. 
+
+### Resource Timeouts
+During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
+Both checks' default timeout is ~10 minutes, which can be customized
+via the `timeouts.mtls_provision_timeout` and `timeouts.mtls_deprovision_timeout` in your `provider` block.
+
+For example:
+```hcl-terraform
+provider "herokux" {
+  timeouts {
+    mtls_provision_timeout = 15
+    mtls_deprovision_timeout = 15
+  }
+}
+```
 
 ## Example Usage
 
@@ -35,9 +53,9 @@ The following attributes are exported:
 
 ## Import
 
-Existing database MTLS configurations can be imported using the database name
+An existing database MTLS configuration can be imported using the database name.
 
 For example:
 ```shell script
-$ terraform import herokux_postgres_mtls.foobar <MY_APP_NAME>
+$ terraform import herokux_postgres_mtls.foobar <MY_DB_NAME>
 ```

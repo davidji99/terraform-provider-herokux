@@ -12,7 +12,7 @@ func getAppId(d *schema.ResourceData) string {
 	var appName string
 	if v, ok := d.GetOk("app_id"); ok {
 		vs := v.(string)
-		log.Printf("[DEBUG] app_id name: %s", vs)
+		log.Printf("[DEBUG] app_id: %s", vs)
 		appName = vs
 	}
 
@@ -29,6 +29,18 @@ func getFormationName(d *schema.ResourceData) string {
 	}
 
 	return formationName
+}
+
+// getDatabaseName extracts the database name name attribute generically from a HerokuX resource.
+func getDatabaseName(d *schema.ResourceData) string {
+	var dbName string
+	if v, ok := d.GetOk("database_name"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] database_name: %s", vs)
+		dbName = vs
+	}
+
+	return dbName
 }
 
 func parseCompositeID(id string, numOfSplits int) ([]string, error) {
