@@ -11,7 +11,7 @@ type MTLSEndpoint struct {
 	Status                    *MTLSConfigStatus `json:"status,omitempty"`
 	EnabledBy                 *string           `json:"enabled_by,omitempty"`
 	CertificateAuthorityChain *string           `json:"certificate_authority_chain,omitempty"`
-	//ActiveIPRules []string `json:"active_ip_rules,omitempty"`
+	ActiveIPRules             []MTLSIPRule      `json:"active_ip_rules,omitempty"`
 }
 
 // ProvisionMTLS enables MTLS for a database.
