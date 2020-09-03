@@ -9,11 +9,11 @@ description: |-
 # HerokuX Provider
 
 The HerokuX provider interacts with undocumented Heroku APIs to provide additional resources not available
-in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku.
+in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
 
 -> **IMPORTANT!**
-This provider should be treated as experimental and be used with caution when terraforming resources in environments
-that receive customer traffic. Furthermore, the resources may change in behavior at any given time to match any API changes.
+This provider should be treated as experimental and to be used with caution when terraforming resources in environments
+that receive customer traffic. Additionally, the resources may change in behavior at any given time to match any API changes.
 
 ## Contributing
 
@@ -78,5 +78,9 @@ The following arguments are supported:
 
 * `api_key` - (Required) Heroku API token. It must be provided, but it can also
   be sourced from [other locations](#Authentication).
+
+* `metrics_api_url` - (Optional) Custom Metrics API url
+
+* `postgres_api_url` - (Optional) Custom Postgres API url
 
 * `headers` - (Optional) Additional API headers.
