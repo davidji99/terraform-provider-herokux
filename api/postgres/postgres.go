@@ -3,16 +3,16 @@ package postgres
 import (
 	"fmt"
 	"github.com/davidji99/simpleresty"
-	"github.com/davidji99/terraform-provider-herokux/api"
+	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"time"
 )
 
 type Postgres struct {
 	http   *simpleresty.Client
-	config *api.Config
+	config *config2.Config
 }
 
-func New(config *api.Config) *Postgres {
+func New(config *config2.Config) *Postgres {
 	p := &Postgres{http: simpleresty.NewWithBaseURL(config.PostgresBaseURL), config: config}
 	p.setHeaders()
 

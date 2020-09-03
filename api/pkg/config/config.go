@@ -1,4 +1,4 @@
-package api
+package config
 
 type Config struct {
 	// MetricsBaseURL is the base URL for Heroku's metrics API.
@@ -27,7 +27,7 @@ type Config struct {
 }
 
 // parseOptions parses the supplied options functions.
-func (c *Config) parseOptions(opts ...Option) error {
+func (c *Config) ParseOptions(opts ...Option) error {
 	// Range over each options function and apply it to our API type to
 	// configure it. Options functions are applied in order, with any
 	// conflicting options overriding earlier calls.

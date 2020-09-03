@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
+	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 )
 
@@ -27,7 +28,7 @@ const (
 
 // A Client manages communication with the Heroku API.
 type Client struct {
-	config *Config
+	config *config2.Config
 
 	// API endpoints
 	Metrics  *metrics.Metrics
@@ -35,9 +36,9 @@ type Client struct {
 }
 
 // New constructs a new client to interact with the API.
-func New(opts ...Option) (*Client, error) {
+func New(opts ...config2.Option) (*Client, error) {
 	// Define baseline config values.
-	config := &Config{
+	config := &config2.Config{
 		MetricsBaseURL:    DefaultMetricAPIBaseURL,
 		PostgresBaseURL:   DefaultPostgresAPIBaseURL,
 		UserAgent:         DefaultUserAgent,
@@ -48,7 +49,7 @@ func New(opts ...Option) (*Client, error) {
 	}
 
 	// Define any user custom Client settings
-	if optErr := config.parseOptions(opts...); optErr != nil {
+	if optErr := config.ParseOptions(opts...); optErr != nil {
 		return nil, optErr
 	}
 
