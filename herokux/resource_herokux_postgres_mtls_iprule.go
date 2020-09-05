@@ -47,6 +47,11 @@ func resourceHerokuxPostgresMTLSIPRule() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"rule_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -69,25 +74,26 @@ func resourceHerokuxPostgresMTLSIPRuleImport(ctx context.Context, d *schema.Reso
 	}
 
 	// Loop through the existing rules to find the rule ID
-	var rule *postgres.MTLSIPRule
+	var ipRule *postgres.MTLSIPRule
 	for _, r := range ipRules {
 		if r.GetCIDR() == cidr {
-			rule = r
+			ipRule = r
 		}
 	}
 
-	if rule == nil {
+	if ipRule == nil {
 		return nil, fmt.Errorf("no existing IP rule found with CIDR: %s", cidr)
 	}
 
 	// Set the ID
-	d.SetId(fmt.Sprintf("%s:%s", dbName, rule.GetID()))
+	d.SetId(fmt.Sprintf("%s:%s", dbName, ipRule.GetID()))
 
 	// Set state
 	d.Set("database_name", dbName)
-	d.Set("cidr", rule.GetCIDR())
-	d.Set("description", rule.GetDescription())
-	d.Set("status", rule.GetStatus().ToString())
+	d.Set("cidr", ipRule.GetCIDR())
+	d.Set("description", ipRule.GetDescription())
+	d.Set("status", ipRule.GetStatus().ToString())
+	d.Set("rule_id", ipRule.GetID())
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -157,6 +163,7 @@ func resourceHerokuxPostgresMTLSIPRuleRead(ctx context.Context, d *schema.Resour
 	d.Set("cidr", ipRule.GetCIDR())
 	d.Set("description", ipRule.GetDescription())
 	d.Set("status", ipRule.GetStatus().ToString())
+	d.Set("rule_id", ipRule.GetID())
 
 	return nil
 }

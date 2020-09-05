@@ -60,6 +60,11 @@ func resourceHerokuxPostgresMTLSCertificate() *schema.Resource {
 				Computed:  true,
 				Sensitive: true,
 			},
+
+			"cert_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -87,6 +92,7 @@ func resourceHerokuxPostgresMTLSCertificateImport(ctx context.Context, d *schema
 	d.Set("private_key", cert.GetPrivateKey())
 	d.Set("certificate_with_chain", cert.GetCertificateWithChain())
 	d.Set("expiration_date", cert.GetExpiresAt().Format(CertExpirationDateFormat))
+	d.Set("cert_id", cert.GetID())
 
 	return []*schema.ResourceData{d}, nil
 }
@@ -146,6 +152,7 @@ func resourceHerokuxPostgresMTLSCertificateRead(ctx context.Context, d *schema.R
 	d.Set("private_key", cert.GetPrivateKey())
 	d.Set("certificate_with_chain", cert.GetCertificateWithChain())
 	d.Set("expiration_date", cert.GetExpiresAt().Format(CertExpirationDateFormat))
+	d.Set("cert_id", cert.GetID())
 
 	return nil
 }

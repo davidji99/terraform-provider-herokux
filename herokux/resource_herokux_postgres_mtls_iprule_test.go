@@ -26,6 +26,8 @@ func TestAccHerokuxPostgresMTLSIPRule_Basic(t *testing.T) {
 						"herokux_postgres_mtls_iprule.foobar", "database_name", dbName),
 					resource.TestCheckResourceAttr(
 						"herokux_postgres_mtls_iprule.foobar", "cidr", cidr),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_mtls_iprule.foobar", "rule_id"),
 					resource.TestCheckResourceAttr(
 						"herokux_postgres_mtls_iprule.foobar", "description", "this is a test IP rule"),
 					resource.TestCheckResourceAttr(

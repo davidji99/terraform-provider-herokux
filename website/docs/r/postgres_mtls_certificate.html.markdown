@@ -60,6 +60,8 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `cert_id` - The UUID of the certificate. This is a separate attribute as the resource ID is a composite value.
+
 * `name` - The name of certificate. It in the format of a hostname URL.
 
 * `status` - The status of certificate.
