@@ -8,10 +8,8 @@ description: |-
 
 # herokux\_postgres\_mtls
 
-This resource manages the MTLS configuration of a postgres database in Heroku.
-This resource can only be used on Private or Shield Heroku Postgres databases.
-
-It is also possible to deprovision an MTLS configuration that has existing IP rules. 
+This resource manages the MTLS configuration of a Private or Shield Heroku Postgres databases.
+Essentially, this resource provisions and deprovisions MTLS for a target databse.
 
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
@@ -49,7 +47,8 @@ The following attributes are exported:
 * `app_name` - The app which the postgres addon is tied to.
 * `status` - The status of MTLS configuration.
 * `enabled_by` - The Heroku user that enabled the MTLS configuration.
-* `certificate_authority_chain` - the certificate authority chain
+* `certificate_authority_chain` - the certificate authority chain. This attribute value does not get displayed in
+logs or regular output.
 
 ## Import
 

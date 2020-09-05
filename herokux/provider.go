@@ -62,6 +62,20 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
+
+						"mtls_certificate_create_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+
+						"mtls_certificate_delete_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
 					},
 				},
 			},
@@ -70,9 +84,10 @@ func New() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"herokux_formation_autoscaling": resourceHerokuxFormationAutoscaling(),
-			"herokux_postgres_mtls":         resourceHerokuxPostgresMTLS(),
-			"herokux_postgres_mtls_iprule":  resourceHerokuxPostgresMTLSIPRule(),
+			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
+			"herokux_postgres_mtls":             resourceHerokuxPostgresMTLS(),
+			"herokux_postgres_mtls_certificate": resourceHerokuxPostgresMTLSCertificate(),
+			"herokux_postgres_mtls_iprule":      resourceHerokuxPostgresMTLSIPRule(),
 		},
 
 		ConfigureContextFunc: providerConfigure,

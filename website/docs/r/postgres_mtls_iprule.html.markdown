@@ -3,12 +3,12 @@ layout: "herokux"
 page_title: "HerokuX: herokux_postgres_mtls_iprule"
 sidebar_current: "docs-herokux-resource-postgres-mtls-iprule"
 description: |-
-  Provides a resource to manage IP rules for an existing MTLS configured postgres database
+  Provides a resource to manage IP rules for an existing MTLS enabled postgres database
 ---
 
 # herokux\_postgres\_mtls\_iprule
 
-This resource manages IP rules for an existing MTLS configured postgres database.
+This resource manages IP rules for an existing MTLS enabled postgres database.
 
 -> **IMPORTANT!**
 Deleting and re-adding the same CIDR range to the same MTLS enabled database may cause an unknown server error in Heroku.
@@ -30,7 +30,7 @@ provider "herokux" {
 ### Why have separate resources for enabling MTLS and managing IP rules?
 Although the IP rule API endpoint is a child of the MTLS endpoint, each IP rule has its own UUID. Therefore, it is better
 to have an IP rule managed as a separate resource for optimal lifecycle management with terraform. If you have a lot of IP rules
-to add, please utilize terraform's `count` or `for_each` expression to keep your code DRY.
+to add, please utilize Terraform's `count` or `for_each` expression to keep your code DRY.
 
 ## Example Usage
 ```hcl-terraform
@@ -52,7 +52,7 @@ The following arguments are supported:
 * `database_name` - (Required) `<string>` The name of the database. Please note the following:
     * DO NOT use the database UUID.
     * It is **highly recommended** setting this attribute's value to reference an existing `herokux_postgres_mtls` resource.
-    This way, terraform will handle the dependency chain between the two resources as you cannot create an IP rule for
+    This way, Terraform will handle the dependency chain between the two resources as you cannot create an IP rule for
     a database that is not MTLS enabled.
 
 * `cidr` - (Required) `<string>` Valid IPv4 CIDR value. Example: `1.2.3.4/32`.
