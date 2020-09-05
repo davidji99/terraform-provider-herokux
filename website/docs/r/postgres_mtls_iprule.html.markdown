@@ -63,6 +63,8 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+* `rule_id` - The UUID of the rule. This is a separate attribute as the resource ID is a composite value.
+
 * `status` - The status of IP rule configuration.
 
 ## Import

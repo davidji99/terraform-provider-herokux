@@ -32,6 +32,8 @@ func TestAccHerokuxPostgresMTLSCertificate_Basic(t *testing.T) {
 						"herokux_postgres_mtls_certificate.foobar", "private_key"),
 					resource.TestCheckResourceAttrSet(
 						"herokux_postgres_mtls_certificate.foobar", "certificate_with_chain"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_mtls_certificate.foobar", "cert_id"),
 				),
 			},
 		},

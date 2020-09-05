@@ -81,7 +81,9 @@ func New() *schema.Provider {
 			},
 		},
 
-		DataSourcesMap: map[string]*schema.Resource{},
+		DataSourcesMap: map[string]*schema.Resource{
+			"herokux_postgres_mtls_certificate": dataSourceHerokuxPostgresMTLSCertificate(),
+		},
 
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
