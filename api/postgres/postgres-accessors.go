@@ -9,6 +9,70 @@ import (
 	"time"
 )
 
+// GetCertificateWithChain returns the CertificateWithChain field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetCertificateWithChain() string {
+	if m == nil || m.CertificateWithChain == nil {
+		return ""
+	}
+	return *m.CertificateWithChain
+}
+
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetCreatedAt() time.Time {
+	if m == nil || m.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *m.CreatedAt
+}
+
+// GetExpiresAt returns the ExpiresAt field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetExpiresAt() time.Time {
+	if m == nil || m.ExpiresAt == nil {
+		return time.Time{}
+	}
+	return *m.ExpiresAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetID() string {
+	if m == nil || m.ID == nil {
+		return ""
+	}
+	return *m.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetName() string {
+	if m == nil || m.Name == nil {
+		return ""
+	}
+	return *m.Name
+}
+
+// GetPrivateKey returns the PrivateKey field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetPrivateKey() string {
+	if m == nil || m.PrivateKey == nil {
+		return ""
+	}
+	return *m.PrivateKey
+}
+
+// GetStatus returns the Status field.
+func (m *MTLSCert) GetStatus() *MTLSCertStatus {
+	if m == nil {
+		return nil
+	}
+	return m.Status
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (m *MTLSCert) GetUpdatedAt() time.Time {
+	if m == nil || m.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *m.UpdatedAt
+}
+
 // HasActiveIPRules checks if MTLSEndpoint has any ActiveIPRules.
 func (m *MTLSEndpoint) HasActiveIPRules() bool {
 	if m == nil || m.ActiveIPRules == nil {

@@ -3,7 +3,7 @@ package postgres
 // MTLSConfigStatus represents the status of a MTLS configuration
 type MTLSConfigStatus string
 
-// MTLSConfigStatuses define all statuses pertaining to the lifecycle of a MTLS configuration.
+// MTLSConfigStatuses represent all statuses pertaining to the lifecycle of a MTLS configuration.
 var MTLSConfigStatuses = struct {
 	PROVISIONING   MTLSConfigStatus
 	DEPROVISIONING MTLSConfigStatus
@@ -26,7 +26,7 @@ func (s MTLSConfigStatus) ToString() string {
 // MTLSIPRuleStatus represent the status of a MTLS IP rule.
 type MTLSIPRuleStatus string
 
-// MTLSIPRuleStatuses define all statuses pertaining to the lifecycle of a MTLS IP config.
+// MTLSIPRuleStatuses represent all statuses pertaining to the lifecycle of a MTLS IP config.
 var MTLSIPRuleStatuses = struct {
 	AUTHORIZING MTLSIPRuleStatus
 	AUTHORIZED  MTLSIPRuleStatus
@@ -39,5 +39,26 @@ var MTLSIPRuleStatuses = struct {
 
 // ToString is a helper method to return the string of a MTLSIPRuleStatus.
 func (s MTLSIPRuleStatus) ToString() string {
+	return string(s)
+}
+
+// MTLSCertStatus represent the status of a MTLS certificate.
+type MTLSCertStatus string
+
+// MTLSCertStatuses represent all statuses pertaining to the lifecycle of a MTLS certificate.
+var MTLSCertStatuses = struct {
+	READY     MTLSCertStatus
+	PENDING   MTLSCertStatus
+	DISABLING MTLSCertStatus
+	UNKNOWN   MTLSCertStatus
+}{
+	READY:     "ready",
+	PENDING:   "pending",
+	DISABLING: "disabling",
+	UNKNOWN:   "unknown",
+}
+
+// ToString is a helper method to return the string of a MTLSCertStatus.
+func (s MTLSCertStatus) ToString() string {
 	return string(s)
 }
