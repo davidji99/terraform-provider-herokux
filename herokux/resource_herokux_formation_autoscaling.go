@@ -160,6 +160,11 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 		return diag.FromErr(setErr)
 	}
 
+	// Specific error msg if the response code is 403, which might mean the user is trying to autoscale an unsupported dyno type
+	if resp.StatusCode == 403 {
+		return diag.Errorf("unable to autoscale likely due to unsupported dyno type")
+	}
+
 	if !isSet {
 		return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
 	}
@@ -215,6 +220,11 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, d.Id(), opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
+	}
+
+	// Specific error msg if the response code is 403, which might mean the user is trying to autoscale an unsupported dyno type
+	if resp.StatusCode == 403 {
+		return diag.Errorf("unable to autoscale likely due to unsupported dyno type")
 	}
 
 	if !isSet {
