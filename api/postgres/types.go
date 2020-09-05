@@ -50,11 +50,13 @@ var MTLSCertStatuses = struct {
 	READY     MTLSCertStatus
 	PENDING   MTLSCertStatus
 	DISABLING MTLSCertStatus
+	DISABLED  MTLSCertStatus
 	UNKNOWN   MTLSCertStatus
 }{
 	READY:     "ready",
 	PENDING:   "pending",
 	DISABLING: "disabling",
+	DISABLED:  "disabled",
 	UNKNOWN:   "unknown",
 }
 

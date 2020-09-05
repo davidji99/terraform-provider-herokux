@@ -11,6 +11,8 @@ description: |-
 The HerokuX provider interacts with undocumented Heroku APIs to provide additional resources not available
 in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
 
+This provider has no relationship with Heroku.
+
 -> **IMPORTANT!**
 This provider should be treated as experimental and to be used with caution when terraforming resources in environments
 that receive customer traffic. Additionally, the resources may change in behavior at any given time to match any API changes.
@@ -88,8 +90,17 @@ The following arguments are supported:
 * `timeouts` - (Optional) Timeouts help certain resources to be properly created or deleted before proceeding with further actions.
 Only a single `timeouts` block may be specified and it supports the following arguments:
 
-  * `mtls_provision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be provisioned on a database.
+  * `mtls_provision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
+  to be provisioned on a database. Defaults to 10 minutes.
 
-  * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for an MTLS configuration to be deprovisioned from a database.
+  * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
+  to be deprovisioned from a database. Defaults to 10 minutes.
 
-  * `mtls_iprule_create_timeout` - (Optional) The number of minutes to wait for an MTLS IP rule to be created/authorized for a database.
+  * `mtls_iprule_create_timeout` - (Optional) The number of minutes to wait for a MTLS IP rule
+  to be created/authorized for a database. Defaults to 10 minutes.
+
+  * `mtls_certificate_create_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
+  to be create and ready for use. Defaults to 10 minutes.
+
+  * `mtls_certificate_delete_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
+  to be deleted. Defaults to 10 minutes.

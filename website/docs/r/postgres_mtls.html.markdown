@@ -47,7 +47,8 @@ The following attributes are exported:
 * `app_name` - The app which the postgres addon is tied to.
 * `status` - The status of MTLS configuration.
 * `enabled_by` - The Heroku user that enabled the MTLS configuration.
-* `certificate_authority_chain` - the certificate authority chain
+* `certificate_authority_chain` - the certificate authority chain. This attribute value does not get displayed in
+logs or regular output.
 
 ## Import
 

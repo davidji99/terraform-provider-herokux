@@ -4,8 +4,8 @@ import (
 	"github.com/davidji99/simpleresty"
 )
 
-// MTLSEndpoint represents the MTLS configuration for a given Heroku Postgres addon
-type MTLSEndpoint struct {
+// MTLS represents the MTLS configuration for a given Heroku Postgres addon
+type MTLS struct {
 	App                       *string           `json:"app,omitempty"`
 	Addon                     *string           `json:"addon,omitempty"`
 	Status                    *MTLSConfigStatus `json:"status,omitempty"`
@@ -18,8 +18,8 @@ type MTLSEndpoint struct {
 //
 // If the request is successful, the response status code is 201 and the "status" is set to "Provisioning".
 // Once the configuration is ready, "status" changes to "Operational".
-func (p *Postgres) ProvisionMTLS(nameOrID string) (*MTLSEndpoint, *simpleresty.Response, error) {
-	var result *MTLSEndpoint
+func (p *Postgres) ProvisionMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
+	var result *MTLS
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request
@@ -47,8 +47,8 @@ func (p *Postgres) IsMTLSReady(nameOrID string) (bool, MTLSConfigStatus, error) 
 // DeprovisionMTLS destroys a MTLS configuration on your database.
 //
 // Returns 202 if request is successful with a 'status' of 'Deprovisioning'.
-func (p *Postgres) DeprovisionMTLS(nameOrID string) (*MTLSEndpoint, *simpleresty.Response, error) {
-	var result *MTLSEndpoint
+func (p *Postgres) DeprovisionMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
+	var result *MTLS
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request
@@ -58,8 +58,8 @@ func (p *Postgres) DeprovisionMTLS(nameOrID string) (*MTLSEndpoint, *simpleresty
 }
 
 // GetMTLS retrieves the MTLS configuration for a database.
-func (p *Postgres) GetMTLS(nameOrID string) (*MTLSEndpoint, *simpleresty.Response, error) {
-	var result *MTLSEndpoint
+func (p *Postgres) GetMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
+	var result *MTLS
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request

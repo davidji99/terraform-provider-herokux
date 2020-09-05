@@ -133,7 +133,7 @@ func resourceHerokuxPostgresMTLSDeprovision(ctx context.Context, d *schema.Resou
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{postgres.MTLSConfigStatuses.DEPROVISIONING.ToString()},
 		Target:       []string{postgres.MTLSConfigStatuses.DEPROVISIONED.ToString()},
-		Refresh:      MTLSSDeletionStateRefreshFunc(client, d.Id()),
+		Refresh:      MTLSDeletionStateRefreshFunc(client, d.Id()),
 		Timeout:      time.Duration(config.MTLSDeprovisionTimeout) * time.Minute,
 		PollInterval: 15 * time.Second,
 	}
@@ -163,13 +163,13 @@ func MTLSSCreationStateRefreshFunc(client *api.Client, dbName string) resource.S
 	}
 }
 
-func MTLSSDeletionStateRefreshFunc(client *api.Client, dbName string) resource.StateRefreshFunc {
+func MTLSDeletionStateRefreshFunc(client *api.Client, dbName string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		mtlsConfig, response, getErr := client.Postgres.GetMTLS(dbName)
 		if getErr != nil {
 			if response.StatusCode == 404 {
 				// 404 means the MTLS configuration was deleted
-				return postgres.MTLSEndpoint{}, postgres.MTLSConfigStatuses.DEPROVISIONED.ToString(), nil
+				return postgres.MTLS{}, postgres.MTLSConfigStatuses.DEPROVISIONED.ToString(), nil
 			}
 			// For all other statuses, return the error.
 			return nil, postgres.MTLSConfigStatuses.UNKNOWN.ToString(), getErr

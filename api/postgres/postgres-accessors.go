@@ -9,6 +9,57 @@ import (
 	"time"
 )
 
+// HasActiveIPRules checks if MTLS has any ActiveIPRules.
+func (m *MTLS) HasActiveIPRules() bool {
+	if m == nil || m.ActiveIPRules == nil {
+		return false
+	}
+	if len(m.ActiveIPRules) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetAddon returns the Addon field if it's non-nil, zero value otherwise.
+func (m *MTLS) GetAddon() string {
+	if m == nil || m.Addon == nil {
+		return ""
+	}
+	return *m.Addon
+}
+
+// GetApp returns the App field if it's non-nil, zero value otherwise.
+func (m *MTLS) GetApp() string {
+	if m == nil || m.App == nil {
+		return ""
+	}
+	return *m.App
+}
+
+// GetCertificateAuthorityChain returns the CertificateAuthorityChain field if it's non-nil, zero value otherwise.
+func (m *MTLS) GetCertificateAuthorityChain() string {
+	if m == nil || m.CertificateAuthorityChain == nil {
+		return ""
+	}
+	return *m.CertificateAuthorityChain
+}
+
+// GetEnabledBy returns the EnabledBy field if it's non-nil, zero value otherwise.
+func (m *MTLS) GetEnabledBy() string {
+	if m == nil || m.EnabledBy == nil {
+		return ""
+	}
+	return *m.EnabledBy
+}
+
+// GetStatus returns the Status field.
+func (m *MTLS) GetStatus() *MTLSConfigStatus {
+	if m == nil {
+		return nil
+	}
+	return m.Status
+}
+
 // GetCertificateWithChain returns the CertificateWithChain field if it's non-nil, zero value otherwise.
 func (m *MTLSCert) GetCertificateWithChain() string {
 	if m == nil || m.CertificateWithChain == nil {
@@ -71,57 +122,6 @@ func (m *MTLSCert) GetUpdatedAt() time.Time {
 		return time.Time{}
 	}
 	return *m.UpdatedAt
-}
-
-// HasActiveIPRules checks if MTLSEndpoint has any ActiveIPRules.
-func (m *MTLSEndpoint) HasActiveIPRules() bool {
-	if m == nil || m.ActiveIPRules == nil {
-		return false
-	}
-	if len(m.ActiveIPRules) == 0 {
-		return false
-	}
-	return true
-}
-
-// GetAddon returns the Addon field if it's non-nil, zero value otherwise.
-func (m *MTLSEndpoint) GetAddon() string {
-	if m == nil || m.Addon == nil {
-		return ""
-	}
-	return *m.Addon
-}
-
-// GetApp returns the App field if it's non-nil, zero value otherwise.
-func (m *MTLSEndpoint) GetApp() string {
-	if m == nil || m.App == nil {
-		return ""
-	}
-	return *m.App
-}
-
-// GetCertificateAuthorityChain returns the CertificateAuthorityChain field if it's non-nil, zero value otherwise.
-func (m *MTLSEndpoint) GetCertificateAuthorityChain() string {
-	if m == nil || m.CertificateAuthorityChain == nil {
-		return ""
-	}
-	return *m.CertificateAuthorityChain
-}
-
-// GetEnabledBy returns the EnabledBy field if it's non-nil, zero value otherwise.
-func (m *MTLSEndpoint) GetEnabledBy() string {
-	if m == nil || m.EnabledBy == nil {
-		return ""
-	}
-	return *m.EnabledBy
-}
-
-// GetStatus returns the Status field.
-func (m *MTLSEndpoint) GetStatus() *MTLSConfigStatus {
-	if m == nil {
-		return nil
-	}
-	return m.Status
 }
 
 // GetCIDR returns the CIDR field if it's non-nil, zero value otherwise.

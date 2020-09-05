@@ -20,7 +20,8 @@ type MTLSCert struct {
 // ListMTLSCerts lists all certificates.
 //
 // The certificates returned by this endpoint do not have their private keys and certificate chains in the response.
-// To retrieve the key and chain, you must use the `GetMTLSCerts` method.
+// To retrieve the key and chain, you must use the `GetMTLSCert` method.
+// Furthermore, this endpoint returns certificates that were disabled.
 func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.Response, error) {
 	var result []*MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates", dbNameOrID)
@@ -31,8 +32,10 @@ func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.R
 	return result, response, getErr
 }
 
-// GetMTLSCerts retrieves a single MTLS certificate.
-func (p *Postgres) GetMTLSCerts(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
+// GetMTLSCert retrieves a single MTLS certificate.
+//
+// This endpoint returns a 404 if you retrieve a certificate that has been disabled.
+func (p *Postgres) GetMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
 
@@ -42,11 +45,11 @@ func (p *Postgres) GetMTLSCerts(dbNameOrID, certID string) (*MTLSCert, *simplere
 	return result, response, getErr
 }
 
-// CreateMTLSCerts creates a MTLS certificate.
+// CreateMTLSCert creates a MTLS certificate.
 //
 // Upon creation, the new certificate has a status of 'pending'. A status of 'ready' signifies
 // the certificate is ready for use.
-func (p *Postgres) CreateMTLSCerts(dbNameOrID string) (*MTLSCert, *simpleresty.Response, error) {
+func (p *Postgres) CreateMTLSCert(dbNameOrID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates", dbNameOrID)
 
@@ -57,10 +60,10 @@ func (p *Postgres) CreateMTLSCerts(dbNameOrID string) (*MTLSCert, *simpleresty.R
 
 }
 
-// DeleteMTLSCerts deletes a MTLS certifiate.
+// DeleteMTLSCert deletes a MTLS certifiate.
 //
 // Upon deletion, the target certificate has a status of 'disabling'.
-func (p *Postgres) DeleteMTLSCerts(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
+func (p *Postgres) DeleteMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
 
