@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Postgres represents Heroku's Metrics APIs.
+// Postgres represents Heroku's postgres APIs.
 type Postgres struct {
 	http   *simpleresty.Client
 	config *config2.Config
