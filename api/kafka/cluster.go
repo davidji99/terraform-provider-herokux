@@ -1,6 +1,9 @@
 package kafka
 
-import "time"
+import (
+	"github.com/davidji99/simpleresty"
+	"time"
+)
 
 // Cluster represents a Kafka cluster.
 type Cluster struct {
@@ -83,4 +86,15 @@ type ClusterLimitsDataSize struct {
 	CriticalPercentage      *int   `json:"critical_percentage,omitempty"`
 	SuperCriticalPercentage *int   `json:"supercritical_percentage,omitempty"`
 	LimitByte               *int64 `json:"limit_bytes,omitempty"`
+}
+
+// Get retrieves information about a Kafka cluster.
+func (k *Kafka) Get(clusterID string) (*Cluster, *simpleresty.Response, error) {
+	var result *Cluster
+	urlStr := k.http.RequestURL("/clusters/%s", clusterID)
+
+	// Execute the request
+	response, getErr := k.http.Get(urlStr, &result, nil)
+
+	return result, response, getErr
 }
