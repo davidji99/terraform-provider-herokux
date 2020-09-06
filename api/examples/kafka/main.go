@@ -16,11 +16,11 @@ func main() {
 		panic(clientInitErr)
 	}
 
-	opts := kafka.NewClusterTopicRequest("SOME_TOPIC_NAME", 3, "3d")
+	opts := kafka.NewTopicRequest("SOME_TOPIC_NAME", 3, "3d")
 	opts.Compaction = true
 	opts.Partitions = 6
 
-	r, response, err := api.Kafka.CreateClusterTopic("SOME_CLUSTER_ID", opts)
+	r, response, err := api.Kafka.CreateTopic("SOME_CLUSTER_ID", opts)
 	if err != nil {
 		panic(err)
 	}
