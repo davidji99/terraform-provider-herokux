@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/davidji99/terraform-provider-herokux/api/kafka"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
@@ -13,8 +14,11 @@ const (
 	// DefaultMetricAPIBaseURL is the default base Metric URL.
 	DefaultMetricAPIBaseURL = "https://api.metrics.heroku.com"
 
-	// DefaultPostgresAPIBaseURL is the default base Postgres URL.
+	// DefaultPostgresAPIBaseURL is the default base URL for Postgres related APIs.
 	DefaultPostgresAPIBaseURL = "https://postgres-api.heroku.com/postgres/v0"
+
+	// DefaultKafkaAPIBaseURL is the default base URL for Kafka related APIs.
+	DefaultKafkaAPIBaseURL = "https://postgres-api.heroku.com/data/kafka/v0"
 
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
@@ -31,6 +35,7 @@ type Client struct {
 	config *config2.Config
 
 	// API endpoints
+	Kafka    *kafka.Kafka
 	Metrics  *metrics.Metrics
 	Postgres *postgres.Postgres
 }
@@ -41,6 +46,7 @@ func New(opts ...config2.Option) (*Client, error) {
 	config := &config2.Config{
 		MetricsBaseURL:    DefaultMetricAPIBaseURL,
 		PostgresBaseURL:   DefaultPostgresAPIBaseURL,
+		KafkaBaseURL:      DefaultKafkaAPIBaseURL,
 		UserAgent:         DefaultUserAgent,
 		APIToken:          "",
 		BasicAuth:         "",
@@ -56,6 +62,7 @@ func New(opts ...config2.Option) (*Client, error) {
 	// Construct new Client
 	client := &Client{
 		config:   config,
+		Kafka:    kafka.New(config),
 		Metrics:  metrics.New(config),
 		Postgres: postgres.New(config),
 	}

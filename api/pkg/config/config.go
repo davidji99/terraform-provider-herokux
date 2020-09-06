@@ -5,8 +5,11 @@ type Config struct {
 	// MetricsBaseURL is the base URL for Heroku's metrics API.
 	MetricsBaseURL string
 
-	// PostgresBaseURL is the base URL for Heroku's postgres API.
+	// PostgresBaseURL is the base URL for Heroku's postgres APIs.
 	PostgresBaseURL string
+
+	// KafkaBaseURL is the base URL for Heroku's kafka APIs.
+	KafkaBaseURL string
 
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
