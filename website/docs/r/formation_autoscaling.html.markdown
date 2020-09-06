@@ -15,6 +15,14 @@ Due to API limitations, the provider will only remove the resource from state
 if you remove an existing `herokux_formation_autoscaling` resource block from your terraform configuration,
 You will need to visit the Heroku UI for further action.
 
+This resource can replace the [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation) resource.
+It is recommended NOT to use both resources concurrently. Furthermore, like the `heroku_formation` resource, users will need
+to add the following to the `herokux_formation_autoscaling` resource block when a `heroku_app_release` resource is also present:
+```
+    # Tells Terraform that this formation must be created/updated only after the app release has been created
+    depends_on = ["heroku_app_release.foobar-release"]
+```
+
 -> **IMPORTANT!**
 Autoscaling is currently available only for Performance-tier dynos and dynos running in Private Spaces.
 Heroku’s auto-scaling uses response time which relies on your application to have very small variance in response time.
