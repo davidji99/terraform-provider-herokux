@@ -1,3 +1,5 @@
+<a class="repo-badge" href="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"><img src="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"></a>
+
 Terraform Provider HerokuX
 =========================
 
