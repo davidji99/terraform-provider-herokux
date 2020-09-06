@@ -1,5 +1,5 @@
 name: tests
-on: [pull_request]
+on: [pull_request, push]
 env:
   GO111MODULE: on
 
