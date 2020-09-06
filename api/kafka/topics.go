@@ -37,13 +37,13 @@ type TopicLimits struct {
 	MaxTopics *int `json:"max_topics,omitempty"`
 }
 
-// NewClusterTopicRequest provides a constructor to create or update a cluster topic.
-func NewClusterTopicRequest(name string, replicationFactor int, retentionTime string) *clusterTopicRequest {
-	return &clusterTopicRequest{Name: name, ReplicationFactor: replicationFactor, RetentionTime: retentionTime}
+// NewTopicRequest provides a constructor to create or update a cluster topic.
+func NewTopicRequest(name string, replicationFactor int, retentionTime string) *topicRequest {
+	return &topicRequest{Name: name, ReplicationFactor: replicationFactor, RetentionTime: retentionTime}
 }
 
-// clusterTopicRequest represents a request to create or modify a topic.
-type clusterTopicRequest struct {
+// topicRequest represents a request to create or modify a topic.
+type topicRequest struct {
 	// Name of the topic. Must not contain characters other than ASCII alphanumerics, '.', '_', and '-'
 	Name string `json:"name"`
 
@@ -69,19 +69,19 @@ type clusterTopicRequest struct {
 	Compaction bool `json:"compaction"`
 
 	// This field's retention value is used for the final request body.
-	clusterTopicCreateRequestRetentionTime
+	topicCreateRequestRetentionTime
 }
 
-type clusterTopicCreateRequestRetentionTime struct {
+type topicCreateRequestRetentionTime struct {
 	RetentionTimeMS int64 `json:"retention_time_ms"`
 }
 
 type topicCreateRequest struct {
-	Topic *clusterTopicRequest `json:"topic,omitempty"`
+	Topic *topicRequest `json:"topic,omitempty"`
 }
 
-// ListClusterTopics returns a list of cluster topics.
-func (k *Kafka) ListClusterTopics(clusterID string) (*Topics, *simpleresty.Response, error) {
+// ListTopics returns a list of cluster topics.
+func (k *Kafka) ListTopics(clusterID string) (*Topics, *simpleresty.Response, error) {
 	var result *Topics
 	urlStr := k.http.RequestURL("/clusters/%s/topics", clusterID)
 
@@ -91,9 +91,9 @@ func (k *Kafka) ListClusterTopics(clusterID string) (*Topics, *simpleresty.Respo
 	return result, response, getErr
 }
 
-// GetClusterTopicByName finds a cluster topic by its name.
-func (k *Kafka) GetClusterTopicByName(clusterID, topicName string) (*Topic, *simpleresty.Response, error) {
-	topics, response, getErr := k.ListClusterTopics(clusterID)
+// GetTopicByName finds a cluster topic by its name.
+func (k *Kafka) GetTopicByName(clusterID, topicName string) (*Topic, *simpleresty.Response, error) {
+	topics, response, getErr := k.ListTopics(clusterID)
 	if getErr != nil {
 		return nil, response, getErr
 	}
@@ -112,8 +112,8 @@ func (k *Kafka) GetClusterTopicByName(clusterID, topicName string) (*Topic, *sim
 	return topic, nil, nil
 }
 
-// CreateClusterTopic creates a cluster topic.
-func (k *Kafka) CreateClusterTopic(clusterID string, opts *clusterTopicRequest) (*Response, *simpleresty.Response, error) {
+// CreateTopic creates a cluster topic.
+func (k *Kafka) CreateTopic(clusterID string, opts *topicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
 	urlStr := k.http.RequestURL("/clusters/%s/topics", clusterID)
 
@@ -134,8 +134,8 @@ func (k *Kafka) CreateClusterTopic(clusterID string, opts *clusterTopicRequest) 
 	return result, response, createErr
 }
 
-// UpdateClusterTopic updates an existing Kafka topic.
-func (k *Kafka) UpdateClusterTopic(clusterID string, opts *clusterTopicRequest) (*Response, *simpleresty.Response, error) {
+// UpdateTopic updates an existing Kafka topic.
+func (k *Kafka) UpdateTopic(clusterID string, opts *topicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
 	urlStr := k.http.RequestURL("/clusters/%s/topics/%s", clusterID, opts.Name)
 
@@ -156,8 +156,8 @@ func (k *Kafka) UpdateClusterTopic(clusterID string, opts *clusterTopicRequest) 
 	return result, response, updateErr
 }
 
-// DeleteClusterTopic deletes an existing topic.
-func (k *Kafka) DeleteClusterTopic(clusterID, topicName string) (*Response, *simpleresty.Response, error) {
+// DeleteTopic deletes an existing topic.
+func (k *Kafka) DeleteTopic(clusterID, topicName string) (*Response, *simpleresty.Response, error) {
 	var result *Response
 
 	urlStr := k.http.RequestURL("/clusters/%s/topics/%s", clusterID, topicName)

@@ -438,6 +438,33 @@ func (c *ClusterState) GetWaiting() bool {
 	return *c.Waiting
 }
 
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (c *ConsumerGroup) GetName() string {
+	if c == nil || c.Name == nil {
+		return ""
+	}
+	return *c.Name
+}
+
+// GetAddonAttachmentConfigVar returns the AddonAttachmentConfigVar field if it's non-nil, zero value otherwise.
+func (c *ConsumerGroups) GetAddonAttachmentConfigVar() string {
+	if c == nil || c.AddonAttachmentConfigVar == nil {
+		return ""
+	}
+	return *c.AddonAttachmentConfigVar
+}
+
+// HasConsumerGroups checks if ConsumerGroups has any ConsumerGroups.
+func (c *ConsumerGroups) HasConsumerGroups() bool {
+	if c == nil || c.ConsumerGroups == nil {
+		return false
+	}
+	if len(c.ConsumerGroups) == 0 {
+		return false
+	}
+	return true
+}
+
 // GetID returns the ID field if it's non-nil, zero value otherwise.
 func (r *Response) GetID() string {
 	if r == nil || r.ID == nil {
