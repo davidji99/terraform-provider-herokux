@@ -35,6 +35,7 @@ The following parameters are available for running the test. The absence of some
 * **HEROKU_API_KEY** (`string`) **Required**  - A valid Heroku API key.
 * **HEROKUX_APP_ID** (`string`) - The UUID of an existing app.
 * **HEROKUX_DB_NAME** (`string`) - The name of an existing postgres database.
+* **HEROKUX_KAFKA_ID** (`string`) - The UUID of an existing Kafka addon.
 
 **For example:**
 ```bash
