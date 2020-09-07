@@ -45,10 +45,17 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `app_name` - The app which the postgres addon is tied to.
+
 * `status` - The status of MTLS configuration.
+
 * `enabled_by` - The Heroku user that enabled the MTLS configuration.
+
 * `certificate_authority_chain` - the certificate authority chain. This attribute value does not get displayed in
 logs or regular output.
+
+* `initial_certificate_id` - The ID of the first certificate automatically created when MTLS is provisioned for a database.
+Users will need to use the data source `herokux_postgres_mtls_certificate` to retrieve the certificate and private key.
+The provider sets this attribute on initial resource creation only.
 
 ## Import
 
