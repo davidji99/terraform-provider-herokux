@@ -43,6 +43,18 @@ func getDatabaseName(d *schema.ResourceData) string {
 	return dbName
 }
 
+// getKakfaID extracts the kafka/cluster ID attribute generically from a HerokuX resource.
+func getKakfaID(d *schema.ResourceData) string {
+	var kafkaID string
+	if v, ok := d.GetOk("kafka_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] kafka_id: %s", vs)
+		kafkaID = vs
+	}
+
+	return kafkaID
+}
+
 func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 	parts := strings.SplitN(id, ":", numOfSplits)
 

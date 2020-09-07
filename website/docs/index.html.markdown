@@ -105,3 +105,9 @@ Only a single `timeouts` block may be specified and it supports the following ar
 
   * `mtls_certificate_delete_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
   to be deleted. Defaults to 10 minutes.
+
+  * `kafka_cg_create_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be created.
+  Defaults to 10 minutes.
+
+  * `kafka_cg_delete_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be deleted.
+  Defaults to 10 minutes.
