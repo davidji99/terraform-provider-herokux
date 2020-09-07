@@ -57,8 +57,8 @@ type ClusterFormation struct {
 // ClusterState represents information about a cluster's state.
 type ClusterState struct {
 	Message         *string  `json:"message,omitempty"`
-	Waiting         *bool    `json:"waiting,omitempty"`
-	Healthy         *bool    `json:"healthy,omitempty"`
+	Waiting         *bool    `json:"waiting?,omitempty"`
+	Healthy         *bool    `json:"healthy?,omitempty"`
 	Status          *string  `json:"status,omitempty"`
 	DegradedTopics  []string `json:"degraded_topics,omitempty"`
 	DegradedBrokers []string `json:"degraded_brokers,omitempty"`
