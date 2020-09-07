@@ -561,12 +561,12 @@ func (t *Topic) GetPrefix() string {
 	return *t.Prefix
 }
 
-// GetReplacementFactor returns the ReplacementFactor field if it's non-nil, zero value otherwise.
-func (t *Topic) GetReplacementFactor() int {
-	if t == nil || t.ReplacementFactor == nil {
+// GetReplicationFactor returns the ReplicationFactor field if it's non-nil, zero value otherwise.
+func (t *Topic) GetReplicationFactor() int {
+	if t == nil || t.ReplicationFactor == nil {
 		return 0
 	}
-	return *t.ReplacementFactor
+	return *t.ReplicationFactor
 }
 
 // GetRetentionEnabled returns the RetentionEnabled field if it's non-nil, zero value otherwise.
@@ -607,6 +607,14 @@ func (t *TopicLimits) GetMaxTopics() int {
 		return 0
 	}
 	return *t.MaxTopics
+}
+
+// GetRetentionTimeMS returns the RetentionTimeMS field if it's non-nil, zero value otherwise.
+func (t *TopicRequest) GetRetentionTimeMS() int {
+	if t == nil || t.RetentionTimeMS == nil {
+		return 0
+	}
+	return *t.RetentionTimeMS
 }
 
 // GetAddonAttachmentConfigVar returns the AddonAttachmentConfigVar field if it's non-nil, zero value otherwise.
