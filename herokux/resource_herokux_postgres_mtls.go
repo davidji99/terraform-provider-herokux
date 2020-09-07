@@ -50,6 +50,11 @@ func resourceHerokuxPostgresMTLS() *schema.Resource {
 				Computed:  true,
 				Sensitive: true,
 			},
+
+			"initial_certificate_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -94,7 +99,29 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 	// Set the resource ID to be the database name
 	d.SetId(newMTLS.GetAddon())
 
-	return resourceHerokuxPostgresMTLSRead(ctx, d, meta)
+	// Refresh state
+	readErr := resourceHerokuxPostgresMTLSRead(ctx, d, meta)
+	if readErr != nil {
+		return readErr
+	}
+
+	// When MTLS is provisioned, a certificate is automatically created. Fetch the initial certificate ID
+	// and store it under `initial_certificate_id` attribute.
+	certs, _, listErr := client.Postgres.ListMTLSCerts(dbName)
+	if listErr != nil {
+		return diag.FromErr(listErr)
+	}
+
+	// There should only be one certificate so use the zero index. If by chane there are more certificates,
+	// the provider will still use the zero indexed certificate. If there are no certs, set the initial_certificate_id
+	// to an emtpy string.
+	if len(certs) >= 1 {
+		d.Set("initial_certificate_id", certs[0].GetID())
+	} else {
+		d.Set("initial_certificate_id", "")
+	}
+
+	return nil
 }
 
 func resourceHerokuxPostgresMTLSRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

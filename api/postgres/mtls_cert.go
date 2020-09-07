@@ -21,7 +21,7 @@ type MTLSCert struct {
 //
 // The certificates returned by this endpoint do not have their private keys and certificate chains in the response.
 // To retrieve the key and chain, you must use the `GetMTLSCert` method.
-// Furthermore, this endpoint returns certificates that were disabled.
+// Furthermore, this endpoint also returns certificates that were disabled.
 func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.Response, error) {
 	var result []*MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates", dbNameOrID)
@@ -34,7 +34,7 @@ func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.R
 
 // GetMTLSCert retrieves a single MTLS certificate.
 //
-// This endpoint returns a 404 if you retrieve a certificate that has been disabled.
+// This endpoint returns a 404 if you retrieve a certificate that has been disabled/deleted.
 func (p *Postgres) GetMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
 	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
