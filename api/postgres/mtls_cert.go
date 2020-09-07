@@ -60,7 +60,7 @@ func (p *Postgres) CreateMTLSCert(dbNameOrID string) (*MTLSCert, *simpleresty.Re
 
 }
 
-// DeleteMTLSCert deletes a MTLS certifiate.
+// DeleteMTLSCert deletes a MTLS certificate.
 //
 // Upon deletion, the target certificate has a status of 'disabling'.
 func (p *Postgres) DeleteMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {

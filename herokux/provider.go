@@ -46,14 +46,14 @@ func New() *schema.Provider {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      10,
-							ValidateFunc: validation.IntAtLeast(1),
+							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"mtls_deprovision_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      10,
-							ValidateFunc: validation.IntAtLeast(1),
+							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"mtls_iprule_create_timeout": {
