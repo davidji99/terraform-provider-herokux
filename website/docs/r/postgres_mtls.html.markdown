@@ -8,7 +8,7 @@ description: |-
 
 # herokux\_postgres\_mtls
 
-This resource manages the MTLS configuration of an existing Private or Shield Heroku Postgres databases.
+This resource manages the MTLS configuration of an existing Private or Shield Heroku Postgres database (version 10 or above).
 Essentially, this resource provisions and deprovisions MTLS for a target databse.
 
 ### Resource Timeouts
