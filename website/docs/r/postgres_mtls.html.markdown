@@ -8,12 +8,12 @@ description: |-
 
 # herokux\_postgres\_mtls
 
-This resource manages the MTLS configuration of a Private or Shield Heroku Postgres databases.
+This resource manages the MTLS configuration of an existing Private or Shield Heroku Postgres databases.
 Essentially, this resource provisions and deprovisions MTLS for a target databse.
 
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
-Both checks' default timeout is ~10 minutes, which can be customized
+Both checks' default timeout is 10 minutes, which can be customized
 via the `timeouts.mtls_provision_timeout` and `timeouts.mtls_deprovision_timeout` in your `provider` block.
 
 For example:

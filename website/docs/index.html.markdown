@@ -92,10 +92,10 @@ The following arguments are supported:
 Only a single `timeouts` block may be specified and it supports the following arguments:
 
   * `mtls_provision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
-  to be provisioned on a database. Defaults to 10 minutes.
+  to be provisioned on a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.
 
   * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
-  to be deprovisioned from a database. Defaults to 10 minutes.
+  to be deprovisioned from a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.
 
   * `mtls_iprule_create_timeout` - (Optional) The number of minutes to wait for a MTLS IP rule
   to be created/authorized for a database. Defaults to 10 minutes.
