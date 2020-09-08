@@ -8,7 +8,7 @@ description: |-
 
 # herokux\_postgres\_mtls\_iprule
 
-This resource manages IP rules for an existing MTLS enabled postgres database.
+This resource manages IP rules for an existing MTLS enabled postgres database. There is a hard limit of 60 IP blocks that can be allowlisted per Postgres database.
 
 -> **IMPORTANT!**
 Deleting and re-adding the same CIDR range to the same MTLS enabled database may cause an unknown server error in Heroku.
