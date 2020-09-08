@@ -10,6 +10,9 @@ description: |-
 
 Use this data source to get information about a Heroku MTLS certificate.
 
+-> **IMPORTANT!**
+This data source renders the certificate "private_key" attribute in plain-text in your state file. Please ensure that your state file is properly secured and encrypted at rest.
+
 ## Example Usage
 
 ```hcl
