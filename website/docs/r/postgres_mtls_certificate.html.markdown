@@ -8,7 +8,7 @@ description: |-
 
 # herokux\_postgres\_mtls\_certificate
 
-This resource manages a certificate for an existing MTLS enabled postgres database.
+This resource manages a certificate for an existing MTLS enabled postgres database. Certificates are valid for one year from the date of creation and cannot be extended beyond the aforementioned duration.
 
 -> **IMPORTANT!**
 Please be very careful when deleting this resource as any deleted certificates are NOT recoverable and invalidated immediately.
