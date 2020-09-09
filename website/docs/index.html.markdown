@@ -111,3 +111,10 @@ Only a single `timeouts` block may be specified and it supports the following ar
 
   * `kafka_cg_delete_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be deleted.
   Defaults to 10 minutes.
+
+  * `kafka_topic_create_timeout` - (Optional) The number of minutes to wait for a Kafka topic to ready. Ready state
+  is achieved when the topic itself is provisioned with the specified number of partitions.
+  Defaults to 10 minutes. Minimum required is 3 minutes.
+
+  * `kafka_topic_update_timeout` - (Optional) The number of minutes to wait for a Kafka topic to updated remotely.
+  Defaults to 10 minutes. Minimum required is 3 minutes.

@@ -97,7 +97,7 @@ func resourceHerokuxKafkaConsumerGroupRead(ctx context.Context, d *schema.Resour
 		return diag.FromErr(parseErr)
 	}
 
-	group, _, getErr := client.Kafka.FindConsumerGroupByName(result[0], result[1])
+	group, _, getErr := client.Kafka.GetConsumerGroupByName(result[0], result[1])
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}

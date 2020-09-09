@@ -16,6 +16,8 @@ const (
 	DefaultMTLSCertificateDeleteTimeout = int64(10)
 	DefaultKafkaCGCreateTimeout         = int64(10)
 	DefaultKafkaCGDeleteTimeout         = int64(10)
+	DefaultKafkaTopicCreateTimeout      = int64(10)
+	DefaultKafkaTopicUpdateTimeout      = int64(10)
 )
 
 type Config struct {
@@ -33,6 +35,8 @@ type Config struct {
 	MTLSCertificateDeleteTimeout int64
 	KafkaCGCreateTimeout         int64
 	KafkaCGDeleteTimeout         int64
+	KafkaTopicCreateTimeout      int64
+	KafkaTopicUpdateTimeout      int64
 }
 
 func NewConfig() *Config {
@@ -44,6 +48,8 @@ func NewConfig() *Config {
 		MTLSCertificateDeleteTimeout: DefaultMTLSCertificateDeleteTimeout,
 		KafkaCGCreateTimeout:         DefaultKafkaCGCreateTimeout,
 		KafkaCGDeleteTimeout:         DefaultKafkaCGDeleteTimeout,
+		KafkaTopicCreateTimeout:      DefaultKafkaTopicCreateTimeout,
+		KafkaTopicUpdateTimeout:      DefaultKafkaTopicUpdateTimeout,
 	}
 	return c
 }
@@ -117,6 +123,14 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := delaysConfig["kafka_cg_delete_timeout"].(int); ok {
 				c.KafkaCGDeleteTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["kafka_topic_create_timeout"].(int); ok {
+				c.KafkaTopicCreateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["kafka_topic_update_timeout"].(int); ok {
+				c.KafkaTopicUpdateTimeout = int64(v)
 			}
 		}
 	}

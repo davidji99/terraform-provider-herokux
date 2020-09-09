@@ -21,7 +21,7 @@ type Topic struct {
 	BytesInPerSecond   *int    `json:"bytes_in_per_second,omitempty"`
 	BytesOutPerSecond  *int    `json:"bytes_out_per_second,omitempty"`
 	Partitions         *int    `json:"partitions,omitempty"`
-	ReplacementFactor  *int    `json:"replication_factor,omitempty"`
+	ReplicationFactor  *int    `json:"replication_factor,omitempty"`
 	Status             *string `json:"status,omitempty"`
 	StatusLabel        *string `json:"status_label,omitempty"`
 	DataSize           *int    `json:"data_size,omitempty"`
@@ -37,47 +37,27 @@ type TopicLimits struct {
 	MaxTopics *int `json:"max_topics,omitempty"`
 }
 
-// NewTopicRequest provides a constructor to create or update a cluster topic.
-func NewTopicRequest(name string, replicationFactor int, retentionTime string) *topicRequest {
-	return &topicRequest{Name: name, ReplicationFactor: replicationFactor, RetentionTime: retentionTime}
-}
-
-// topicRequest represents a request to create or modify a topic.
-type topicRequest struct {
+// TopicRequest represents a request to create or modify a topic.
+type TopicRequest struct {
 	// Name of the topic. Must not contain characters other than ASCII alphanumerics, '.', '_', and '-'
-	Name string `json:"name"`
+	Name string `json:"name,omitempty"`
 
 	// Number of partitions to give the topic.
 	Partitions int `json:"partition_count,omitempty"`
 
 	// Number of replicas the topic should be created across.
-	ReplicationFactor int `json:"replication_factor"`
+	ReplicationFactor int `json:"replication_factor,omitempty"`
 
 	// Length of time messages in the topic should be retained.
 	// Minimum required is at least 24h or 86400000ms.
-	// The client will convert the string value into a milliseconds integer value.
-	//
-	// Example: "10d". Supported suffixes:
-	//  - `ms`, `millisecond`, `milliseconds`
-	//  - `s`, `second`, `seconds`
-	//  - `m`, `minute`, `minutes`
-	//  - `h`, `hour`, `hours`
-	//  - `d`, `day`, `days`
-	RetentionTime string
+	RetentionTimeMS *int `json:"retention_time_ms"`
 
 	// Whether to use compaction for this topic.
 	Compaction bool `json:"compaction"`
-
-	// This field's retention value is used for the final request body.
-	topicCreateRequestRetentionTime
 }
 
-type topicCreateRequestRetentionTime struct {
-	RetentionTimeMS int64 `json:"retention_time_ms"`
-}
-
-type topicCreateRequest struct {
-	Topic *topicRequest `json:"topic,omitempty"`
+type topicRequestBody struct {
+	Topic *TopicRequest `json:"topic,omitempty"`
 }
 
 // ListTopics returns a list of cluster topics.
@@ -105,28 +85,20 @@ func (k *Kafka) GetTopicByName(clusterID, topicName string) (*Topic, *simplerest
 		}
 	}
 
+	r := &simpleresty.Response{}
 	if topic == nil {
-		return nil, nil, fmt.Errorf("no cluster topic named %s found on cluster %s", topicName, clusterID)
+		r.StatusCode = 404
+		return nil, r, fmt.Errorf("no cluster topic named %s found on cluster %s", topicName, clusterID)
 	}
 
-	return topic, nil, nil
+	return topic, r, nil
 }
 
 // CreateTopic creates a cluster topic.
-func (k *Kafka) CreateTopic(clusterID string, opts *topicRequest) (*Response, *simpleresty.Response, error) {
+func (k *Kafka) CreateTopic(clusterID string, opts *TopicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
 	urlStr := k.http.RequestURL("/clusters/%s/topics", clusterID)
-
-	// Convert the retention value from string to integer
-	rententionTimeMS, parseErr := convertDurationToMilliseconds(opts.RetentionTime)
-	if parseErr != nil {
-		return nil, nil, fmt.Errorf("unsupported retention time value")
-	}
-	opts.RetentionTimeMS = int64(rententionTimeMS)
-
-	reqBody := &topicCreateRequest{
-		Topic: opts,
-	}
+	reqBody := &topicRequestBody{Topic: opts}
 
 	// Execute the request
 	response, createErr := k.http.Post(urlStr, &result, reqBody)
@@ -135,20 +107,10 @@ func (k *Kafka) CreateTopic(clusterID string, opts *topicRequest) (*Response, *s
 }
 
 // UpdateTopic updates an existing Kafka topic.
-func (k *Kafka) UpdateTopic(clusterID string, opts *topicRequest) (*Response, *simpleresty.Response, error) {
+func (k *Kafka) UpdateTopic(clusterID string, opts *TopicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
 	urlStr := k.http.RequestURL("/clusters/%s/topics/%s", clusterID, opts.Name)
-
-	// Convert the retention value from string to integer
-	rententionTimeMS, parseErr := convertDurationToMilliseconds(opts.RetentionTime)
-	if parseErr != nil {
-		return nil, nil, fmt.Errorf("unsupported retention time value")
-	}
-	opts.RetentionTimeMS = int64(rententionTimeMS)
-
-	reqBody := &topicCreateRequest{
-		Topic: opts,
-	}
+	reqBody := &topicRequestBody{Topic: opts}
 
 	// Execute the request
 	response, updateErr := k.http.Put(urlStr, &result, reqBody)

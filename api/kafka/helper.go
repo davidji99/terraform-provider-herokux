@@ -2,14 +2,47 @@ package kafka
 
 import (
 	"fmt"
+	"github.com/elliotchance/orderedmap"
 	"regexp"
 	"strconv"
 )
 
-func convertDurationToMilliseconds(d string) (int, error) {
+const (
+	// RetentionTimeDurationRegex is the regex for the string form of the duration,
+	RetentionTimeDurationRegex = `^(\d+) ?(ms|[smhdw]|milliseconds?|seconds?|minutes?|hours?|days?|weeks?)$`
+
+	// RetentionTimeDurationRegexStricter is the same as RetentionTimeDurationRegex
+	// but only allows for duration abbreviations.
+	RetentionTimeDurationRegexStricter = `^(\d+) ?(ms|[smhdw])$`
+
+	// RententionTimeDuragionRegexStricterWithDisable is the same as RetentionTimeDurationRegexStricter but allows
+	// 'disable' as a value in order to disable retention time.
+	RetentionTimeDuragionRegexStricterWithDisable = `^(\d+) ?(ms|[smhdw]|)|disable$`
+
+	RetentionTimeDisableVal = "disable"
+
+	// Multiplier constants
+	WeekMultiplier        = DayMultiplier * 7
+	DayMultiplier         = HourMultiplier * 24
+	HourMultiplier        = MinuteMultiplier * 60
+	MinuteMultiplier      = SecondMultiplier * 60
+	SecondMultiplier      = MillisecondMultiplier * 1000
+	MillisecondMultiplier = 1
+)
+
+// ConvertDurationToMilliseconds converts a duration unit to milliseconds integer value.
+//
+// Example: "10d". Supported suffixes:
+//  - `ms`, `millisecond`, `milliseconds`
+//  - `s`, `second`, `seconds`
+//  - `m`, `minute`, `minutes`
+//  - `h`, `hour`, `hours`
+//  - `d`, `day`, `days`
+//  - `w`, `week`, `weeks`
+func ConvertDurationToMilliseconds(d string) (int, error) {
 	// Use regex to parse the duration string value.
 	// The parsing should return an index length of 3. Example: [10d 10 d]
-	regex := regexp.MustCompile(`^(\d+) ?(ms|[smhdw]|milliseconds?|seconds?|minutes?|hours?|days?|weeks?)$`)
+	regex := regexp.MustCompile(RetentionTimeDurationRegex)
 	result := regex.FindStringSubmatch(d)
 
 	if len(result) != 3 {
@@ -22,20 +55,52 @@ func convertDurationToMilliseconds(d string) (int, error) {
 
 	switch unit {
 	case "ms", "millisecond", "milliseconds":
-		multiplier = 1
+		multiplier = MillisecondMultiplier
 	case "s", "second", "seconds":
-		multiplier = 1000
+		multiplier = SecondMultiplier
 	case "m", "minute", "minutes":
-		multiplier = 1000 * 60
+		multiplier = MinuteMultiplier
 	case "h", "hour", "hours":
-		multiplier = 1000 * 60 * 60
+		multiplier = HourMultiplier
 	case "d", "day", "days":
-		multiplier = 1000 * 60 * 60 * 24
+		multiplier = DayMultiplier
 	case "w", "week", "weeks":
-		multiplier = 1000 * 60 * 60 * 24 * 7
+		multiplier = WeekMultiplier
 	default:
 		return 0, nil
 	}
 
 	return multiplier * magnitude, nil
+}
+
+// ConvertMillisecondstoDuration takes a millisecond integer parameter and converts it to a duration string
+// in the format of "<number><ms|s|m|h|d|w<".
+//
+// If the millisecond parameter overlaps with two durations such as 1w or 7d,
+// this function returns the longer duration unit.
+func ConvertMillisecondstoDuration(ms int) (string, error) {
+	// Loop through multiplier in order of largest to smallest. Return the first pair that divides cleanly.
+	for el := multipliersMap().Front(); el != nil; el = el.Next() {
+		duration := el.Key.(string)
+		multi := el.Value.(int)
+		if ms%multi == 0 {
+			return fmt.Sprintf("%d%s", ms/multi, duration), nil
+		}
+	}
+
+	return "", fmt.Errorf("unable to parse milliseconds to duration")
+}
+
+// multipliersMap is an ordered map of longest duration to shortest duration unit and their respective multipliers.
+func multipliersMap() *orderedmap.OrderedMap {
+	m := orderedmap.NewOrderedMap()
+
+	m.Set("w", WeekMultiplier)
+	m.Set("d", DayMultiplier)
+	m.Set("h", HourMultiplier)
+	m.Set("m", MinuteMultiplier)
+	m.Set("s", SecondMultiplier)
+	m.Set("ms", MillisecondMultiplier)
+
+	return m
 }

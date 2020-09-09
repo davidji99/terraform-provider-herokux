@@ -16,7 +16,11 @@ func main() {
 		panic(clientInitErr)
 	}
 
-	opts := kafka.NewTopicRequest("SOME_TOPIC_NAME", 3, "3d")
+	time := 123456
+	opts := &kafka.TopicRequest{}
+	opts.Name = "SOME_TOPIC_NAME"
+	opts.Partitions = 3
+	opts.RetentionTimeMS = &time
 	opts.Compaction = true
 	opts.Partitions = 6
 

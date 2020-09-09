@@ -90,6 +90,20 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
+
+						"kafka_topic_create_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(3),
+						},
+
+						"kafka_topic_update_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(3),
+						},
 					},
 				},
 			},
@@ -102,6 +116,7 @@ func New() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":      resourceHerokuxKafkaConsumerGroup(),
+			"herokux_kafka_topic":               resourceHerokuxKafkaTopic(),
 			"herokux_postgres_mtls":             resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate": resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":      resourceHerokuxPostgresMTLSIPRule(),

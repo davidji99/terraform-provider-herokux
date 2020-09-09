@@ -40,7 +40,7 @@ func (k *Kafka) ListConsumerGroups(clusterID string) (*ConsumerGroups, *simplere
 	return result, response, getErr
 }
 
-func (k *Kafka) FindConsumerGroupByName(clusterID, groupName string) (*ConsumerGroup, *simpleresty.Response, error) {
+func (k *Kafka) GetConsumerGroupByName(clusterID, groupName string) (*ConsumerGroup, *simpleresty.Response, error) {
 	groups, _, listErr := k.ListConsumerGroups(clusterID)
 	if listErr != nil {
 		return nil, nil, listErr
