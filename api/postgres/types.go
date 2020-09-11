@@ -10,12 +10,14 @@ var MTLSConfigStatuses = struct {
 	DEPROVISIONED  MTLSConfigStatus
 	OPERATIONAL    MTLSConfigStatus
 	UNKNOWN        MTLSConfigStatus
+	SERVERERROR    MTLSConfigStatus // Represents when GETing the status of the MTLS provisioning sometimes returns a 500
 }{
 	PROVISIONING:   "Provisioning",
 	DEPROVISIONING: "Deprovisioning",
 	DEPROVISIONED:  "Deprovisioned",
 	OPERATIONAL:    "Operational",
 	UNKNOWN:        "Unknown",
+	SERVERERROR:    "ServerError",
 }
 
 // ToString is a helper method to return the string of a MTLSConfigStatus.

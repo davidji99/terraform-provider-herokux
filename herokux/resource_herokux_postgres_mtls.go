@@ -85,7 +85,7 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 
 	log.Printf("[DEBUG] Waiting for MTLS configuration on %s to be operational", dbName)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{postgres.MTLSConfigStatuses.PROVISIONING.ToString()},
+		Pending:      []string{postgres.MTLSConfigStatuses.PROVISIONING.ToString(), postgres.MTLSConfigStatuses.SERVERERROR.ToString()},
 		Target:       []string{postgres.MTLSConfigStatuses.OPERATIONAL.ToString()},
 		Refresh:      MTLSSCreationStateRefreshFunc(client, dbName),
 		Timeout:      time.Duration(config.MTLSProvisionTimeout) * time.Minute,
@@ -176,7 +176,15 @@ func resourceHerokuxPostgresMTLSDeprovision(ctx context.Context, d *schema.Resou
 
 func MTLSSCreationStateRefreshFunc(client *api.Client, dbName string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		mtlsConfig, _, getErr := client.Postgres.GetMTLS(dbName)
+		mtlsConfig, response, getErr := client.Postgres.GetMTLS(dbName)
+
+		// Handle scenario where GetMTLS sometimes returns a 500. Return and try again.
+		if response != nil {
+			if response.StatusCode == 500 {
+				return mtlsConfig, postgres.MTLSConfigStatuses.SERVERERROR.ToString(), nil
+			}
+		}
+
 		if getErr != nil {
 			return nil, postgres.MTLSConfigStatuses.UNKNOWN.ToString(), getErr
 		}
