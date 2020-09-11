@@ -46,6 +46,7 @@ The following methods are supported, listed in order of precedence, and explaine
 
 - Static credentials
 - Environment variables
+- Netrc
 
 ### Static credentials
 
@@ -74,6 +75,24 @@ Refreshing Terraform state in-memory prior to plan...
 
 In order to prevent duplicate environment variables, the HerokuX provider uses the same environment variable name
 as the Heroku provider to retrieve the API key. This will be the only common variable name between the two providers.
+
+### Netrc
+
+Credentials can instead be sourced from the [`.netrc`](https://ec.haxx.se/usingcurl-netrc.html)
+file in your home directory:
+
+```hcl
+provider "heroku" {}
+```
+
+```shell
+$ cat ~/.netrc
+...
+machine api.heroku.com
+  login <your_heroku_email>
+  password <your_heroku_api_key>
+...
+```
 
 ## Argument Reference
 

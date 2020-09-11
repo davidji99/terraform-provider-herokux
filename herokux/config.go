@@ -2,10 +2,16 @@ package herokux
 
 import (
 	"fmt"
+	"github.com/bgentry/go-netrc/netrc"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	heroku "github.com/heroku/heroku-go/v5"
+	"github.com/mitchellh/go-homedir"
+	"net/url"
+	"os"
+	"runtime"
 )
 
 const (
@@ -134,6 +140,62 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 			}
 		}
 	}
+
+	return nil
+}
+
+func (c *Config) applyNetrcFile() error {
+	// Get the netrc file path. If path not shown, then fall back to default netrc path value
+	path := os.Getenv("NETRC_PATH")
+
+	if path == "" {
+		filename := ".netrc"
+		if runtime.GOOS == "windows" {
+			filename = "_netrc"
+		}
+
+		var err error
+		path, err = homedir.Expand("~/" + filename)
+		if err != nil {
+			return err
+		}
+	}
+
+	// If the file is not a file, then do nothing
+	if fi, err := os.Stat(path); err != nil {
+		// File doesn't exist, do nothing
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		// Some other error!
+		return err
+	} else if fi.IsDir() {
+		// File is directory, ignore
+		return nil
+	}
+
+	// Load up the netrc file
+	net, err := netrc.ParseFile(path)
+	if err != nil {
+		return fmt.Errorf("error parsing netrc file at %q: %s", path, err)
+	}
+
+	// Reference the default Heroku Platform API url from heroku-go as that's the host URL used in ~/.netrc.
+	// Doing this is okay because although this provider uses different base endpoints,
+	//the authentication among all of the endpoints.
+	u, err := url.Parse(heroku.DefaultURL)
+	if err != nil {
+		return err
+	}
+
+	machine := net.FindMachine(u.Host)
+	if machine == nil {
+		// Machine not found, no problem
+		return nil
+	}
+
+	c.token = machine.Password
 
 	return nil
 }

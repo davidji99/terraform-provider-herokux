@@ -131,12 +131,16 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 
 	config := NewConfig()
 
-	if token, ok := d.GetOk("api_key"); ok {
-		config.token = token.(string)
-	}
-
 	if applySchemaErr := config.applySchema(d); applySchemaErr != nil {
 		return nil, diag.FromErr(applySchemaErr)
+	}
+
+	if applyNetrcErr := config.applyNetrcFile(); applyNetrcErr != nil {
+		return nil, diag.FromErr(applyNetrcErr)
+	}
+
+	if token, ok := d.GetOk("api_key"); ok {
+		config.token = token.(string)
 	}
 
 	if err := config.initializeAPI(); err != nil {
