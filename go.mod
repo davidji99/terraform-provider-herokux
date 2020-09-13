@@ -9,5 +9,5 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.1
 	github.com/heroku/heroku-go/v5 v5.2.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 )

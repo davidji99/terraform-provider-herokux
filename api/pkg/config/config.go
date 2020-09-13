@@ -11,6 +11,9 @@ type Config struct {
 	// KafkaBaseURL is the base URL for Heroku's kafka APIs.
 	KafkaBaseURL string
 
+	// DataBaseURL is the base URL for Heroku's Data APIs.
+	DataBaseURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 
