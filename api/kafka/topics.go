@@ -63,7 +63,7 @@ type topicRequestBody struct {
 // ListTopics returns a list of cluster topics.
 func (k *Kafka) ListTopics(clusterID string) (*Topics, *simpleresty.Response, error) {
 	var result *Topics
-	urlStr := k.http.RequestURL("/clusters/%s/topics", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/topics", clusterID)
 
 	// Execute the request
 	response, getErr := k.http.Get(urlStr, &result, nil)
@@ -97,7 +97,7 @@ func (k *Kafka) GetTopicByName(clusterID, topicName string) (*Topic, *simplerest
 // CreateTopic creates a cluster topic.
 func (k *Kafka) CreateTopic(clusterID string, opts *TopicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
-	urlStr := k.http.RequestURL("/clusters/%s/topics", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/topics", clusterID)
 	reqBody := &topicRequestBody{Topic: opts}
 
 	// Execute the request
@@ -109,7 +109,7 @@ func (k *Kafka) CreateTopic(clusterID string, opts *TopicRequest) (*Response, *s
 // UpdateTopic updates an existing Kafka topic.
 func (k *Kafka) UpdateTopic(clusterID string, opts *TopicRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
-	urlStr := k.http.RequestURL("/clusters/%s/topics/%s", clusterID, opts.Name)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/topics/%s", clusterID, opts.Name)
 	reqBody := &topicRequestBody{Topic: opts}
 
 	// Execute the request
@@ -122,7 +122,7 @@ func (k *Kafka) UpdateTopic(clusterID string, opts *TopicRequest) (*Response, *s
 func (k *Kafka) DeleteTopic(clusterID, topicName string) (*Response, *simpleresty.Response, error) {
 	var result *Response
 
-	urlStr := k.http.RequestURL("/clusters/%s/topics/%s", clusterID, topicName)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/topics/%s", clusterID, topicName)
 
 	// Execute the request
 	response, createErr := k.http.Delete(urlStr, &result, nil)
