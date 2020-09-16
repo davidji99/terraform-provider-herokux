@@ -16,7 +16,7 @@ const (
 	DefaultMetricAPIBaseURL = "https://api.metrics.heroku.com"
 
 	// DefaultPostgresAPIBaseURL is the default base URL for Postgres related APIs.
-	DefaultPostgresAPIBaseURL = "https://postgres-api.heroku.com/postgres/v0"
+	DefaultPostgresAPIBaseURL = "https://postgres-api.heroku.com"
 
 	// DefaultKafkaAPIBaseURL is the default base URL for Kafka related APIs.
 	DefaultKafkaAPIBaseURL = "https://postgres-api.heroku.com/data/kafka/v0"

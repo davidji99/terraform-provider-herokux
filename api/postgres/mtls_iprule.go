@@ -23,7 +23,7 @@ type MTLSIPRuleRequest struct {
 
 func (p *Postgres) ListMTLSIPRules(dbNameOrID string) ([]*MTLSIPRule, *simpleresty.Response, error) {
 	var result []*MTLSIPRule
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -33,7 +33,7 @@ func (p *Postgres) ListMTLSIPRules(dbNameOrID string) ([]*MTLSIPRule, *simpleres
 
 func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*MTLSIPRule, *simpleresty.Response, error) {
 	var result *MTLSIPRule
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/ip-rules/%s", dbNameOrID, ipRuleID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules/%s", dbNameOrID, ipRuleID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -43,7 +43,7 @@ func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*MTLSIPRule, *sim
 
 func (p *Postgres) CreateMTLSIPRule(dbNameOrID string, opts *MTLSIPRuleRequest) (*MTLSIPRule, *simpleresty.Response, error) {
 	var result *MTLSIPRule
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
 
 	// Execute the request
 	response, createErr := p.http.Post(urlStr, &result, opts)
@@ -52,7 +52,7 @@ func (p *Postgres) CreateMTLSIPRule(dbNameOrID string, opts *MTLSIPRuleRequest) 
 }
 
 func (p *Postgres) DeleteMTLSIPRule(dbNameOrID, ipRuleID string) (*simpleresty.Response, error) {
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/ip-rules/%s", dbNameOrID, ipRuleID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules/%s", dbNameOrID, ipRuleID)
 
 	// Execute the request
 	response, deleteErr := p.http.Delete(urlStr, nil, nil)

@@ -20,7 +20,7 @@ type MTLS struct {
 // Once the configuration is ready, "status" changes to "Operational".
 func (p *Postgres) ProvisionMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
 	var result *MTLS
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request
 	response, createErr := p.http.Post(urlStr, &result, nil)
@@ -49,7 +49,7 @@ func (p *Postgres) IsMTLSReady(nameOrID string) (bool, MTLSConfigStatus, error) 
 // Returns 202 if request is successful with a 'status' of 'Deprovisioning'.
 func (p *Postgres) DeprovisionMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
 	var result *MTLS
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request
 	response, deleteErr := p.http.Delete(urlStr, &result, nil)
@@ -60,7 +60,7 @@ func (p *Postgres) DeprovisionMTLS(nameOrID string) (*MTLS, *simpleresty.Respons
 // GetMTLS retrieves the MTLS configuration for a database.
 func (p *Postgres) GetMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error) {
 	var result *MTLS
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint", nameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint", nameOrID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)

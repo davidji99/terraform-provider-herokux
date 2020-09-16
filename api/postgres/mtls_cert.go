@@ -24,7 +24,7 @@ type MTLSCert struct {
 // Furthermore, this endpoint also returns certificates that were disabled.
 func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.Response, error) {
 	var result []*MTLSCert
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/certificates", dbNameOrID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -37,7 +37,7 @@ func (p *Postgres) ListMTLSCerts(dbNameOrID string) ([]*MTLSCert, *simpleresty.R
 // This endpoint returns a 404 if you retrieve a certificate that has been disabled/deleted.
 func (p *Postgres) GetMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -51,7 +51,7 @@ func (p *Postgres) GetMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleres
 // the certificate is ready for use.
 func (p *Postgres) CreateMTLSCert(dbNameOrID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/certificates", dbNameOrID)
 
 	// Execute the request
 	response, createErr := p.http.Post(urlStr, &result, nil)
@@ -65,7 +65,7 @@ func (p *Postgres) CreateMTLSCert(dbNameOrID string) (*MTLSCert, *simpleresty.Re
 // Upon deletion, the target certificate has a status of 'disabling'.
 func (p *Postgres) DeleteMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleresty.Response, error) {
 	var result *MTLSCert
-	urlStr := p.http.RequestURL("/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/certificates/%s", dbNameOrID, certID)
 
 	// Execute the request
 	response, deleteErr := p.http.Delete(urlStr, &result, nil)
