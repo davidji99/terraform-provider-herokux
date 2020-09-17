@@ -11,7 +11,7 @@ import (
 type Privatelink struct {
 	App                 *PrivatelinkApp               `json:"app,omitempty"`
 	Addon               *PrivatelinkAddon             `json:"addon,omitempty"`
-	Status              *data.PrivatelinkStatus       `json:"status,omitempty"`
+	Status              data.PrivatelinkStatus        `json:"status,omitempty"`
 	ServiceName         *string                       `json:"service_name,omitempty"`
 	AllowedAccounts     []*PrivatelinkAllowedAccounts `json:"allowed_accounts,omitempty"`
 	WhitelistedAccounts []*PrivatelinkAllowedAccounts `json:"whitelisted_accounts,omitempty"`
@@ -20,9 +20,9 @@ type Privatelink struct {
 
 // PrivatelinkAllowedAccounts represents AWS accounts granted access to a privatelink.
 type PrivatelinkAllowedAccounts struct {
-	AccountID *string                               `json:"account_id,omitempty"`
-	ARN       *string                               `json:"arn,omitempty"`
-	Status    *data.PrivatelinkAllowedAccountStatus `json:"status,omitempty"`
+	AccountID *string                              `json:"account_id,omitempty"`
+	ARN       *string                              `json:"arn,omitempty"`
+	Status    data.PrivatelinkAllowedAccountStatus `json:"status,omitempty"`
 }
 
 // PrivatelinkConnections represents connections between Heroku postgres and AWS resources.
@@ -98,6 +98,8 @@ func (p *Postgres) RemovePrivatelinkAllowedAccounts(addonID string, opts *Privat
 }
 
 // AddPrivatelinkAllowedAccounts adds one more allowed accounts to a privatelink.
+//
+// Adding the same allowed account ID while the ID already exists results in a 202 "no-operation".
 //
 // Warning: the UI may become a bit wonky until the allowed account becomes `Active`.
 func (p *Postgres) AddPrivatelinkAllowedAccounts(addonID string, opts *PrivatelinkRequest) (*Privatelink, *simpleresty.Response, error) {

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// getAppId extracts the app attribute generically from a HerokuX resource.
+// getAppId extracts the app ID attribute generically from a HerokuX resource.
 func getAppId(d *schema.ResourceData) string {
 	var appName string
 	if v, ok := d.GetOk("app_id"); ok {
@@ -17,6 +17,18 @@ func getAppId(d *schema.ResourceData) string {
 	}
 
 	return appName
+}
+
+// getAddonID extracts the addon ID attribute generically from a HerokuX resource.
+func getAddonID(d *schema.ResourceData) string {
+	var addonID string
+	if v, ok := d.GetOk("addon_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] addon_id: %s", vs)
+		addonID = vs
+	}
+
+	return addonID
 }
 
 // getFormationName extracts the formation name attribute generically from a HerokuX resource.
@@ -63,4 +75,13 @@ func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 			"Please check resource documentation for more information.", numOfSplits)
 	}
 	return parts, nil
+}
+
+func stringArrayContains(arr []string, str string) bool {
+	for _, a := range arr {
+		if a == str {
+			return true
+		}
+	}
+	return false
 }

@@ -9,11 +9,13 @@ var PrivatelinkStatuses = struct {
 	OPERATIONAL    PrivatelinkStatus
 	DEPROVISIONING PrivatelinkStatus
 	DEPROVISIONED  PrivatelinkStatus
+	UNKNOWN        PrivatelinkStatus
 }{
 	PROVISIONING:   "Provisioning",
 	OPERATIONAL:    "Operational",
 	DEPROVISIONING: "Deprovisioning",
 	DEPROVISIONED:  "Deprovisioned", // Status is set to this even though the UI says deprovisioning. Must wait for 404.
+	UNKNOWN:        "Unknown",
 }
 
 // ToString is a helper method to return the string of a PrivatelinkStatus.
@@ -28,9 +30,11 @@ type PrivatelinkAllowedAccountStatus string
 var PrivatelinkAllowedAccountStatuses = struct {
 	PROVISIONING PrivatelinkAllowedAccountStatus
 	ACTIVE       PrivatelinkAllowedAccountStatus
+	UNKNOWN      PrivatelinkAllowedAccountStatus
 }{
 	PROVISIONING: "Provisioning",
 	ACTIVE:       "Active",
+	UNKNOWN:      "Unknown",
 }
 
 // ToString is a helper method to return the string of a PrivatelinkAllowedAccountStatus.

@@ -137,3 +137,12 @@ Only a single `timeouts` block may be specified and it supports the following ar
 
   * `kafka_topic_update_timeout` - (Optional) The number of minutes to wait for a Kafka topic to updated remotely.
   Defaults to 10 minutes. Minimum required is 3 minutes.
+
+  * `privatelink_create_timeout` - (Optional) The number of minutes to wait for a privatelink to be provisioned.
+  Defaults to 15 minutes. Minimum required is 5 minutes.
+
+  * `privatelink_delete_timeout` - (Optional) The number of minutes to wait for a privatelink to be deprovisioned.
+  Defaults to 15 minutes. Minimum required is 5 minutes.
+
+  * `privatelink_allowed_acccounts_add_timeout` - (Optional) The number of minutes to wait for allowed accounts
+  to become active for a privatelink. Defaults to 10 minutes. Minimum required is 2 minutes.
