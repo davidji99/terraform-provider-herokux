@@ -20,3 +20,20 @@ var PrivatelinkStatuses = struct {
 func (s PrivatelinkStatus) ToString() string {
 	return string(s)
 }
+
+// PrivatelinkAllowedAccountStatus represents the status of a privatelink allowed account.
+type PrivatelinkAllowedAccountStatus string
+
+// PrivatelinkAllowedAccountStatuses represent all statuses pertaining to the lifecycle of a privatelink allowed account.
+var PrivatelinkAllowedAccountStatuses = struct {
+	PROVISIONING PrivatelinkAllowedAccountStatus
+	ACTIVE       PrivatelinkAllowedAccountStatus
+}{
+	PROVISIONING: "Provisioning",
+	ACTIVE:       "Active",
+}
+
+// ToString is a helper method to return the string of a PrivatelinkAllowedAccountStatus.
+func (s PrivatelinkAllowedAccountStatus) ToString() string {
+	return string(s)
+}
