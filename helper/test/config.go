@@ -12,6 +12,7 @@ type TestConfigKey int
 
 const (
 	TestConfigHerokuxAPIKey TestConfigKey = iota
+	TestConfigAddonID
 	TestConfigAppID
 	TestConfigDatabaseName
 	TestConfigKafkaID
@@ -20,6 +21,7 @@ const (
 
 var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigHerokuxAPIKey:     "HEROKU_API_KEY",
+	TestConfigAddonID:           "HEROKUX_ADDON_ID",
 	TestConfigAppID:             "HEROKUX_APP_ID",
 	TestConfigDatabaseName:      "HEROKUX_DB_NAME",
 	TestConfigKafkaID:           "HEROKUX_KAFKA_ID",
@@ -72,6 +74,10 @@ func (t *TestConfig) SkipUnlessAccTest(testing *testing.T) {
 	if val == "" {
 		testing.Skip(fmt.Sprintf("Acceptance tests skipped unless env '%s' set", TestConfigAcceptanceTestKey.String()))
 	}
+}
+
+func (t *TestConfig) GetAddonIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigAddonID)
 }
 
 func (t *TestConfig) GetAppIDorSkip(testing *testing.T) (val string) {

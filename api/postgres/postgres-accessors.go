@@ -171,3 +171,143 @@ func (m *MTLSIPRule) GetUpdatedAt() time.Time {
 	}
 	return *m.UpdatedAt
 }
+
+// GetAddon returns the Addon field.
+func (p *Privatelink) GetAddon() *PrivatelinkAddon {
+	if p == nil {
+		return nil
+	}
+	return p.Addon
+}
+
+// HasAllowedAccounts checks if Privatelink has any AllowedAccounts.
+func (p *Privatelink) HasAllowedAccounts() bool {
+	if p == nil || p.AllowedAccounts == nil {
+		return false
+	}
+	if len(p.AllowedAccounts) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetApp returns the App field.
+func (p *Privatelink) GetApp() *PrivatelinkApp {
+	if p == nil {
+		return nil
+	}
+	return p.App
+}
+
+// HasConnections checks if Privatelink has any Connections.
+func (p *Privatelink) HasConnections() bool {
+	if p == nil || p.Connections == nil {
+		return false
+	}
+	if len(p.Connections) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetServiceName returns the ServiceName field if it's non-nil, zero value otherwise.
+func (p *Privatelink) GetServiceName() string {
+	if p == nil || p.ServiceName == nil {
+		return ""
+	}
+	return *p.ServiceName
+}
+
+// HasWhitelistedAccounts checks if Privatelink has any WhitelistedAccounts.
+func (p *Privatelink) HasWhitelistedAccounts() bool {
+	if p == nil || p.WhitelistedAccounts == nil {
+		return false
+	}
+	if len(p.WhitelistedAccounts) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkAddon) GetName() string {
+	if p == nil || p.Name == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+// GetUUID returns the UUID field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkAddon) GetUUID() string {
+	if p == nil || p.UUID == nil {
+		return ""
+	}
+	return *p.UUID
+}
+
+// GetAccountID returns the AccountID field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkAllowedAccounts) GetAccountID() string {
+	if p == nil || p.AccountID == nil {
+		return ""
+	}
+	return *p.AccountID
+}
+
+// GetARN returns the ARN field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkAllowedAccounts) GetARN() string {
+	if p == nil || p.ARN == nil {
+		return ""
+	}
+	return *p.ARN
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkApp) GetName() string {
+	if p == nil || p.Name == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+// GetEndpointID returns the EndpointID field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkConnections) GetEndpointID() string {
+	if p == nil || p.EndpointID == nil {
+		return ""
+	}
+	return *p.EndpointID
+}
+
+// GetHostname returns the Hostname field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkConnections) GetHostname() string {
+	if p == nil || p.Hostname == nil {
+		return ""
+	}
+	return *p.Hostname
+}
+
+// GetOwnerARN returns the OwnerARN field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkConnections) GetOwnerARN() string {
+	if p == nil || p.OwnerARN == nil {
+		return ""
+	}
+	return *p.OwnerARN
+}
+
+// GetStatus returns the Status field if it's non-nil, zero value otherwise.
+func (p *PrivatelinkConnections) GetStatus() string {
+	if p == nil || p.Status == nil {
+		return ""
+	}
+	return *p.Status
+}
+
+// HasAllowedAccounts checks if PrivatelinkRequest has any AllowedAccounts.
+func (p *PrivatelinkRequest) HasAllowedAccounts() bool {
+	if p == nil || p.AllowedAccounts == nil {
+		return false
+	}
+	if len(p.AllowedAccounts) == 0 {
+		return false
+	}
+	return true
+}

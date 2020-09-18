@@ -32,7 +32,7 @@ type consumerGroupBody struct {
 // ListConsumerGroups returns a list of all consumer groups.
 func (k *Kafka) ListConsumerGroups(clusterID string) (*ConsumerGroups, *simpleresty.Response, error) {
 	var result *ConsumerGroups
-	urlStr := k.http.RequestURL("/clusters/%s/consumer_groups", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/consumer_groups", clusterID)
 
 	// Execute the request
 	response, getErr := k.http.Get(urlStr, &result, nil)
@@ -61,7 +61,7 @@ func (k *Kafka) GetConsumerGroupByName(clusterID, groupName string) (*ConsumerGr
 // The group is not ready for use until it appears in the LIST response.
 func (k *Kafka) CreateConsumerGroup(clusterID string, opts *consumerGroupRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
-	urlStr := k.http.RequestURL("/clusters/%s/consumer_groups", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/consumer_groups", clusterID)
 
 	reqBody := &consumerGroupBody{
 		ConsumerGroup: opts,
@@ -76,7 +76,7 @@ func (k *Kafka) CreateConsumerGroup(clusterID string, opts *consumerGroupRequest
 // DeleteConsumerGroup deletes an existing consumer group.
 func (k *Kafka) DeleteConsumerGroup(clusterID string, opts *consumerGroupRequest) (*Response, *simpleresty.Response, error) {
 	var result *Response
-	urlStr := k.http.RequestURL("/clusters/%s/consumer_groups", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/consumer_groups", clusterID)
 
 	reqBody := &consumerGroupBody{
 		ConsumerGroup: opts,

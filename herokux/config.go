@@ -15,15 +15,19 @@ import (
 )
 
 const (
-	DefaultMTLSProvisionTimeout         = int64(10)
-	DefaultMTLSMTLSDeprovisionTimeout   = int64(10)
-	DefaultMTLSIPRuleCreateTimeout      = int64(10)
-	DefaultMTLSCertificateCreateTimeout = int64(10)
-	DefaultMTLSCertificateDeleteTimeout = int64(10)
-	DefaultKafkaCGCreateTimeout         = int64(10)
-	DefaultKafkaCGDeleteTimeout         = int64(10)
-	DefaultKafkaTopicCreateTimeout      = int64(10)
-	DefaultKafkaTopicUpdateTimeout      = int64(10)
+	DefaultMTLSProvisionTimeout                    = int64(10)
+	DefaultMTLSMTLSDeprovisionTimeout              = int64(10)
+	DefaultMTLSIPRuleCreateTimeout                 = int64(10)
+	DefaultMTLSCertificateCreateTimeout            = int64(10)
+	DefaultMTLSCertificateDeleteTimeout            = int64(10)
+	DefaultKafkaCGCreateTimeout                    = int64(10)
+	DefaultKafkaCGDeleteTimeout                    = int64(10)
+	DefaultKafkaTopicCreateTimeout                 = int64(10)
+	DefaultKafkaTopicUpdateTimeout                 = int64(10)
+	DefaultPrivatelinkCreateTimeoutt               = int64(15)
+	DefaultPrivatelinkDeleteTimeout                = int64(15)
+	DefaultPrivatelinkAllowedAccountsAddTimeout    = int64(10)
+	DefaultPrivatelinkAllowedAccountsRemoveTimeout = int64(10)
 )
 
 type Config struct {
@@ -34,28 +38,36 @@ type Config struct {
 	Headers     map[string]string
 
 	// Custom Timeouts
-	MTLSProvisionTimeout         int64
-	MTLSDeprovisionTimeout       int64
-	MTLSIPRuleCreateTimeout      int64
-	MTLSCertificateCreateTimeout int64
-	MTLSCertificateDeleteTimeout int64
-	KafkaCGCreateTimeout         int64
-	KafkaCGDeleteTimeout         int64
-	KafkaTopicCreateTimeout      int64
-	KafkaTopicUpdateTimeout      int64
+	MTLSProvisionTimeout                    int64
+	MTLSDeprovisionTimeout                  int64
+	MTLSIPRuleCreateTimeout                 int64
+	MTLSCertificateCreateTimeout            int64
+	MTLSCertificateDeleteTimeout            int64
+	KafkaCGCreateTimeout                    int64
+	KafkaCGDeleteTimeout                    int64
+	KafkaTopicCreateTimeout                 int64
+	KafkaTopicUpdateTimeout                 int64
+	PrivatelinkCreateTimeout                int64
+	PrivatelinkDeleteTimeout                int64
+	PrivatelinkAllowedAccountsAddTimeout    int64
+	PrivatelinkAllowedAccountsRemoveTimeout int64
 }
 
 func NewConfig() *Config {
 	c := &Config{
-		MTLSProvisionTimeout:         DefaultMTLSProvisionTimeout,
-		MTLSDeprovisionTimeout:       DefaultMTLSMTLSDeprovisionTimeout,
-		MTLSIPRuleCreateTimeout:      DefaultMTLSIPRuleCreateTimeout,
-		MTLSCertificateCreateTimeout: DefaultMTLSCertificateCreateTimeout,
-		MTLSCertificateDeleteTimeout: DefaultMTLSCertificateDeleteTimeout,
-		KafkaCGCreateTimeout:         DefaultKafkaCGCreateTimeout,
-		KafkaCGDeleteTimeout:         DefaultKafkaCGDeleteTimeout,
-		KafkaTopicCreateTimeout:      DefaultKafkaTopicCreateTimeout,
-		KafkaTopicUpdateTimeout:      DefaultKafkaTopicUpdateTimeout,
+		MTLSProvisionTimeout:                    DefaultMTLSProvisionTimeout,
+		MTLSDeprovisionTimeout:                  DefaultMTLSMTLSDeprovisionTimeout,
+		MTLSIPRuleCreateTimeout:                 DefaultMTLSIPRuleCreateTimeout,
+		MTLSCertificateCreateTimeout:            DefaultMTLSCertificateCreateTimeout,
+		MTLSCertificateDeleteTimeout:            DefaultMTLSCertificateDeleteTimeout,
+		KafkaCGCreateTimeout:                    DefaultKafkaCGCreateTimeout,
+		KafkaCGDeleteTimeout:                    DefaultKafkaCGDeleteTimeout,
+		KafkaTopicCreateTimeout:                 DefaultKafkaTopicCreateTimeout,
+		KafkaTopicUpdateTimeout:                 DefaultKafkaTopicUpdateTimeout,
+		PrivatelinkCreateTimeout:                DefaultPrivatelinkCreateTimeoutt,
+		PrivatelinkDeleteTimeout:                DefaultPrivatelinkDeleteTimeout,
+		PrivatelinkAllowedAccountsAddTimeout:    DefaultPrivatelinkAllowedAccountsAddTimeout,
+		PrivatelinkAllowedAccountsRemoveTimeout: DefaultPrivatelinkAllowedAccountsRemoveTimeout,
 	}
 	return c
 }
@@ -137,6 +149,22 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := delaysConfig["kafka_topic_update_timeout"].(int); ok {
 				c.KafkaTopicUpdateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["privatelink_create_timeout"].(int); ok {
+				c.PrivatelinkCreateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["privatelink_delete_timeout"].(int); ok {
+				c.PrivatelinkDeleteTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["privatelink_allowed_acccounts_add_timeout"].(int); ok {
+				c.PrivatelinkAllowedAccountsAddTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["privatelink_allowed_acccounts_remove_timeout"].(int); ok {
+				c.PrivatelinkAllowedAccountsRemoveTimeout = int64(v)
 			}
 		}
 	}

@@ -91,7 +91,7 @@ type ClusterLimitsDataSize struct {
 // Get retrieves information about a Kafka cluster.
 func (k *Kafka) Get(clusterID string) (*Cluster, *simpleresty.Response, error) {
 	var result *Cluster
-	urlStr := k.http.RequestURL("/clusters/%s", clusterID)
+	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s", clusterID)
 
 	// Execute the request
 	response, getErr := k.http.Get(urlStr, &result, nil)
