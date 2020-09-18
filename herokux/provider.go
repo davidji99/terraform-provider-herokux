@@ -14,8 +14,8 @@ func New() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"api_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:     schema.TypeString,
+				Optional: true,
 				// Same environment variable to keep things consistent with the Heroku provider.
 				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_KEY", nil),
 			},
@@ -160,6 +160,7 @@ func New() *schema.Provider {
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":      resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":               resourceHerokuxKafkaTopic(),
+			"herokux_postgres":                  resourceHerokuxPostgres(),
 			"herokux_postgres_mtls":             resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate": resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":      resourceHerokuxPostgresMTLSIPRule(),
