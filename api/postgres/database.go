@@ -36,7 +36,7 @@ func (p *Postgres) GetDatabase(dbID string) (*Database, *simpleresty.Response, e
 	urlStr := p.http.RequestURL("/client/v11/databases/%s", dbID)
 
 	// Execute the request
-	response, createErr := p.http.Post(urlStr, &result, nil)
+	response, createErr := p.http.Get(urlStr, &result, nil)
 
 	return result, response, createErr
 }
