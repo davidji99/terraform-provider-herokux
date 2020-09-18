@@ -18,8 +18,8 @@ const (
 	// DefaultPostgresAPIBaseURL is the default base URL for Postgres related APIs.
 	DefaultPostgresAPIBaseURL = "https://postgres-api.heroku.com"
 
-	// DefaultDataBaseURL is the default base URL for the Data Graph APIs.
-	DefaultDataBaseURL = "https://data-api.heroku.com"
+	// DefaultDataAPIBaseURL is the default base URL for the Data Graph APIs.
+	DefaultDataAPIBaseURL = "https://data-api.heroku.com"
 
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
@@ -49,7 +49,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		MetricsBaseURL:    DefaultMetricAPIBaseURL,
 		PostgresBaseURL:   DefaultPostgresAPIBaseURL,
 		KafkaBaseURL:      DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
-		DataBaseURL:       DefaultDataBaseURL,
+		DataBaseURL:       DefaultDataAPIBaseURL,
 		UserAgent:         DefaultUserAgent,
 		APIToken:          "",
 		BasicAuth:         "",

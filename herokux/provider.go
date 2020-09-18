@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	heroku "github.com/heroku/heroku-go/v5"
 	"log"
 )
 
@@ -15,19 +16,33 @@ func New() *schema.Provider {
 			"api_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
+				// Same environment variable to keep things consistent with the Heroku provider.
 				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_KEY", nil),
 			},
 
 			"metrics_api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("HEROKU_METRICS_API_URL", api.DefaultMetricAPIBaseURL),
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_METRICS_API_URL", api.DefaultMetricAPIBaseURL),
 			},
 
 			"postgres_api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("HEROKU_POSTGRES_API_URL", api.DefaultPostgresAPIBaseURL),
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_POSTGRES_API_URL", api.DefaultPostgresAPIBaseURL),
+			},
+
+			"data_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_DATA_API_URL", api.DefaultDataAPIBaseURL),
+			},
+
+			"platform_api_url": {
+				Type:     schema.TypeString,
+				Optional: true,
+				// Same environment variable to keep things consistent with the Heroku provider.
+				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_URL", heroku.DefaultURL),
 			},
 
 			"headers": {
