@@ -220,7 +220,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		// First, make sure leader database is ready to receive a follower
 		log.Printf("[INFO] Waiting for database leader ID (%s) to be able to receive followers", leaderDB.ID)
 		followStateConf := &resource.StateChangeConf{
-			Pending: []string{"Unavailable"},
+			Pending: []string{"Unavailable", "Temporarily Unavailable"},
 			Target:  []string{"Available"},
 			Refresh: FollowStateRefreshFunc(api, leaderDB.ID),
 			Timeout: 20 * time.Minute,
@@ -258,6 +258,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 
 		followerDBAppID = followerDB.App.ID
+		followerDBID = followerDB.ID
 	}
 
 	// If a leader & follower are created, set the resource ID be in the following format:
@@ -281,7 +282,6 @@ func resourceHerokuxPostgresUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	time.Sleep(5 * time.Minute)
 	config := meta.(*Config)
 	platformAPI := config.PlatformAPI
 
@@ -289,7 +289,7 @@ func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, 
 	resourceID := strings.Split(d.Id(), ":")
 
 	// Loop through the resource IDs and delete database(s) in reverse so we delete followers then the leader.
-	for i := len(resourceID); i >= 0; i-- {
+	for i := len(resourceID) - 1; i >= 0; i-- {
 		// Extract the app and db id from compositeID.
 		ids := strings.Split(resourceID[i], "|")
 		appID := ids[0]
