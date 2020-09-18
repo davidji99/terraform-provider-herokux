@@ -10,6 +10,7 @@ import (
 	heroku "github.com/heroku/heroku-go/v5"
 	"log"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -180,11 +181,6 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 				log.Printf("[DEBUG] database follower plan : %v", plan)
 				followerOpts.Plan = fmt.Sprintf("heroku-postgresql:%s", plan)
 			}
-
-			// Set the followerOpts.Config `follow` attribute to follow the leader database
-			followerOpts.Config = map[string]string{
-				"follow": fmt.Sprintf("%s::DATABASE_URL", leaderAppID),
-			}
 		} else {
 			log.Printf("[DEBUG] No database follower defined. Skipping...")
 		}
@@ -216,7 +212,14 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 
 	// Now proceed to create follower database if applicable.
 	followerDBAppID := ""
+	followerDBID := ""
 	if createFollower {
+		// First, set the followerOpts.Config `follow` attribute to follow the leader database
+		followerOpts.Config = map[string]string{
+			// requires the app NAME instead of UUID
+			"follow": fmt.Sprintf("%s::%s", leaderDB.App.Name, leaderDB.ConfigVars[0]),
+		}
+
 		log.Printf("[DEBUG] Creating database follower...")
 		followerDB, followerCreateErr := platformAPI.AddOnCreate(context.TODO(), followerAppID, followerOpts)
 		if followerCreateErr != nil {
@@ -241,15 +244,52 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		followerDBAppID = followerDB.App.ID
 	}
 
-	// If a leader & follower are created, set the resource ID to be a composite of the databases app IDs.
-	// Otherwise, set the resource ID to the database leader app ID.
+	// If a leader & follower are created, set the resource ID be in the following format:
+	// - "<LEADER_APP_ID>|<LEADER_DB_ID>:<FOLLOWER_APP_ID>|<FOLLOWER_DB_ID>"
 	if createFollower {
-		d.SetId(fmt.Sprintf("%s:%s", leaderDB.App.ID, followerDBAppID))
+		d.SetId(fmt.Sprintf("%s|%s:%s|%s", leaderDB.App.ID, leaderDB.ID, followerDBAppID, followerDBID))
 	} else {
-		d.SetId(fmt.Sprintf("%s", leaderDB.App.ID))
+		d.SetId(fmt.Sprintf("%s|%s", leaderDB.App.ID, leaderDB.ID))
 	}
 
 	return resourceHerokuxPostgresRead(ctx, d, meta)
+}
+
+func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+
+	return nil
+}
+
+func resourceHerokuxPostgresUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return nil
+}
+
+func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*Config)
+	platformAPI := config.PlatformAPI
+
+	// Split the resource ID by a colon incase a leader and follower were created prior to deletion.
+	resourceID := strings.Split(d.Id(), ":")
+
+	// Loop through the resource IDs and delete database(s).
+	for _, compositeID := range resourceID {
+		// Extract the app and db id from compositeID.
+		ids := strings.Split(compositeID, "|")
+		appID := ids[0]
+		dbID := ids[1]
+
+		log.Printf("[INFO] Deleting database ID (%s) on app ID (%s)", dbID, appID)
+
+		// Destroy the app
+		_, deleteErr := platformAPI.AddOnDelete(context.TODO(), appID, dbID)
+		if deleteErr != nil {
+			return diag.FromErr(deleteErr)
+		}
+	}
+
+	d.SetId("")
+
+	return nil
 }
 
 func getDatabaseInfo(dbList []interface{}, position string) map[string]interface{} {
@@ -261,18 +301,6 @@ func getDatabaseInfo(dbList []interface{}, position string) map[string]interface
 			}
 		}
 	}
-	return nil
-}
-
-func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return nil
-}
-
-func resourceHerokuxPostgresUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return nil
-}
-
-func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	return nil
 }
 
