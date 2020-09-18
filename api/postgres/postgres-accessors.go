@@ -9,6 +9,148 @@ import (
 	"time"
 )
 
+// GetAddonID returns the AddonID field if it's non-nil, zero value otherwise.
+func (d *Database) GetAddonID() string {
+	if d == nil || d.AddonID == nil {
+		return ""
+	}
+	return *d.AddonID
+}
+
+// GetAvailableForIngress returns the AvailableForIngress field if it's non-nil, zero value otherwise.
+func (d *Database) GetAvailableForIngress() bool {
+	if d == nil || d.AvailableForIngress == nil {
+		return false
+	}
+	return *d.AvailableForIngress
+}
+
+// GetFollowing returns the Following field if it's non-nil, zero value otherwise.
+func (d *Database) GetFollowing() string {
+	if d == nil || d.Following == nil {
+		return ""
+	}
+	return *d.Following
+}
+
+// GetHerokuResourceID returns the HerokuResourceID field if it's non-nil, zero value otherwise.
+func (d *Database) GetHerokuResourceID() string {
+	if d == nil || d.HerokuResourceID == nil {
+		return ""
+	}
+	return *d.HerokuResourceID
+}
+
+// GetHotStandby returns the HotStandby field if it's non-nil, zero value otherwise.
+func (d *Database) GetHotStandby() bool {
+	if d == nil || d.HotStandby == nil {
+		return false
+	}
+	return *d.HotStandby
+}
+
+// HasInfo checks if Database has any Info.
+func (d *Database) HasInfo() bool {
+	if d == nil || d.Info == nil {
+		return false
+	}
+	if len(d.Info) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetLeader returns the Leader field.
+func (d *Database) GetLeader() *DatabaseLeader {
+	if d == nil {
+		return nil
+	}
+	return d.Leader
+}
+
+// GetMetaasSource returns the MetaasSource field if it's non-nil, zero value otherwise.
+func (d *Database) GetMetaasSource() string {
+	if d == nil || d.MetaasSource == nil {
+		return ""
+	}
+	return *d.MetaasSource
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *Database) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetPostgresVersion returns the PostgresVersion field if it's non-nil, zero value otherwise.
+func (d *Database) GetPostgresVersion() string {
+	if d == nil || d.PostgresVersion == nil {
+		return ""
+	}
+	return *d.PostgresVersion
+}
+
+// GetResourceURL returns the ResourceURL field if it's non-nil, zero value otherwise.
+func (d *Database) GetResourceURL() string {
+	if d == nil || d.ResourceURL == nil {
+		return ""
+	}
+	return *d.ResourceURL
+}
+
+// GetWaiting returns the Waiting field if it's non-nil, zero value otherwise.
+func (d *Database) GetWaiting() bool {
+	if d == nil || d.Waiting == nil {
+		return false
+	}
+	return *d.Waiting
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DatabaseInfo) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetResolveDBName returns the ResolveDBName field if it's non-nil, zero value otherwise.
+func (d *DatabaseInfo) GetResolveDBName() bool {
+	if d == nil || d.ResolveDBName == nil {
+		return false
+	}
+	return *d.ResolveDBName
+}
+
+// HasValues checks if DatabaseInfo has any Values.
+func (d *DatabaseInfo) HasValues() bool {
+	if d == nil || d.Values == nil {
+		return false
+	}
+	if len(d.Values) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetAddonID returns the AddonID field if it's non-nil, zero value otherwise.
+func (d *DatabaseLeader) GetAddonID() string {
+	if d == nil || d.AddonID == nil {
+		return ""
+	}
+	return *d.AddonID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DatabaseLeader) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
 // HasActiveIPRules checks if MTLS has any ActiveIPRules.
 func (m *MTLS) HasActiveIPRules() bool {
 	if m == nil || m.ActiveIPRules == nil {

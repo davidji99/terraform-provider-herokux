@@ -3,6 +3,8 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -117,6 +119,7 @@ func resourceHerokuxPostgresImport(ctx context.Context, d *schema.ResourceData, 
 
 func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
+	api := config.API
 	platformAPI := config.PlatformAPI
 
 	// Define variables to create new leader & follower datbaases
@@ -214,10 +217,23 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 	followerDBAppID := ""
 	followerDBID := ""
 	if createFollower {
-		// First, set the followerOpts.Config `follow` attribute to follow the leader database
+		// First, make sure leader database is ready to receive a follower
+		log.Printf("[INFO] Waiting for database leader ID (%s) to be able to receive followers", leaderDB.ID)
+		followStateConf := &resource.StateChangeConf{
+			Pending: []string{"Unavailable"},
+			Target:  []string{"Available"},
+			Refresh: FollowStateRefreshFunc(api, leaderDB.ID),
+			Timeout: 20 * time.Minute,
+		}
+
+		if _, err := followStateConf.WaitForStateContext(ctx); err != nil {
+			return diag.Errorf("Error waiting for database leader (%s) to be provisioned: %s", leaderDB.ID, err)
+		}
+
+		// Second, set the followerOpts.Config `follow` attribute to follow the leader database
 		followerOpts.Config = map[string]string{
 			// requires the app NAME instead of UUID
-			"follow": fmt.Sprintf("%s::%s", leaderDB.App.Name, leaderDB.ConfigVars[0]),
+			"follow": fmt.Sprintf("%s::%s", leaderDB.App.Name, "DATABASE_URL"),
 		}
 
 		log.Printf("[DEBUG] Creating database follower...")
@@ -265,16 +281,17 @@ func resourceHerokuxPostgresUpdate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	time.Sleep(5 * time.Minute)
 	config := meta.(*Config)
 	platformAPI := config.PlatformAPI
 
 	// Split the resource ID by a colon incase a leader and follower were created prior to deletion.
 	resourceID := strings.Split(d.Id(), ":")
 
-	// Loop through the resource IDs and delete database(s).
-	for _, compositeID := range resourceID {
+	// Loop through the resource IDs and delete database(s) in reverse so we delete followers then the leader.
+	for i := len(resourceID); i >= 0; i-- {
 		// Extract the app and db id from compositeID.
-		ids := strings.Split(compositeID, "|")
+		ids := strings.Split(resourceID[i], "|")
 		appID := ids[0]
 		dbID := ids[1]
 
@@ -335,5 +352,26 @@ func AddOnStateRefreshFunc(platformAPI *heroku.Service, addOnID string) resource
 		// The type conversion here can be dropped when the vendored version of
 		// heroku-go is updated.
 		return addon, addon.State, nil
+	}
+}
+
+// FollowStateRefreshFunc checks if a DB is ready to be followed
+func FollowStateRefreshFunc(api *api.Client, dbID string) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		db, _, getErr := api.Postgres.GetDatabase(dbID)
+		if getErr != nil {
+			return nil, "", getErr
+		}
+
+		followInfo := db.FindInfoByName(postgres.DatabaseInfoNames.FORKFOLLOW.ToString())
+		if followInfo == nil {
+			return nil, "", fmt.Errorf("could not determine status of %s's follow status", dbID)
+		}
+
+		if len(followInfo.Values) == 0 {
+			return db, "Unavailable", nil
+		}
+
+		return db, followInfo.Values[0].(string), nil
 	}
 }
