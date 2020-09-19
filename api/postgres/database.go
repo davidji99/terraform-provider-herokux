@@ -31,7 +31,14 @@ type DatabaseInfo struct {
 	ResolveDBName *bool         `json:"resolve_db_name,omitempty"`
 }
 
-func (p *Postgres) GetDatabase(dbID string) (*Database, *simpleresty.Response, error) {
+// DatabaseWaitStatus rerepresents the status of a database.
+type DatabaseWaitStatus struct {
+	Status    *string `json:"message,omitempty"`
+	IsWaiting *string `json:"waiting?,omitempty"`
+}
+
+// GetDB returns detailed information about a Heroku postgres database.
+func (p *Postgres) GetDB(dbID string) (*Database, *simpleresty.Response, error) {
 	var result *Database
 	urlStr := p.http.RequestURL("/client/v11/databases/%s", dbID)
 
@@ -41,7 +48,19 @@ func (p *Postgres) GetDatabase(dbID string) (*Database, *simpleresty.Response, e
 	return result, response, getErr
 }
 
-func (p *Postgres) UnfollowDatabase(dbID string) (*GenericResponse, *simpleresty.Response, error) {
+// GetDBWaitStatus returns the database's overall status and whether or not it is waiting.
+func (p *Postgres) GetDBWaitStatus(dbID string) (*DatabaseWaitStatus, *simpleresty.Response, error) {
+	var result *DatabaseWaitStatus
+	urlStr := p.http.RequestURL("/client/v11/databases/%s/wait_status", dbID)
+
+	// Execute the request
+	response, getErr := p.http.Get(urlStr, &result, nil)
+
+	return result, response, getErr
+}
+
+// UnfollowDatabase tells a follower DB to unfollow the leader DB.
+func (p *Postgres) UnfollowDB(dbID string) (*GenericResponse, *simpleresty.Response, error) {
 	var result *GenericResponse
 	urlStr := p.http.RequestURL("/client/v11/databases/%s/unfollow", dbID)
 
@@ -54,10 +73,6 @@ func (p *Postgres) UnfollowDatabase(dbID string) (*GenericResponse, *simpleresty
 	response, err := p.http.Put(urlStr, &result, &body)
 
 	return result, response, err
-}
-
-func (p *Postgres) PromoteDatabase() {
-
 }
 
 func (d *Database) FindInfoByName(name string) *DatabaseInfo {

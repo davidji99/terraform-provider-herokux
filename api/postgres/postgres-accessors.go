@@ -151,6 +151,38 @@ func (d *DatabaseLeader) GetName() string {
 	return *d.Name
 }
 
+// GetIsWaiting returns the IsWaiting field if it's non-nil, zero value otherwise.
+func (d *DatabaseWaitStatus) GetIsWaiting() string {
+	if d == nil || d.IsWaiting == nil {
+		return ""
+	}
+	return *d.IsWaiting
+}
+
+// GetStatus returns the Status field if it's non-nil, zero value otherwise.
+func (d *DatabaseWaitStatus) GetStatus() string {
+	if d == nil || d.Status == nil {
+		return ""
+	}
+	return *d.Status
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (g *GenericResponse) GetID() string {
+	if g == nil || g.ID == nil {
+		return ""
+	}
+	return *g.ID
+}
+
+// GetMessage returns the Message field if it's non-nil, zero value otherwise.
+func (g *GenericResponse) GetMessage() string {
+	if g == nil || g.Message == nil {
+		return ""
+	}
+	return *g.Message
+}
+
 // HasActiveIPRules checks if MTLS has any ActiveIPRules.
 func (m *MTLS) HasActiveIPRules() bool {
 	if m == nil || m.ActiveIPRules == nil {

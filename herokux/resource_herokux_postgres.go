@@ -426,7 +426,7 @@ func AddOnStateRefreshFunc(platformAPI *heroku.Service, addOnID string) resource
 // FollowStateRefreshFunc checks if a DB is ready to be followed
 func FollowStateRefreshFunc(api *api.Client, dbID string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		db, _, getErr := api.Postgres.GetDatabase(dbID)
+		db, _, getErr := api.Postgres.GetDB(dbID)
 		if getErr != nil {
 			return nil, "", getErr
 		}
