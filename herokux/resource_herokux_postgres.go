@@ -33,11 +33,6 @@ func resourceHerokuxPostgres() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"description": {
-				Type:     schema.TypeString,
-				Optional: true,
-			},
-
 			"database": {
 				Type:     schema.TypeSet,
 				Required: true,
@@ -60,8 +55,9 @@ func resourceHerokuxPostgres() *schema.Resource {
 
 						"plan": {
 							// Value required is the plan itself sans the 'heroku-postgresql:' part.
-							Type:     schema.TypeString,
-							Required: true,
+							Type:      schema.TypeString,
+							Required:  true,
+							StateFunc: appendPlanName,
 						},
 
 						//"name": {
@@ -77,25 +73,30 @@ func resourceHerokuxPostgres() *schema.Resource {
 						//	ForceNew: true,
 						//},
 
-						"config_var": {
-							Type:     schema.TypeString,
+						"config_vars": {
+							Type: schema.TypeList,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
 							Computed: true,
 						},
 
-						"addon_id": {
-							Type:     schema.TypeString,
-							Computed: true,
+						"id": {
+							Type:        schema.TypeString,
+							Description: "The addon ID for the database",
+							Computed:    true,
 						},
 
-						"addon_name": {
-							Type:     schema.TypeString,
-							Computed: true,
+						"name": {
+							Type:        schema.TypeString,
+							Description: "The addon name for the database",
+							Computed:    true,
 						},
 
-						"addon_attachment_id": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
+						//"addon_attachment_id": {
+						//	Type:     schema.TypeString,
+						//	Computed: true,
+						//},
 					},
 				},
 			},
@@ -109,8 +110,20 @@ func resourceHerokuxPostgres() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"database_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 		},
 	}
+}
+
+func appendPlanName(p interface{}) string {
+	if p == nil || p == (*string)(nil) {
+		return ""
+	}
+	return fmt.Sprintf("heroku-postgresql:%s", p.(string))
 }
 
 func resourceHerokuxPostgresImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -130,6 +143,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 	var leaderAppID string
 	var followerAppID string
 
+	// Track if a follower needs to be created
 	createFollower := false
 
 	// Validate to make sure there's one database block set to `Leader`.
@@ -182,7 +196,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 			if planRaw, ok := followerInfo["plan"]; ok {
 				plan := planRaw.(string)
 				log.Printf("[DEBUG] database follower plan : %v", plan)
-				followerOpts.Plan = fmt.Sprintf("heroku-postgresql:%s", plan)
+				followerOpts.Plan = plan
 			}
 		} else {
 			log.Printf("[DEBUG] No database follower defined. Skipping...")
@@ -227,13 +241,13 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		}
 
 		if _, err := followStateConf.WaitForStateContext(ctx); err != nil {
-			return diag.Errorf("Error waiting for database leader (%s) to be provisioned: %s", leaderDB.ID, err)
+			return diag.Errorf("Error waiting for database leader (%s) to be ready for followers: %s", leaderDB.ID, err)
 		}
 
 		// Second, set the followerOpts.Config `follow` attribute to follow the leader database
 		followerOpts.Config = map[string]string{
 			// requires the app NAME instead of UUID
-			"follow": fmt.Sprintf("%s::%s", leaderDB.App.Name, "DATABASE_URL"),
+			"follow": fmt.Sprintf("%s::%s", leaderDB.App.Name, "DATABASE_URL"), // FIXME: should this be variable be hardcoded?
 		}
 
 		log.Printf("[DEBUG] Creating database follower...")
@@ -273,6 +287,62 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	config := meta.(*Config)
+	api := config.API
+	platformAPI := config.PlatformAPI
+
+	var leaderAppID, leaderDatabaseID, followerAppID, followerDatabaseID string
+	var dbs []map[string]interface{}
+
+	// Parse resource ID
+	resourceIDList := strings.Split(d.Id(), ":")
+
+	// Set leader database info in state
+	leaderAppID = strings.Split(resourceIDList[0], "|")[0]
+	leaderDatabaseID = strings.Split(resourceIDList[0], "|")[1]
+	leaderDB, getLErr := platformAPI.AddOnInfo(context.TODO(), leaderDatabaseID)
+	if getLErr != nil {
+		return diag.FromErr(getLErr)
+	}
+
+	leader := map[string]interface{}{
+		"position":   Leader,
+		"app_id":     leaderDB.App.ID,
+		"plan":       leaderDB.Plan.Name,
+		"config_var": leaderDB.ConfigVars,
+		"id":         leaderDB.ID,
+		"name":       leaderDB.Name,
+	}
+	dbs = append(dbs, leader)
+
+	if len(resourceIDList) >= 2 {
+		followerAppID = strings.Split(resourceIDList[1], "|")[0]
+		followerDatabaseID = strings.Split(resourceIDList[1], "|")[1]
+		followerDB, getFErr := platformAPI.AddOnInfo(context.TODO(), followerDatabaseID)
+		if getFErr != nil {
+			return diag.FromErr(getFErr)
+		}
+
+		follower := map[string]interface{}{
+			"position":   Leader,
+			"app_id":     followerDB.App.ID,
+			"plan":       followerDB.Plan.Name,
+			"config_var": followerDB.ConfigVars,
+			"id":         followerDB.ID,
+			"name":       followerDB.Name,
+		}
+		dbs = append(dbs, follower)
+	}
+
+	// Set database_count in state
+	d.Set("database_count", len(resourceIDList))
+
+	// Set database leader/follower ID
+	d.Set("database_leader_id", leaderDatabaseID)
+	d.Set("database_follower_id", followerDatabaseID)
+
+	// Set database information
+	d.Set("database", dbs)
 
 	return nil
 }
@@ -286,12 +356,12 @@ func resourceHerokuxPostgresDelete(ctx context.Context, d *schema.ResourceData, 
 	platformAPI := config.PlatformAPI
 
 	// Split the resource ID by a colon incase a leader and follower were created prior to deletion.
-	resourceID := strings.Split(d.Id(), ":")
+	resourceIDList := strings.Split(d.Id(), ":")
 
-	// Loop through the resource IDs and delete database(s) in reverse so we delete followers then the leader.
-	for i := len(resourceID) - 1; i >= 0; i-- {
+	// Loop through the resource IDs and delete database(s) in reverse so we delete follower(s) first and then the leader.
+	for i := len(resourceIDList) - 1; i >= 0; i-- {
 		// Extract the app and db id from compositeID.
-		ids := strings.Split(resourceID[i], "|")
+		ids := strings.Split(resourceIDList[i], "|")
 		appID := ids[0]
 		dbID := ids[1]
 
