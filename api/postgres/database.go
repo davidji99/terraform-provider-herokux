@@ -36,9 +36,28 @@ func (p *Postgres) GetDatabase(dbID string) (*Database, *simpleresty.Response, e
 	urlStr := p.http.RequestURL("/client/v11/databases/%s", dbID)
 
 	// Execute the request
-	response, createErr := p.http.Get(urlStr, &result, nil)
+	response, getErr := p.http.Get(urlStr, &result, nil)
 
-	return result, response, createErr
+	return result, response, getErr
+}
+
+func (p *Postgres) UnfollowDatabase(dbID string) (*GenericResponse, *simpleresty.Response, error) {
+	var result *GenericResponse
+	urlStr := p.http.RequestURL("/client/v11/databases/%s/unfollow", dbID)
+
+	// Construct request body
+	body := struct {
+		Host string `json:"host"`
+	}{Host: ""}
+
+	// Execute the request
+	response, err := p.http.Put(urlStr, &result, &body)
+
+	return result, response, err
+}
+
+func (p *Postgres) PromoteDatabase() {
+
 }
 
 func (d *Database) FindInfoByName(name string) *DatabaseInfo {

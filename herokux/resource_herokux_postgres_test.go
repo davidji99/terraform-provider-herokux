@@ -18,8 +18,6 @@ func TestAccHerokuxPostgres_OnlyLeader(t *testing.T) {
 				Config: testAccCheckHerokuxPostgres_OnlyLeader(appID, plan),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_postgres.foobar", "description", "High Availablility for Foobar"),
-					resource.TestCheckResourceAttr(
 						"herokux_postgres.foobar", "database.#", "1"),
 					//helper.TestCheckTypeSetElemAttr("herokux_postgres.foobar",
 					//	"allowed_accounts.*", "123456789123"),
@@ -40,8 +38,6 @@ func TestAccHerokuxPostgres_LeaderAndFollower(t *testing.T) {
 			{
 				Config: testAccCheckHerokuxPostgres_LeaderAndFollower(appID, plan),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr(
-						"herokux_postgres.foobar", "description", "High Availablility for Foobar"),
 					resource.TestCheckResourceAttrSet(
 						"herokux_postgres.foobar", "database_leader_id"),
 					resource.TestCheckResourceAttrSet(
