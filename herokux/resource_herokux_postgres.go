@@ -178,7 +178,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		if planRaw, ok := leaderInfo["plan"]; ok {
 			plan := planRaw.(string)
 			log.Printf("[DEBUG] database leader plan : %v", plan)
-			leaderOpts.Plan = fmt.Sprintf("heroku-postgresql:%s", plan)
+			leaderOpts.Plan = plan
 		}
 
 		log.Printf("[DEBUG] Database leader create opts : %v", leaderOpts)
@@ -288,17 +288,16 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 
 func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	config := meta.(*Config)
-	api := config.API
+	//api := config.API
 	platformAPI := config.PlatformAPI
 
-	var leaderAppID, leaderDatabaseID, followerAppID, followerDatabaseID string
+	var leaderDatabaseID, followerDatabaseID string
 	var dbs []map[string]interface{}
 
 	// Parse resource ID
 	resourceIDList := strings.Split(d.Id(), ":")
 
 	// Set leader database info in state
-	leaderAppID = strings.Split(resourceIDList[0], "|")[0]
 	leaderDatabaseID = strings.Split(resourceIDList[0], "|")[1]
 	leaderDB, getLErr := platformAPI.AddOnInfo(context.TODO(), leaderDatabaseID)
 	if getLErr != nil {
@@ -306,17 +305,16 @@ func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	leader := map[string]interface{}{
-		"position":   Leader,
-		"app_id":     leaderDB.App.ID,
-		"plan":       leaderDB.Plan.Name,
-		"config_var": leaderDB.ConfigVars,
-		"id":         leaderDB.ID,
-		"name":       leaderDB.Name,
+		"position":    Leader,
+		"app_id":      leaderDB.App.ID,
+		"plan":        leaderDB.Plan.Name,
+		"config_vars": leaderDB.ConfigVars,
+		"id":          leaderDB.ID,
+		"name":        leaderDB.Name,
 	}
 	dbs = append(dbs, leader)
 
 	if len(resourceIDList) >= 2 {
-		followerAppID = strings.Split(resourceIDList[1], "|")[0]
 		followerDatabaseID = strings.Split(resourceIDList[1], "|")[1]
 		followerDB, getFErr := platformAPI.AddOnInfo(context.TODO(), followerDatabaseID)
 		if getFErr != nil {
@@ -324,12 +322,12 @@ func resourceHerokuxPostgresRead(ctx context.Context, d *schema.ResourceData, me
 		}
 
 		follower := map[string]interface{}{
-			"position":   Leader,
-			"app_id":     followerDB.App.ID,
-			"plan":       followerDB.Plan.Name,
-			"config_var": followerDB.ConfigVars,
-			"id":         followerDB.ID,
-			"name":       followerDB.Name,
+			"position":    follower,
+			"app_id":      followerDB.App.ID,
+			"plan":        followerDB.Plan.Name,
+			"config_vars": followerDB.ConfigVars,
+			"id":          followerDB.ID,
+			"name":        followerDB.Name,
 		}
 		dbs = append(dbs, follower)
 	}

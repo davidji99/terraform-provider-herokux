@@ -42,6 +42,12 @@ func TestAccHerokuxPostgres_LeaderAndFollower(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"herokux_postgres.foobar", "description", "High Availablility for Foobar"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres.foobar", "database_leader_id"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres.foobar", "database_follower_id"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres.foobar", "database_count", "2"),
 					resource.TestCheckResourceAttr(
 						"herokux_postgres.foobar", "database.#", "2"),
 					//helper.TestCheckTypeSetElemAttr("herokux_postgres.foobar",
@@ -55,8 +61,6 @@ func TestAccHerokuxPostgres_LeaderAndFollower(t *testing.T) {
 func testAccCheckHerokuxPostgres_OnlyLeader(appID, plan string) string {
 	return fmt.Sprintf(`
 resource "herokux_postgres" "foobar" {
-	description = "High Availablility for Foobar"
-
 	database {
 		position = "leader"
 		app_id = "%s"
@@ -69,8 +73,6 @@ resource "herokux_postgres" "foobar" {
 func testAccCheckHerokuxPostgres_LeaderAndFollower(appID, plan string) string {
 	return fmt.Sprintf(`
 resource "herokux_postgres" "foobar" {
-	description = "High Availablility for Foobar"
-
 	database {
 		position = "leader"
 		app_id = "%[1]s"
