@@ -160,11 +160,12 @@ func New() *schema.Provider {
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":      resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":               resourceHerokuxKafkaTopic(),
-			"herokux_postgres":                  resourceHerokuxPostgres(),
 			"herokux_postgres_mtls":             resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate": resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":      resourceHerokuxPostgresMTLSIPRule(),
 			"herokux_privatelink":               resourceHerokuxPrivatelink(),
+
+			//"herokux_postgres":                  resourceHerokuxPostgres(),
 		},
 
 		ConfigureContextFunc: providerConfigure,

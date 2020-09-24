@@ -116,6 +116,7 @@ func resourceHerokuxPostgres() *schema.Resource {
 				Computed: true,
 			},
 		},
+		//CustomizeDiff: nil, TODO: add the validation ensuring a leader position exists
 	}
 }
 
@@ -166,7 +167,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 			return diag.Errorf("did not specify a database with position of '%s' even if you're only creating one database", Leader)
 		}
 
-		// Collect information regarding the Leader database.
+		// Collect information regarding the leader from the `database` attribute.
 		// There will always be a Leader database so no need to do a nil check.
 		leaderInfo := getDatabaseInfo(vl, Leader)
 		if appIdRaw, ok := leaderInfo["app_id"]; ok {
