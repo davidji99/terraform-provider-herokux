@@ -13,6 +13,7 @@ in the official [Heroku Terraform provider](https://github.com/heroku/terraform-
 **This provider has no relationship with Heroku.**
 
 This provider is designed to supplement the [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
+A majority of this provider's resources often require Heroku provider resources to be created first.
 
 -> **IMPORTANT!**
 This provider should be treated as experimental and to be used with caution when terraforming resources in environments
@@ -150,3 +151,12 @@ Only a single `timeouts` block may be specified and it supports the following ar
 
   * `privatelink_allowed_acccounts_add_timeout` - (Optional) The number of minutes to wait for allowed accounts
   to become active for a privatelink. Defaults to 10 minutes. Minimum required is 2 minutes.
+
+  * `data_connector_create_timeout` - (Optional) The number of minutes to wait for allowed accounts
+  to become active for a privatelink. Defaults to 20 minutes. Minimum required is 10 minutes.
+
+  * `data_connector_delete_timeout` - (Optional) The number of minutes to wait for allowed accounts
+  to become active for a privatelink. Defaults to 10 minutes. Minimum required is 3 minutes.
+
+  * `data_connector_update_timeout` - (Optional) The number of minutes to wait for allowed accounts
+  to become active for a privatelink. Defaults to 10 minutes. Minimum required is 5 minutes.

@@ -147,6 +147,27 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(2),
 						},
+
+						"data_connector_create_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      20,
+							ValidateFunc: validation.IntAtLeast(10),
+						},
+
+						"data_connector_delete_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(3),
+						},
+
+						"data_connector_update_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(5),
+						},
 					},
 				},
 			},
@@ -157,6 +178,7 @@ func New() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"herokux_data_connector":            resourceHerokuxDataConnector(),
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":      resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":               resourceHerokuxKafkaTopic(),

@@ -30,6 +30,9 @@ const (
 	DefaultPrivatelinkDeleteTimeout                = int64(15)
 	DefaultPrivatelinkAllowedAccountsAddTimeout    = int64(10)
 	DefaultPrivatelinkAllowedAccountsRemoveTimeout = int64(10)
+	DefaultDataConnectorCreateTimeout              = int64(10)
+	DefaultDataConnectorDeleteTimeout              = int64(10)
+	DefaultDataConnectorUpdateTimeout              = int64(10)
 )
 
 type Config struct {
@@ -56,6 +59,9 @@ type Config struct {
 	PrivatelinkDeleteTimeout                int64
 	PrivatelinkAllowedAccountsAddTimeout    int64
 	PrivatelinkAllowedAccountsRemoveTimeout int64
+	DataConnectorCreateTimeout              int64
+	DataConnectorDeleteTimeout              int64
+	DataConnectorUpdateTimeout              int64
 }
 
 func NewConfig() *Config {
@@ -73,6 +79,9 @@ func NewConfig() *Config {
 		PrivatelinkDeleteTimeout:                DefaultPrivatelinkDeleteTimeout,
 		PrivatelinkAllowedAccountsAddTimeout:    DefaultPrivatelinkAllowedAccountsAddTimeout,
 		PrivatelinkAllowedAccountsRemoveTimeout: DefaultPrivatelinkAllowedAccountsRemoveTimeout,
+		DataConnectorCreateTimeout:              DefaultDataConnectorCreateTimeout,
+		DataConnectorDeleteTimeout:              DefaultDataConnectorDeleteTimeout,
+		DataConnectorUpdateTimeout:              DefaultDataConnectorUpdateTimeout,
 	}
 	return c
 }
@@ -193,6 +202,18 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := delaysConfig["privatelink_allowed_acccounts_remove_timeout"].(int); ok {
 				c.PrivatelinkAllowedAccountsRemoveTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["data_connector_create_timeout"].(int); ok {
+				c.DataConnectorCreateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["data_connector_delete_timeout"].(int); ok {
+				c.DataConnectorDeleteTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["data_connector_update_timeout"].(int); ok {
+				c.DataConnectorUpdateTimeout = int64(v)
 			}
 		}
 	}

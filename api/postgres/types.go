@@ -97,3 +97,28 @@ var DatabaseInfoNames = struct {
 func (s DatabaseInfoName) ToString() string {
 	return string(s)
 }
+
+// DataConnectorStatus represents the status of a Data Connector.
+type DataConnectorStatus string
+
+// DataConnectorStatuses represent all statuses pertaining to the lifecycle of a data connector.
+var DataConnectorStatuses = struct {
+	CREATING      DataConnectorStatus
+	AVAILABLE     DataConnectorStatus
+	DEPROVISIONED DataConnectorStatus
+	DELETED       DataConnectorStatus
+	PAUSED        DataConnectorStatus
+	UNKNOWN       DataConnectorStatus
+}{
+	CREATING:      "creating",
+	AVAILABLE:     "available",
+	DELETED:       "DELETED",
+	DEPROVISIONED: "deprovisioned",
+	PAUSED:        "paused",
+	UNKNOWN:       "unknown",
+}
+
+// ToString is a helper method to return the string of a DataConnectorStatus.
+func (s DataConnectorStatus) ToString() string {
+	return string(s)
+}

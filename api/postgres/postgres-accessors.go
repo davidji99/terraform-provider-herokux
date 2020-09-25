@@ -167,6 +167,159 @@ func (d *DatabaseWaitStatus) GetStatus() string {
 	return *d.Status
 }
 
+// HasExcludedColumns checks if DataConnector has any ExcludedColumns.
+func (d *DataConnector) HasExcludedColumns() bool {
+	if d == nil || d.ExcludedColumns == nil {
+		return false
+	}
+	if len(d.ExcludedColumns) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (d *DataConnector) GetID() string {
+	if d == nil || d.ID == nil {
+		return ""
+	}
+	return *d.ID
+}
+
+// GetKafkaAddon returns the KafkaAddon field.
+func (d *DataConnector) GetKafkaAddon() *DataConnectorKafkaAddon {
+	if d == nil {
+		return nil
+	}
+	return d.KafkaAddon
+}
+
+// GetKafkaApp returns the KafkaApp field.
+func (d *DataConnector) GetKafkaApp() *DataConnectorKafkaApp {
+	if d == nil {
+		return nil
+	}
+	return d.KafkaApp
+}
+
+// GetLag returns the Lag field if it's non-nil, zero value otherwise.
+func (d *DataConnector) GetLag() string {
+	if d == nil || d.Lag == nil {
+		return ""
+	}
+	return *d.Lag
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataConnector) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetPostgresAddon returns the PostgresAddon field.
+func (d *DataConnector) GetPostgresAddon() *DataConnectorPostgresAddon {
+	if d == nil {
+		return nil
+	}
+	return d.PostgresAddon
+}
+
+// GetPostgresApp returns the PostgresApp field.
+func (d *DataConnector) GetPostgresApp() *DataConnectorPostgresApp {
+	if d == nil {
+		return nil
+	}
+	return d.PostgresApp
+}
+
+// HasTables checks if DataConnector has any Tables.
+func (d *DataConnector) HasTables() bool {
+	if d == nil || d.Tables == nil {
+		return false
+	}
+	if len(d.Tables) == 0 {
+		return false
+	}
+	return true
+}
+
+// HasTopics checks if DataConnector has any Topics.
+func (d *DataConnector) HasTopics() bool {
+	if d == nil || d.Topics == nil {
+		return false
+	}
+	if len(d.Topics) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (d *DataConnectorKafkaAddon) GetID() string {
+	if d == nil || d.ID == nil {
+		return ""
+	}
+	return *d.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataConnectorKafkaAddon) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataConnectorKafkaApp) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (d *DataConnectorPostgresAddon) GetID() string {
+	if d == nil || d.ID == nil {
+		return ""
+	}
+	return *d.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataConnectorPostgresAddon) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataConnectorPostgresApp) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetTableName returns the TableName field if it's non-nil, zero value otherwise.
+func (d *DataConnectorTopic) GetTableName() string {
+	if d == nil || d.TableName == nil {
+		return ""
+	}
+	return *d.TableName
+}
+
+// GetTopicName returns the TopicName field if it's non-nil, zero value otherwise.
+func (d *DataConnectorTopic) GetTopicName() string {
+	if d == nil || d.TopicName == nil {
+		return ""
+	}
+	return *d.TopicName
+}
+
 // GetID returns the ID field if it's non-nil, zero value otherwise.
 func (g *GenericResponse) GetID() string {
 	if g == nil || g.ID == nil {
