@@ -13,6 +13,12 @@ type Postgres struct {
 	config *config2.Config
 }
 
+// GenericResponse represents a generic response from the Postgres API.
+type GenericResponse struct {
+	ID      *string `json:"id,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
 // New constructs a client to interface with the Heroku Postgres APIs.
 func New(config *config2.Config) *Postgres {
 	p := &Postgres{http: simpleresty.NewWithBaseURL(config.PostgresBaseURL), config: config}

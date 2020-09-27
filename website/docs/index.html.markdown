@@ -105,6 +105,10 @@ The following arguments are supported:
 
 * `postgres_api_url` - (Optional) Custom Postgres API url
 
+* `data_api_url` - (Optional) Custom Data API url
+
+* `platform_api_url` - (Optional) Custom Platform API url
+
 * `headers` - (Optional) Additional API headers.
 
 * `timeouts` - (Optional) Timeouts help certain resources to be properly created or deleted before proceeding with further actions.

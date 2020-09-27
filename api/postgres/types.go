@@ -66,3 +66,34 @@ var MTLSCertStatuses = struct {
 func (s MTLSCertStatus) ToString() string {
 	return string(s)
 }
+
+// DatabaseInfoName represents a database info name.
+type DatabaseInfoName string
+
+// DatabaseInfoNames represents database infor names.
+var DatabaseInfoNames = struct {
+	PLAN       DatabaseInfoName
+	STATUS     DatabaseInfoName
+	HASTATUS   DatabaseInfoName
+	DATASIZE   DatabaseInfoName
+	PGVERSION  DatabaseInfoName
+	FORKFOLLOW DatabaseInfoName
+	REGION     DatabaseInfoName
+	MUTUALTLS  DatabaseInfoName
+	FOLLOWERS  DatabaseInfoName
+}{
+	PLAN:       "Plan",
+	STATUS:     "Status",
+	HASTATUS:   "HA Status",
+	DATASIZE:   "Data Size",
+	PGVERSION:  "PG Version",
+	FORKFOLLOW: "Fork/Follow",
+	REGION:     "Region",
+	MUTUALTLS:  "Mutual TLS",
+	FOLLOWERS:  "Followers",
+}
+
+// ToString is a helper method to return the string of a DatabaseInfoName.
+func (s DatabaseInfoName) ToString() string {
+	return string(s)
+}

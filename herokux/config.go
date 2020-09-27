@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	heroku "github.com/heroku/heroku-go/v5"
 	"github.com/mitchellh/go-homedir"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"runtime"
@@ -32,8 +34,11 @@ const (
 
 type Config struct {
 	API         *api.Client
+	PlatformAPI *heroku.Service
+	platformURL string
 	metricsURL  string
 	postgresURL string
+	dataURL     string
 	token       string
 	Headers     map[string]string
 
@@ -75,14 +80,27 @@ func NewConfig() *Config {
 func (c *Config) initializeAPI() error {
 	userAgent := fmt.Sprintf("terraform-provider-herokux/v%s", version.ProviderVersion)
 
+	// Initialize the custom embedded API client
 	api, clientInitErr := api.New(config.APIToken(c.token), config.CustomHTTPHeaders(c.Headers),
 		config.UserAgent(userAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
 		config.BasicAuth("", c.token))
 	if clientInitErr != nil {
 		return clientInitErr
 	}
-
 	c.API = api
+
+	// Initialize the Platform API client
+	c.PlatformAPI = heroku.NewService(&http.Client{
+		Transport: &heroku.Transport{
+			Username:  "", // Email is not required
+			Password:  c.token,
+			UserAgent: userAgent,
+			Transport: heroku.RoundTripWithRetryBackoff{},
+		},
+	})
+	c.PlatformAPI.URL = c.platformURL
+
+	log.Printf("[INFO] Herokux Client configured")
 
 	return nil
 }
@@ -107,6 +125,16 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("postgres_api_url"); ok {
 		vs := v.(string)
 		c.postgresURL = vs
+	}
+
+	if v, ok := d.GetOk("data_api_url"); ok {
+		vs := v.(string)
+		c.dataURL = vs
+	}
+
+	if v, ok := d.GetOk("platform_api_url"); ok {
+		vs := v.(string)
+		c.platformURL = vs
 	}
 
 	if v, ok := d.GetOk("timeouts"); ok {
