@@ -162,7 +162,7 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		Target:       []string{postgres.CredentialStates.ACTIVE.ToString()},
 		Refresh:      postgresCredentialCreationStateRefreshFunc(client, postgresID, name),
 		Timeout:      time.Duration(config.PostgresCredentialCreateTimeout) * time.Minute,
-		PollInterval: 10 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -241,7 +241,7 @@ func resourceHerokuxPostgresCredentialDelete(ctx context.Context, d *schema.Reso
 		Target:       []string{postgres.CredentialStates.DELETED.ToString()},
 		Refresh:      postgresCredentialDeletionStateRefreshFunc(client, postgresID, credName),
 		Timeout:      time.Duration(config.PostgresCredentialDeleteTimeout) * time.Minute,
-		PollInterval: 10 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

@@ -177,7 +177,7 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 		Target:       []string{postgres.DataConnectorStatuses.AVAILABLE.ToString()},
 		Refresh:      DataConnectorCreateStateRefreshFunc(client, dc.GetID()),
 		Timeout:      time.Duration(config.DataConnectorCreateTimeout) * time.Minute,
-		PollInterval: 20 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -318,7 +318,7 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 		Target:       []string{targetState},
 		Refresh:      DataConnectorStateRefreshFunc(client, d.Id(), pendingState, targetState),
 		Timeout:      time.Duration(config.DataConnectorUpdateTimeout) * time.Minute,
-		PollInterval: 20 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -346,7 +346,7 @@ func resourceHerokuxDataConnectorDelete(ctx context.Context, d *schema.ResourceD
 		Target:       []string{postgres.DataConnectorStatuses.DELETED.ToString()},
 		Refresh:      DataConnectorDeleteStateRefreshFunc(client, d.Id()),
 		Timeout:      time.Duration(config.DataConnectorDeleteTimeout) * time.Minute,
-		PollInterval: 10 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

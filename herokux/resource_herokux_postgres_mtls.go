@@ -89,7 +89,7 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 		Target:       []string{postgres.MTLSConfigStatuses.OPERATIONAL.ToString()},
 		Refresh:      MTLSSCreationStateRefreshFunc(client, dbName),
 		Timeout:      time.Duration(config.MTLSProvisionTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -162,7 +162,7 @@ func resourceHerokuxPostgresMTLSDeprovision(ctx context.Context, d *schema.Resou
 		Target:       []string{postgres.MTLSConfigStatuses.DEPROVISIONED.ToString()},
 		Refresh:      MTLSDeletionStateRefreshFunc(client, d.Id()),
 		Timeout:      time.Duration(config.MTLSDeprovisionTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

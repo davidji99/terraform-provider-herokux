@@ -222,6 +222,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		Target:  []string{"provisioned"},
 		Refresh: AddOnStateRefreshFunc(platformAPI, leaderDB.ID),
 		Timeout: 20 * time.Minute,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := leaderStateConf.WaitForStateContext(ctx); err != nil {
@@ -266,6 +267,7 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 			Target:  []string{"provisioned"},
 			Refresh: AddOnStateRefreshFunc(platformAPI, followerDB.ID),
 			Timeout: 20 * time.Minute,
+			PollInterval: StateRefreshPollInterval,
 		}
 
 		if _, err := followerStateConf.WaitForStateContext(ctx); err != nil {

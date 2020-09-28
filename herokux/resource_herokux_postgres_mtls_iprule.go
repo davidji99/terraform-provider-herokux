@@ -129,7 +129,7 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 		Target:       []string{postgres.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
 		Refresh:      MTLSSIPRuleStateRefreshFunc(client, dbName, ipRule.GetID()),
 		Timeout:      time.Duration(config.MTLSIPRuleCreateTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

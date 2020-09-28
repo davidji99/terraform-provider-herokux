@@ -8,6 +8,17 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	heroku "github.com/heroku/heroku-go/v5"
 	"log"
+	"time"
+)
+
+const (
+	// StateRefreshPollIntervalFrequency defines the polling frequency.
+	StateRefreshPollIntervalFrequency = 20
+)
+
+var (
+	// StateRefreshPollInterval defines the default polling interval in seconds.
+	StateRefreshPollInterval = StateRefreshPollIntervalFrequency * time.Second
 )
 
 func New() *schema.Provider {

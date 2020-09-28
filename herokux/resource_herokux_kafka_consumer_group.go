@@ -76,7 +76,7 @@ func resourceHerokuxKafkaConsumerGroupCreate(ctx context.Context, d *schema.Reso
 		Refresh: kafkaConsumerGroupStateRefreshFunc(kafkaID, opts.Name,
 			kafka.ConsumerGroupStatuses.CREATED, client.Kafka.WasConsumerGroupCreated),
 		Timeout:      time.Duration(config.KafkaCGCreateTimeout) * time.Minute,
-		PollInterval: 5 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -136,7 +136,7 @@ func resourceHerokuxKafkaConsumerGroupDelete(ctx context.Context, d *schema.Reso
 		Refresh: kafkaConsumerGroupStateRefreshFunc(result[0], result[1],
 			kafka.ConsumerGroupStatuses.DELETED, client.Kafka.WasConsumerGroupDeleted),
 		Timeout:      time.Duration(config.KafkaCGDeleteTimeout) * time.Minute,
-		PollInterval: 5 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
