@@ -152,11 +152,11 @@ Only a single `timeouts` block may be specified and it supports the following ar
   * `privatelink_allowed_acccounts_add_timeout` - (Optional) The number of minutes to wait for allowed accounts
   to become active for a privatelink. Defaults to 10 minutes. Minimum required is 2 minutes.
 
-  * `data_connector_create_timeout` - (Optional) The number of minutes to wait for allowed accounts
-  to become active for a privatelink. Defaults to 20 minutes. Minimum required is 10 minutes.
+  * `data_connector_create_timeout` - (Optional) The number of minutes to wait for a data connector to be provisioned.
+  Defaults to 20 minutes. Minimum required is 10 minutes.
 
-  * `data_connector_delete_timeout` - (Optional) The number of minutes to wait for allowed accounts
-  to become active for a privatelink. Defaults to 10 minutes. Minimum required is 3 minutes.
+  * `data_connector_delete_timeout` - (Optional) The number of minutes to wait for a data connector to be deleted.
+  Defaults to 10 minutes. Minimum required is 3 minutes.
 
-  * `data_connector_update_timeout` - (Optional) The number of minutes to wait for allowed accounts
-  to become active for a privatelink. Defaults to 10 minutes. Minimum required is 5 minutes.
+  * `data_connector_update_timeout` - (Optional) The number of minutes to wait for a data connector to be updated.
+  Defaults to 10 minutes. Minimum required is 5 minutes.

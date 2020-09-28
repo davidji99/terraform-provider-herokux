@@ -79,6 +79,10 @@ By default, the data connector is `available` on initial creation. Please also n
 * `settings` - `<map>` Properties of the connector. Please [visit](https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration)
 this article for more information.
 
+-> **IMPORTANT!**
+The only updatable attributes are `settings` and `state`. All other attribute modifications will result
+in destruction and recreation.
+
 ## Attributes Reference
 
 The following attributes are exported:
