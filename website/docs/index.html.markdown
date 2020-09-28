@@ -160,3 +160,9 @@ Only a single `timeouts` block may be specified and it supports the following ar
 
   * `data_connector_update_timeout` - (Optional) The number of minutes to wait for a data connector to be updated.
   Defaults to 10 minutes. Minimum required is 5 minutes.
+
+  * `postgres_credential_create_timeout` - (Optional) The number of minutes to wait for a postgres credential to be created.
+  Defaults to 10 minutes. Minimum required is 5 minutes.
+
+  * `postgres_credential_delete_timeout` - (Optional) The number of minutes to wait for a postgres credential to be deleted.
+  Defaults to 10 minutes. Minimum required is 5 minutes.
