@@ -178,7 +178,7 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 		Target:       []string{kafka.TopicStatuses.READY.ToString()},
 		Refresh:      topicCreationStateRefreshFunc(client, kafkaID, opts.Name, opts.Partitions),
 		Timeout:      time.Duration(config.KafkaTopicCreateTimeout) * time.Minute,
-		PollInterval: 10 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -326,7 +326,7 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		Target:       []string{kafka.TopicStatuses.UPDATED.ToString()},
 		Refresh:      topicUpdateStateRefreshFunc(client, kafkaID, opts.Name, checkFuncs),
 		Timeout:      time.Duration(config.KafkaTopicCreateTimeout) * time.Minute,
-		PollInterval: 5 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

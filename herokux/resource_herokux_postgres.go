@@ -218,10 +218,11 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 	// Wait for the database leader to be provisioned
 	log.Printf("[INFO] Waiting for database leader ID (%s) to be provisioned", leaderDB.ID)
 	leaderStateConf := &resource.StateChangeConf{
-		Pending: []string{"provisioning"},
-		Target:  []string{"provisioned"},
-		Refresh: AddOnStateRefreshFunc(platformAPI, leaderDB.ID),
-		Timeout: 20 * time.Minute,
+		Pending:      []string{"provisioning"},
+		Target:       []string{"provisioned"},
+		Refresh:      AddOnStateRefreshFunc(platformAPI, leaderDB.ID),
+		Timeout:      20 * time.Minute,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := leaderStateConf.WaitForStateContext(ctx); err != nil {
@@ -262,10 +263,11 @@ func resourceHerokuxPostgresCreate(ctx context.Context, d *schema.ResourceData, 
 		// Wait for the database leader to be provisioned
 		log.Printf("[INFO] Waiting for database follower ID (%s) to be provisioned", followerDB.ID)
 		followerStateConf := &resource.StateChangeConf{
-			Pending: []string{"provisioning"},
-			Target:  []string{"provisioned"},
-			Refresh: AddOnStateRefreshFunc(platformAPI, followerDB.ID),
-			Timeout: 20 * time.Minute,
+			Pending:      []string{"provisioning"},
+			Target:       []string{"provisioned"},
+			Refresh:      AddOnStateRefreshFunc(platformAPI, followerDB.ID),
+			Timeout:      20 * time.Minute,
+			PollInterval: StateRefreshPollInterval,
 		}
 
 		if _, err := followerStateConf.WaitForStateContext(ctx); err != nil {

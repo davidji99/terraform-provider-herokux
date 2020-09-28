@@ -116,7 +116,7 @@ func resourceHerokuxPostgresMTLSCertificateCreate(ctx context.Context, d *schema
 		Target:       []string{postgres.MTLSCertStatuses.READY.ToString()},
 		Refresh:      MTLSSCertStateRefreshFunc(client, dbName, cert.GetID()),
 		Timeout:      time.Duration(config.MTLSCertificateCreateTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -181,7 +181,7 @@ func resourceHerokuxPostgresMTLSCertificateDelete(ctx context.Context, d *schema
 		Target:       []string{postgres.MTLSCertStatuses.DISABLED.ToString()},
 		Refresh:      MTLSCertificateDeletionStateRefreshFunc(client, dbName, certID),
 		Timeout:      time.Duration(config.MTLSCertificateDeleteTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

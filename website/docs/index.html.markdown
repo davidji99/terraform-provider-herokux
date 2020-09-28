@@ -8,15 +8,15 @@ description: |-
 
 # HerokuX Provider
 
-The HerokuX provider interacts with undocumented Heroku APIs to provide additional resources not available
+The HerokuX provider interacts with APIs outside of the Heroku Platform APIs to provide additional resources not available
 in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
+Most of this provider's resource, if not all, are derived from Heroku CLI and plugin commands and usually require
+Heroku provider resources as a prerequisite.
+
 **This provider has no relationship with Heroku.**
 
-This provider is designed to supplement the [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
-A majority of this provider's resources often require Heroku provider resources to be created first.
-
 -> **IMPORTANT!**
-This provider should be treated as experimental and to be used with caution when terraforming resources in environments
+This provider should be treated as experimental and to be used with caution when Terraforming resources in environments
 that receive customer traffic. Additionally, the resources may change in behavior at any given time to match any API changes.
 
 ## Contributing
@@ -34,8 +34,8 @@ provider "herokux" {
   # ...
 }
 
-# Create a new project
-resource "herokux_formation_autoscaling" "service-x" {
+# Create a new Kafka topic
+resource "herokux_kafka_topic" "topic_foobar" {
   # ...
 }
 ```
@@ -79,7 +79,7 @@ as the Heroku provider to retrieve the API key. This will be the only common var
 
 ### Netrc
 
-Credentials can instead be sourced from the [`.netrc`](https://ec.haxx.se/usingcurl-netrc.html)
+Credentials can also be sourced from the [`.netrc`](https://ec.haxx.se/usingcurl-netrc.html)
 file in your home directory:
 
 ```hcl
@@ -112,8 +112,9 @@ The following arguments are supported:
 
 * `headers` - (Optional) Additional API headers.
 
-* `timeouts` - (Optional) Timeouts help certain resources to be properly created or deleted before proceeding with further actions.
-Only a single `timeouts` block may be specified and it supports the following arguments:
+* `timeouts` - (Optional) Timeouts define a max duration the provider will wait for certain resources
+to be properly modified before proceeding with further action(s). Each timeout's polling intervals is set to 20 seconds.
+Only a single `timeouts` block may be specified, and it supports the following arguments:
 
   * `mtls_provision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
   to be provisioned on a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.

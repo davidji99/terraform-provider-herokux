@@ -98,7 +98,7 @@ func resourceHerokuxPrivatelinkCreate(ctx context.Context, d *schema.ResourceDat
 		Target:       []string{data.PrivatelinkStatuses.OPERATIONAL.ToString()},
 		Refresh:      PrivatelinkCreateStateRefreshFunc(client, addonID),
 		Timeout:      time.Duration(config.PrivatelinkCreateTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -198,7 +198,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 			Target:       []string{data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString()},
 			Refresh:      PrivatelinkUpdateStateRefreshFunc(client, d.Id()),
 			Timeout:      time.Duration(config.PrivatelinkAllowedAccountsAddTimeout) * time.Minute,
-			PollInterval: 15 * time.Second,
+			PollInterval: StateRefreshPollInterval,
 		}
 
 		if _, err := stateConf.WaitForStateContext(ctx); err != nil {
@@ -234,7 +234,7 @@ func resourceHerokuxPrivatelinkDelete(ctx context.Context, d *schema.ResourceDat
 		Target:       []string{data.PrivatelinkStatuses.DEPROVISIONED.ToString()},
 		Refresh:      PrivatelinkDeleteStateRefreshFunc(client, d.Id()),
 		Timeout:      time.Duration(config.PrivatelinkDeleteTimeout) * time.Minute,
-		PollInterval: 15 * time.Second,
+		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
