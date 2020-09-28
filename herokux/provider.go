@@ -168,6 +168,20 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
+
+						"postgres_credential_create_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(5),
+						},
+
+						"postgres_credential_delete_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(5),
+						},
 					},
 				},
 			},
@@ -182,6 +196,7 @@ func New() *schema.Provider {
 			"herokux_formation_autoscaling":     resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":      resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":               resourceHerokuxKafkaTopic(),
+			"herokux_postgres_credential":       resourceHerokuxPostgresCredential(),
 			"herokux_postgres_mtls":             resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate": resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":      resourceHerokuxPostgresMTLSIPRule(),

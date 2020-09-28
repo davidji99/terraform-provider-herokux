@@ -9,6 +9,81 @@ import (
 	"time"
 )
 
+// HasCredentials checks if Credential has any Credentials.
+func (c *Credential) HasCredentials() bool {
+	if c == nil || c.Credentials == nil {
+		return false
+	}
+	if len(c.Credentials) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetDatabase returns the Database field if it's non-nil, zero value otherwise.
+func (c *Credential) GetDatabase() string {
+	if c == nil || c.Database == nil {
+		return ""
+	}
+	return *c.Database
+}
+
+// GetHost returns the Host field if it's non-nil, zero value otherwise.
+func (c *Credential) GetHost() string {
+	if c == nil || c.Host == nil {
+		return ""
+	}
+	return *c.Host
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (c *Credential) GetID() string {
+	if c == nil || c.ID == nil {
+		return ""
+	}
+	return *c.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (c *Credential) GetName() string {
+	if c == nil || c.Name == nil {
+		return ""
+	}
+	return *c.Name
+}
+
+// GetPort returns the Port field if it's non-nil, zero value otherwise.
+func (c *Credential) GetPort() int {
+	if c == nil || c.Port == nil {
+		return 0
+	}
+	return *c.Port
+}
+
+// GetPassword returns the Password field if it's non-nil, zero value otherwise.
+func (c *CredentialSecret) GetPassword() string {
+	if c == nil || c.Password == nil {
+		return ""
+	}
+	return *c.Password
+}
+
+// GetState returns the State field if it's non-nil, zero value otherwise.
+func (c *CredentialSecret) GetState() string {
+	if c == nil || c.State == nil {
+		return ""
+	}
+	return *c.State
+}
+
+// GetUser returns the User field if it's non-nil, zero value otherwise.
+func (c *CredentialSecret) GetUser() string {
+	if c == nil || c.User == nil {
+		return ""
+	}
+	return *c.User
+}
+
 // GetAddonID returns the AddonID field if it's non-nil, zero value otherwise.
 func (d *Database) GetAddonID() string {
 	if d == nil || d.AddonID == nil {

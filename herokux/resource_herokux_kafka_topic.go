@@ -178,7 +178,7 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 		Target:       []string{kafka.TopicStatuses.READY.ToString()},
 		Refresh:      topicCreationStateRefreshFunc(client, kafkaID, opts.Name, opts.Partitions),
 		Timeout:      time.Duration(config.KafkaTopicCreateTimeout) * time.Minute,
-		PollInterval: 5 * time.Second,
+		PollInterval: 10 * time.Second,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {

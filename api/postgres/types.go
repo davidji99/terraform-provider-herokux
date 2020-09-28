@@ -122,3 +122,28 @@ var DataConnectorStatuses = struct {
 func (s DataConnectorStatus) ToString() string {
 	return string(s)
 }
+
+// CredentialState represents the status of a postgres credential.
+type CredentialState string
+
+// CredentialStates represent all statuses pertaining to the lifecycle of a postgres credential.
+var CredentialStates = struct {
+	PROVISIONING        CredentialState
+	WAITFORPROVISIONING CredentialState
+	ACTIVE              CredentialState
+	REVOKING            CredentialState
+	DELETED             CredentialState
+	UNKNOWN             CredentialState
+}{
+	ACTIVE:              "active",
+	WAITFORPROVISIONING: "wait_for_provisioning",
+	PROVISIONING:        "provisioning",
+	REVOKING:            "revoking",
+	DELETED:             "DELETED",
+	UNKNOWN:             "unknown",
+}
+
+// ToString is a helper method to return the string of a CredentialState.
+func (s CredentialState) ToString() string {
+	return string(s)
+}

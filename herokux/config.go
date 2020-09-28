@@ -33,6 +33,8 @@ const (
 	DefaultDataConnectorCreateTimeout              = int64(10)
 	DefaultDataConnectorDeleteTimeout              = int64(10)
 	DefaultDataConnectorUpdateTimeout              = int64(10)
+	DefaultPostgresCredentialCreateTimeout         = int64(10)
+	DefaultPostgresCredentialDeleteTimeout         = int64(10)
 )
 
 type Config struct {
@@ -62,6 +64,8 @@ type Config struct {
 	DataConnectorCreateTimeout              int64
 	DataConnectorDeleteTimeout              int64
 	DataConnectorUpdateTimeout              int64
+	PostgresCredentialCreateTimeout         int64
+	PostgresCredentialDeleteTimeout         int64
 }
 
 func NewConfig() *Config {
@@ -82,6 +86,8 @@ func NewConfig() *Config {
 		DataConnectorCreateTimeout:              DefaultDataConnectorCreateTimeout,
 		DataConnectorDeleteTimeout:              DefaultDataConnectorDeleteTimeout,
 		DataConnectorUpdateTimeout:              DefaultDataConnectorUpdateTimeout,
+		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
+		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
 	}
 	return c
 }
@@ -214,6 +220,14 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := delaysConfig["data_connector_update_timeout"].(int); ok {
 				c.DataConnectorUpdateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["postgres_credential_create_timeout"].(int); ok {
+				c.PostgresCredentialCreateTimeout = int64(v)
+			}
+
+			if v, ok := delaysConfig["postgres_credential_delete_timeout"].(int); ok {
+				c.PostgresCredentialDeleteTimeout = int64(v)
 			}
 		}
 	}
