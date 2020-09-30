@@ -411,6 +411,14 @@ func (g *GenericResponse) GetMessage() string {
 	return *g.Message
 }
 
+// GetWindow returns the Window field if it's non-nil, zero value otherwise.
+func (m *MaintenanceWindowResponse) GetWindow() string {
+	if m == nil || m.Window == nil {
+		return ""
+	}
+	return *m.Window
+}
+
 // HasActiveIPRules checks if MTLS has any ActiveIPRules.
 func (m *MTLS) HasActiveIPRules() bool {
 	if m == nil || m.ActiveIPRules == nil {

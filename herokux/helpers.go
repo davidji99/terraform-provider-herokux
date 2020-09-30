@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
+	"math/rand"
 	"strings"
 )
 
@@ -84,4 +85,8 @@ func stringArrayContains(arr []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func randInt(min int, max int) int {
+	return min + rand.Intn(max-min)
 }
