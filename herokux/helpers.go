@@ -68,6 +68,18 @@ func getKakfaID(d *schema.ResourceData) string {
 	return kafkaID
 }
 
+// getPostgresID extracts the postgres ID attribute generically from a HerokuX resource.
+func getPostgresID(d *schema.ResourceData) string {
+	var postgresID string
+	if v, ok := d.GetOk("postgres_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] postgres_id: %s", vs)
+		postgresID = vs
+	}
+
+	return postgresID
+}
+
 func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 	parts := strings.SplitN(id, ":", numOfSplits)
 

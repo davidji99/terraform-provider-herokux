@@ -17,8 +17,8 @@ Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS certificate creation or deletion.
-Both checks' default timeout is ~10 minutes, which can be customized via
-the `timeouts.mtls_certificate_create_timeout` and `timeouts.mtls_certificate_delete_timeout` in your `provider` block.
+Both checks' default timeout is ~10 minutes, which can be customized via the `timeouts.mtls_certificate_create_timeout`
+and `timeouts.mtls_certificate_delete_timeout` attributes in your `provider` block.
 
 For example:
 ```hcl-terraform

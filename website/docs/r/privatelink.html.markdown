@@ -23,7 +23,7 @@ between 5 and 10 minutes to become available.
 During creation and deletion, this resource checks the status of the privatelink provisioning/deprovisioning
 as well as allowlisting AWS account IDs. All the aforementioned timeouts can be customized
 via the `timeouts.privatelink_create_timeout`, `timeouts.privatelink_delete_timeout`
-and `timeouts.privatelink_allowed_acccounts_add_timeout` in your `provider` block.
+and `timeouts.privatelink_allowed_acccounts_add_timeout` attributes in your `provider` block.
 
 For example:
 ```hcl-terraform

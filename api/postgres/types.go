@@ -147,3 +147,26 @@ var CredentialStates = struct {
 func (s CredentialState) ToString() string {
 	return string(s)
 }
+
+// LogStatementUpdateOption represents the option to update log statement setting.
+type LogStatementUpdateOption string
+
+// LogStatementUpdateOptions represents all options when updating log statements.
+var LogStatementUpdateOptions = struct {
+	// None: No statements are logged.
+	None LogStatementUpdateOption
+
+	// DDL: All data definition statements, such as CREATE, ALTER and DROP will be logged.
+	DDL LogStatementUpdateOption
+
+	// Mod: Includes all statements from ddl as well as data-modifying statements such as INSERT, UPDATE, DELETE, TRUNCATE, COPY.
+	Mod LogStatementUpdateOption
+
+	// All:  statements are logged.
+	All LogStatementUpdateOption
+}{
+	None: "none",
+	DDL:  "ddl",
+	Mod:  "mod",
+	All:  "all",
+}

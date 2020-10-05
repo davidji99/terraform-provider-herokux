@@ -128,7 +128,7 @@ func resourceHerokuxPostgresMaintenanceWindowRead(ctx context.Context, d *schema
 }
 
 func resourceHerokuxPostgresMaintenanceWindowDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] Not possible to delete a maintenance window. Existing resource will be removed from state")
+	log.Printf("[DEBUG] Not possible to delete a maintenance window. Existing resource will only be removed from state.")
 
 	d.SetId("")
 	return nil

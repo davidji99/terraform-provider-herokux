@@ -19,7 +19,7 @@ Upon successful MTLS provisioning, Heroku provisions a certificate ready for use
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
 Both checks' default timeout is 10 minutes, which can be customized
-via the `timeouts.mtls_provision_timeout` and `timeouts.mtls_deprovision_timeout` in your `provider` block.
+via the `timeouts.mtls_provision_timeout` and `timeouts.mtls_deprovision_timeout` attributes in your `provider` block.
 
 For example:
 ```hcl-terraform

@@ -196,6 +196,22 @@ func New() *schema.Provider {
 					},
 				},
 			},
+
+			"delays": {
+				Type:     schema.TypeList,
+				MaxItems: 1,
+				Optional: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"postgres_settings_modify_delay": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      2,
+							ValidateFunc: validation.IntAtLeast(1),
+						},
+					},
+				},
+			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -212,6 +228,7 @@ func New() *schema.Provider {
 			"herokux_postgres_mtls":               resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate":   resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":        resourceHerokuxPostgresMTLSIPRule(),
+			"herokux_postgres_settings":           resourceHerokuxPostgresSettings(),
 			"herokux_privatelink":                 resourceHerokuxPrivatelink(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
