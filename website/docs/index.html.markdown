@@ -111,6 +111,14 @@ The following arguments are supported:
 
 * `headers` - (Optional) Additional API headers.
 
+* `delays` - (Optional) Delays define a given amount of time to wait before or after a resource takes an action.
+This is to address scenarios where an underlying resource API does not report the status of a change
+and subsequent changes require the previous one to be completed first.
+Only a single `delays` block may be specified, and it supports the following arguments:
+
+  * `postgres_settings_modify_delay` - (Optional) The number of minutes to wait for a postgres settings modification to be
+  properly reflected in Heroku. Defaults to 2 minutes. Minimum required is 1 minute.
+
 * `timeouts` - (Optional) Timeouts define a max duration the provider will wait for certain resources
 to be properly modified before proceeding with further action(s). Each timeout's polling intervals is set to 20 seconds.
 Only a single `timeouts` block may be specified, and it supports the following arguments:

@@ -35,6 +35,7 @@ const (
 	DefaultDataConnectorUpdateTimeout              = int64(10)
 	DefaultPostgresCredentialCreateTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteTimeout         = int64(10)
+	DefaultPostgresSettingsModifyDelay             = int64(2)
 )
 
 type Config struct {
@@ -66,6 +67,9 @@ type Config struct {
 	DataConnectorUpdateTimeout              int64
 	PostgresCredentialCreateTimeout         int64
 	PostgresCredentialDeleteTimeout         int64
+
+	// Custom Delays
+	PostgresSettingsModifyDelay int64
 }
 
 func NewConfig() *Config {
@@ -88,6 +92,7 @@ func NewConfig() *Config {
 		DataConnectorUpdateTimeout:              DefaultDataConnectorUpdateTimeout,
 		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
 		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
+		PostgresSettingsModifyDelay:             DefaultPostgresSettingsModifyDelay,
 	}
 	return c
 }
@@ -152,81 +157,94 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 		c.platformURL = vs
 	}
 
-	if v, ok := d.GetOk("timeouts"); ok {
+	if v, ok := d.GetOk("delays"); ok {
 		vL := v.([]interface{})
 		if len(vL) > 1 {
 			return fmt.Errorf("provider configuration error: only 1 delays config is permitted")
 		}
 		for _, v := range vL {
 			delaysConfig := v.(map[string]interface{})
-			if v, ok := delaysConfig["mtls_provision_timeout"].(int); ok {
+			if v, ok := delaysConfig["postgres_settings_modify_delay"].(int); ok {
+				c.PostgresSettingsModifyDelay = int64(v)
+			}
+		}
+	}
+
+	if v, ok := d.GetOk("timeouts"); ok {
+		vL := v.([]interface{})
+		if len(vL) > 1 {
+			return fmt.Errorf("provider configuration error: only 1 timeout config is permitted")
+		}
+		for _, v := range vL {
+			timeoutsConfig := v.(map[string]interface{})
+			if v, ok := timeoutsConfig["mtls_provision_timeout"].(int); ok {
 				c.MTLSProvisionTimeout = int64(v)
 			}
-			if v, ok := delaysConfig["mtls_deprovision_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["mtls_deprovision_timeout"].(int); ok {
 				c.MTLSDeprovisionTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["mtls_iprule_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["mtls_iprule_create_timeout"].(int); ok {
 				c.MTLSDeprovisionTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["mtls_certificate_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["mtls_certificate_create_timeout"].(int); ok {
 				c.MTLSCertificateCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["mtls_certificate_delete_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["mtls_certificate_delete_timeout"].(int); ok {
 				c.MTLSCertificateDeleteTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["kafka_cg_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["kafka_cg_create_timeout"].(int); ok {
 				c.KafkaCGCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["kafka_cg_delete_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["kafka_cg_delete_timeout"].(int); ok {
 				c.KafkaCGDeleteTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["kafka_topic_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["kafka_topic_create_timeout"].(int); ok {
 				c.KafkaTopicCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["kafka_topic_update_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["kafka_topic_update_timeout"].(int); ok {
 				c.KafkaTopicUpdateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["privatelink_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["privatelink_create_timeout"].(int); ok {
 				c.PrivatelinkCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["privatelink_delete_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["privatelink_delete_timeout"].(int); ok {
 				c.PrivatelinkDeleteTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["privatelink_allowed_acccounts_add_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["privatelink_allowed_acccounts_add_timeout"].(int); ok {
 				c.PrivatelinkAllowedAccountsAddTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["privatelink_allowed_acccounts_remove_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["privatelink_allowed_acccounts_remove_timeout"].(int); ok {
 				c.PrivatelinkAllowedAccountsRemoveTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["data_connector_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["data_connector_create_timeout"].(int); ok {
 				c.DataConnectorCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["data_connector_delete_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["data_connector_delete_timeout"].(int); ok {
 				c.DataConnectorDeleteTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["data_connector_update_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["data_connector_update_timeout"].(int); ok {
 				c.DataConnectorUpdateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["postgres_credential_create_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["postgres_credential_create_timeout"].(int); ok {
 				c.PostgresCredentialCreateTimeout = int64(v)
 			}
 
-			if v, ok := delaysConfig["postgres_credential_delete_timeout"].(int); ok {
+			if v, ok := timeoutsConfig["postgres_credential_delete_timeout"].(int); ok {
 				c.PostgresCredentialDeleteTimeout = int64(v)
 			}
 		}

@@ -22,8 +22,8 @@ Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the credential. All the aforementioned timeouts
-can be customized via `timeouts.postgres_credential_create_timeout` and
-`timeouts.postgres_credential_delete_timeout` in your `provider` block.
+can be customized via the `timeouts.postgres_credential_create_timeout` and
+`timeouts.postgres_credential_delete_timeout` attributes in your `provider` block.
 
 For example:
 ```hcl-terraform

@@ -28,9 +28,8 @@ physical or mental health; and information related to the provision or payment o
 
 ### Resource Timeouts
 During creation, modification and deletion, this resource checks the status of the data connector.
-All the aforementioned timeouts can be customized
-via the `timeouts.data_connector_create_timeout`, `timeouts.data_connector_delete_timeout`
-and `timeouts.data_connector_update_timeout` in your `provider` block.
+All the aforementioned timeouts can be customized via the `timeouts.data_connector_create_timeout`, `timeouts.data_connector_delete_timeout`
+and `timeouts.data_connector_update_timeout` attributes in your `provider` block.
 
 For example:
 ```hcl-terraform

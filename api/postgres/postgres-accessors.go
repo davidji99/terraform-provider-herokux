@@ -411,6 +411,142 @@ func (g *GenericResponse) GetMessage() string {
 	return *g.Message
 }
 
+// GetDefault returns the Default field if it's non-nil, zero value otherwise.
+func (l *LogConnections) GetDefault() bool {
+	if l == nil || l.Default == nil {
+		return false
+	}
+	return *l.Default
+}
+
+// GetDescription returns the Description field if it's non-nil, zero value otherwise.
+func (l *LogConnections) GetDescription() string {
+	if l == nil || l.Description == nil {
+		return ""
+	}
+	return *l.Description
+}
+
+// GetValue returns the Value field if it's non-nil, zero value otherwise.
+func (l *LogConnections) GetValue() bool {
+	if l == nil || l.Value == nil {
+		return false
+	}
+	return *l.Value
+}
+
+// GetDefault returns the Default field if it's non-nil, zero value otherwise.
+func (l *LogLockWaits) GetDefault() bool {
+	if l == nil || l.Default == nil {
+		return false
+	}
+	return *l.Default
+}
+
+// GetDescription returns the Description field if it's non-nil, zero value otherwise.
+func (l *LogLockWaits) GetDescription() string {
+	if l == nil || l.Description == nil {
+		return ""
+	}
+	return *l.Description
+}
+
+// GetValue returns the Value field if it's non-nil, zero value otherwise.
+func (l *LogLockWaits) GetValue() bool {
+	if l == nil || l.Value == nil {
+		return false
+	}
+	return *l.Value
+}
+
+// GetDefault returns the Default field if it's non-nil, zero value otherwise.
+func (l *LogMinDurationStatement) GetDefault() int {
+	if l == nil || l.Default == nil {
+		return 0
+	}
+	return *l.Default
+}
+
+// GetDescription returns the Description field if it's non-nil, zero value otherwise.
+func (l *LogMinDurationStatement) GetDescription() string {
+	if l == nil || l.Description == nil {
+		return ""
+	}
+	return *l.Description
+}
+
+// GetValue returns the Value field if it's non-nil, zero value otherwise.
+func (l *LogMinDurationStatement) GetValue() int {
+	if l == nil || l.Value == nil {
+		return 0
+	}
+	return *l.Value
+}
+
+// GetDefault returns the Default field if it's non-nil, zero value otherwise.
+func (l *LogStatement) GetDefault() string {
+	if l == nil || l.Default == nil {
+		return ""
+	}
+	return *l.Default
+}
+
+// GetDescription returns the Description field if it's non-nil, zero value otherwise.
+func (l *LogStatement) GetDescription() string {
+	if l == nil || l.Description == nil {
+		return ""
+	}
+	return *l.Description
+}
+
+// GetValue returns the Value field if it's non-nil, zero value otherwise.
+func (l *LogStatement) GetValue() string {
+	if l == nil || l.Value == nil {
+		return ""
+	}
+	return *l.Value
+}
+
+// GetValues returns the Values field.
+func (l *LogStatement) GetValues() *LogStatementValues {
+	if l == nil {
+		return nil
+	}
+	return l.Values
+}
+
+// GetAll returns the All field if it's non-nil, zero value otherwise.
+func (l *LogStatementValues) GetAll() string {
+	if l == nil || l.All == nil {
+		return ""
+	}
+	return *l.All
+}
+
+// GetDDL returns the DDL field if it's non-nil, zero value otherwise.
+func (l *LogStatementValues) GetDDL() string {
+	if l == nil || l.DDL == nil {
+		return ""
+	}
+	return *l.DDL
+}
+
+// GetMod returns the Mod field if it's non-nil, zero value otherwise.
+func (l *LogStatementValues) GetMod() string {
+	if l == nil || l.Mod == nil {
+		return ""
+	}
+	return *l.Mod
+}
+
+// GetNone returns the None field if it's non-nil, zero value otherwise.
+func (l *LogStatementValues) GetNone() string {
+	if l == nil || l.None == nil {
+		return ""
+	}
+	return *l.None
+}
+
 // GetWindow returns the Window field if it's non-nil, zero value otherwise.
 func (m *MaintenanceWindowResponse) GetWindow() string {
 	if m == nil || m.Window == nil {
@@ -720,4 +856,52 @@ func (p *PrivatelinkRequest) HasAllowedAccounts() bool {
 		return false
 	}
 	return true
+}
+
+// GetLogConnections returns the LogConnections field.
+func (s *Settings) GetLogConnections() *LogConnections {
+	if s == nil {
+		return nil
+	}
+	return s.LogConnections
+}
+
+// GetLogLockWaits returns the LogLockWaits field.
+func (s *Settings) GetLogLockWaits() *LogLockWaits {
+	if s == nil {
+		return nil
+	}
+	return s.LogLockWaits
+}
+
+// GetLogMinDurationStatement returns the LogMinDurationStatement field.
+func (s *Settings) GetLogMinDurationStatement() *LogMinDurationStatement {
+	if s == nil {
+		return nil
+	}
+	return s.LogMinDurationStatement
+}
+
+// GetLogStatement returns the LogStatement field.
+func (s *Settings) GetLogStatement() *LogStatement {
+	if s == nil {
+		return nil
+	}
+	return s.LogStatement
+}
+
+// GetLogConnections returns the LogConnections field if it's non-nil, zero value otherwise.
+func (s *SettingsRequest) GetLogConnections() bool {
+	if s == nil || s.LogConnections == nil {
+		return false
+	}
+	return *s.LogConnections
+}
+
+// GetLogLockWaits returns the LogLockWaits field if it's non-nil, zero value otherwise.
+func (s *SettingsRequest) GetLogLockWaits() bool {
+	if s == nil || s.LogLockWaits == nil {
+		return false
+	}
+	return *s.LogLockWaits
 }
