@@ -50,10 +50,14 @@ func resourceHerokuxPostgresSettings() *schema.Resource {
 			},
 
 			"log_statement": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ValidateFunc: validation.StringInSlice([]string{"none", "ddl", "mod", "all"}, false),
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					postgres.LogStatementUpdateOptions.None.ToString(),
+					postgres.LogStatementUpdateOptions.DDL.ToString(),
+					postgres.LogStatementUpdateOptions.Mod.ToString(),
+					postgres.LogStatementUpdateOptions.All.ToString()}, false),
 			},
 		},
 	}

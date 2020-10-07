@@ -170,3 +170,8 @@ var LogStatementUpdateOptions = struct {
 	Mod:  "mod",
 	All:  "all",
 }
+
+// ToString is a helper method to return the string of a CredentialState.
+func (s LogStatementUpdateOption) ToString() string {
+	return string(s)
+}
