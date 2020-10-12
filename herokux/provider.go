@@ -239,16 +239,30 @@ func New() *schema.Provider {
 }
 
 func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	log.Println("[INFO] Initializing Herokux Provider")
+	log.Println("[INFO] Initializing HerokuX Provider")
+
+	var diags diag.Diagnostics
 
 	config := NewConfig()
 
 	if applySchemaErr := config.applySchema(d); applySchemaErr != nil {
-		return nil, diag.FromErr(applySchemaErr)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to retrieve and set provider attributes",
+			Detail:   applySchemaErr.Error(),
+		})
+
+		return nil, diags
 	}
 
 	if applyNetrcErr := config.applyNetrcFile(); applyNetrcErr != nil {
-		return nil, diag.FromErr(applyNetrcErr)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to read and apply netrc file",
+			Detail:   applyNetrcErr.Error(),
+		})
+
+		return nil, diags
 	}
 
 	if token, ok := d.GetOk("api_key"); ok {
@@ -256,10 +270,16 @@ func providerConfigure(_ context.Context, d *schema.ResourceData) (interface{}, 
 	}
 
 	if err := config.initializeAPI(); err != nil {
-		return nil, diag.FromErr(err)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to initialize API client",
+			Detail:   err.Error(),
+		})
+
+		return nil, diags
 	}
 
 	log.Printf("[DEBUG] Herokux Provider initialized")
 
-	return config, nil
+	return config, diags
 }
