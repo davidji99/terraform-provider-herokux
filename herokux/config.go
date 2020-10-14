@@ -3,11 +3,11 @@ package herokux
 import (
 	"fmt"
 	"github.com/bgentry/go-netrc/netrc"
+	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	heroku "github.com/heroku/heroku-go/v5"
 	"github.com/mitchellh/go-homedir"
 	"log"
 	"net/http"
@@ -36,6 +36,10 @@ const (
 	DefaultPostgresCredentialCreateTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteTimeout         = int64(10)
 	DefaultPostgresSettingsModifyDelay             = int64(2)
+)
+
+var (
+	UserAgent = fmt.Sprintf("terraform-provider-herokux/v%s", version.ProviderVersion)
 )
 
 type Config struct {
@@ -98,23 +102,21 @@ func NewConfig() *Config {
 }
 
 func (c *Config) initializeAPI() error {
-	userAgent := fmt.Sprintf("terraform-provider-herokux/v%s", version.ProviderVersion)
-
-	// Initialize the custom embedded API client
+	// Initialize the custom API client for non Heroku Platform APIs
 	api, clientInitErr := api.New(config.APIToken(c.token), config.CustomHTTPHeaders(c.Headers),
-		config.UserAgent(userAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
+		config.UserAgent(UserAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
 		config.BasicAuth("", c.token))
 	if clientInitErr != nil {
 		return clientInitErr
 	}
 	c.API = api
 
-	// Initialize the Platform API client
+	// Initialize the Heroku Platform API client
 	c.PlatformAPI = heroku.NewService(&http.Client{
 		Transport: &heroku.Transport{
 			Username:  "", // Email is not required
 			Password:  c.token,
-			UserAgent: userAgent,
+			UserAgent: UserAgent,
 			Transport: heroku.RoundTripWithRetryBackoff{},
 		},
 	})

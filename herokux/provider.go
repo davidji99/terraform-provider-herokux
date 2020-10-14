@@ -2,11 +2,11 @@ package herokux
 
 import (
 	"context"
+	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	heroku "github.com/heroku/heroku-go/v5"
 	"log"
 	"time"
 )
@@ -223,6 +223,7 @@ func New() *schema.Provider {
 			"herokux_formation_autoscaling":       resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":        resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":                 resourceHerokuxKafkaTopic(),
+			"herokux_oauth_authorization":         resourceHerokuxOauthAuthorization(),
 			"herokux_postgres_credential":         resourceHerokuxPostgresCredential(),
 			"herokux_postgres_maintenance_window": resourceHerokuxPostgresMaintenanceWindow(),
 			"herokux_postgres_mtls":               resourceHerokuxPostgresMTLS(),
