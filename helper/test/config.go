@@ -12,6 +12,7 @@ type TestConfigKey int
 
 const (
 	TestConfigHerokuxAPIKey TestConfigKey = iota
+	TestConfigHerokuxCustomAPIKey
 	TestConfigAddonID
 	TestConfigAppID
 	TestConfigDatabaseName
@@ -20,12 +21,13 @@ const (
 )
 
 var testConfigKeyToEnvName = map[TestConfigKey]string{
-	TestConfigHerokuxAPIKey:     "HEROKU_API_KEY",
-	TestConfigAddonID:           "HEROKUX_ADDON_ID",
-	TestConfigAppID:             "HEROKUX_APP_ID",
-	TestConfigDatabaseName:      "HEROKUX_DB_NAME",
-	TestConfigKafkaID:           "HEROKUX_KAFKA_ID",
-	TestConfigAcceptanceTestKey: resource.TestEnvVar,
+	TestConfigHerokuxAPIKey:       "HEROKU_API_KEY",
+	TestConfigHerokuxCustomAPIKey: "HEROKUX_TESTACC_API_KEY",
+	TestConfigAddonID:             "HEROKUX_ADDON_ID",
+	TestConfigAppID:               "HEROKUX_APP_ID",
+	TestConfigDatabaseName:        "HEROKUX_DB_NAME",
+	TestConfigKafkaID:             "HEROKUX_KAFKA_ID",
+	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
 func (k TestConfigKey) String() (name string) {
@@ -90,4 +92,8 @@ func (t *TestConfig) GetDBNameorSkip(testing *testing.T) (val string) {
 
 func (t *TestConfig) GetKafkaIDorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigKafkaID)
+}
+
+func (t *TestConfig) GetCustomAPIKeyorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigHerokuxCustomAPIKey)
 }

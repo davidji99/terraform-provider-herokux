@@ -76,6 +76,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davidji99/go-querystring v1.0.2 h1:zZUgCkhdFEsb0b1tS1zhn7FwjoRyp33J3be1av5sBi0=
 github.com/davidji99/go-querystring v1.0.2/go.mod h1:67KzURpYgsT0d/eszawoSvtpI+34vczasEK3xgrxrqA=
+github.com/davidji99/heroku-go/v5 v5.0.1-0.20201014233932-e8e68dd705bb h1:UEVrgT4rTI9PCyS4a0KSwtFveEWJoCbi/OUlT5A0r88=
+github.com/davidji99/heroku-go/v5 v5.0.1-0.20201014233932-e8e68dd705bb/go.mod h1:QpnoxJoa1ZHOUPIrxvrQrUYgk7zRCHVvcdvZeKK36LA=
 github.com/davidji99/simpleresty v0.2.3 h1:oUHimRSFUgGgJjd+65q3L9alzPF3vFBiXHKxVVmkvkU=
 github.com/davidji99/simpleresty v0.2.3/go.mod h1:v1honpRzBWA0G2Ivpz3ozeaB4zRiYxvu8CAAAtAlHqY=
 github.com/elliotchance/orderedmap v1.3.0 h1:k6m77/d0zCXTjsk12nX40TkEBkSICq8T4s6R6bpCqU0=
@@ -214,12 +216,9 @@ github.com/hashicorp/terraform-plugin-test/v2 v2.1.2/go.mod h1:jerO5mrd+jVNALy8a
 github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d h1:kJCB4vdITiW1eC1vq2e6IsrXKrZit1bv/TDYFGMp4BQ=
 github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d/go.mod h1:+NfK9FKeTrX5uv1uIXGdwYDTeHna2qgaIlx54MXqjAM=
-github.com/heroku/heroku-go/v5 v5.2.0 h1:O9wIBwhHwDbz2lxwT7sPfLSFpPSIxj2Tt4QySeXCf5U=
-github.com/heroku/heroku-go/v5 v5.2.0/go.mod h1:d+1QrZyjbnQJG1f8xIoVvMQRFLt3XRVZOdlm26Sr73U=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/imdario/mergo v0.3.9 h1:UauaLniWCFHWd+Jp9oCEkTBj8VO/9DKg3PV3VCNMDIg=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
-github.com/interagent/schematic v0.0.0-20180830170528-b5e8ba7aa570/go.mod h1:4X9u5iNUePRrRDdwjok6skjlQBXTcNfWa4C3uS1+5SQ=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99/go.mod h1:1lJo3i6rXxKeerYnT8Nvf0QmHCRC1n8sfWVwXF2Frvo=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
