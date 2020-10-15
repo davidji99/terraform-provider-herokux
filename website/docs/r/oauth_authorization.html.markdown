@@ -3,7 +3,7 @@ layout: "herokux"
 page_title: "HerokuX: herokux_oauth_authorization"
 sidebar_current: "docs-herokux-resource-oauth-authorization"
 description: |-
-  Provides a resource to manage an Oauth Authorization for a Heroku user account.
+  Provides a resource to manage an OAuth Authorization for a Heroku user account.
 ---
 
 # herokux\_oauth\_authorization
@@ -31,16 +31,17 @@ The following arguments are supported:
     This scope lets you request access to an account including access to runtime secrets such as database connection strings.
 
 * `auth_api_key_name` - `<string>` A name representing an existing API key for a Heroku user account.
-Setting this attribute allows oauth authorizations to be created in a user account that's different from the account used
+Setting this attribute allows an oauth authorization to be created in a user account that's different from the account used
 initially to authenticate with the provider. This attribute's value will then replace the `%s` in `HEROKUX_%s_API_KEY`.
 For example, if the attribute value is `myBotUser_X`, you will need to have `HEROKUX_MYBOTUSER_X_API_KEY` defined in the environment.
 Please also note the following:
     * If this attribute is not set, the resource will create the oauth authorization in the same account
     used to authenticate with the provider.
     * A value may only include words, letters, or underscore with a max length of 32 characters. Case-insensitive.
+    * Each `herokux_oauth_authorization` resource can define a unique value for this attribute. However, this translates
+    to an equal number of equivalent variables define in the environment.
 
-* `time_to_live` - `<integer>` Set expiration in seconds. No expiration if not attribute is not set in the configuration.
-A value of `0` does not translate to no expiration.
+* `time_to_live` - `<integer>` Set expiration in seconds. No expiration if attribute is not set in the configuration.
 
 * `description` - `<string>` Set a custom authorization description.
 
