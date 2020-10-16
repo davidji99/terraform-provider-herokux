@@ -12,6 +12,14 @@ This resource manages an [oauth authorization](https://devcenter.heroku.com/arti
 You can use these access tokens obtained with OAuth authorization to grant access for your own scripts on your machine
 or to other applications. Generated access tokens can be non-expiring or short-lived with varied scopes.
 
+### Rotating an existing authorization access token
+If you wish to rotate an existing `access_token` created by this resource, the recommended way is to `taint` the resource
+and then execute `terraform apply`. This will generate a new authorization and access token.
+
+**DO NOT USE** `heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
+as the new access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL. This out-of-band
+TTL change does not reflect an existing resource configuration TTL and will likely lead to configuration drift.
+
 -> **IMPORTANT!**
 Please be very careful when deleting this resource as any deleted authorizations are NOT recoverable and invalidated immediately.
 Furthermore, this resource renders the `access_token` attribute in plain-text in your state file.
