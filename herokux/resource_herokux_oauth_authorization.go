@@ -230,7 +230,7 @@ func resourceHerokuxOauthAuthorizationCreate(ctx context.Context, d *schema.Reso
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to create new Oauth Authorization",
+			Summary:  "Unable to create new OAuth Authorization",
 			Detail:   createErr.Error(),
 		})
 
@@ -246,40 +246,92 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 	var diags diag.Diagnostics
 
 	client, clientDiags := constructPlatformAPIClient(d, meta)
+
 	if clientDiags.HasError() {
 		return clientDiags
 	}
 
+	hasCustomTTL := false
+	if _, ok := d.GetOk("time_to_live"); ok {
+		hasCustomTTL = true
+	}
+
 	t, getErr := client.OAuthAuthorizationInfo(context.TODO(), d.Id())
 	if getErr != nil {
+		// Handle when an existing oauth authorization has expired and is no longer available remotely.
+		// In this scenario, provide a specific error to diagnostics.
+		if strings.Contains(getErr.Error(), "Couldn't find that OAuth") && hasCustomTTL {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Unable to retrieve info about OAuth authorization %s", d.Id()),
+				Detail: "This authorization has likely expired as it had an custom TTL set in configuration. " +
+					"If you wish to 'regenerate' the authorization, `taint` the resource and then `apply`.",
+			})
+			return diags
+		}
+
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to retrieve info about token %s", d.Id()),
+			Summary:  fmt.Sprintf("Unable to retrieve info about OAuth authorization %s", d.Id()),
 			Detail:   getErr.Error(),
 		})
-
 		return diags
 	}
+
+	// Validate expires_in is less than what is defined in the configuration
+	// as the Platform API does not return a field with the original specified TTL.
+	// We just want to make sure the TTL was applied correctly.
+	if v, ok := d.GetOk("time_to_live"); ok {
+		ttl := v.(int)
+		if ttl <= *t.AccessToken.ExpiresIn {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "OAuth authorization time-to-live/expiration duration not set properly",
+				Detail: fmt.Sprintf("The current expiration duration [%d] is greater than the specified [%d] "+
+					"one in your configuration. This should not be the case.", ttl, *t.AccessToken.ExpiresIn),
+			})
+			return diags
+		}
+	} else {
+		// If no time_to_live is specified, make sure the expires_in is `null` or `nil`.
+		if t.AccessToken.ExpiresIn != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "OAuth authorization time-to-live/expiration duration not set properly",
+				Detail: fmt.Sprintf("Your configuration does not specify a time_to_live value "+
+					"but the authorization access token has an expiration duration of %d seconds. "+
+					"Please check and confirm.", *t.AccessToken.ExpiresIn),
+			})
+			return diags
+		}
+	}
+
+	var expiresIn int
+	if t.AccessToken.ExpiresIn == nil {
+		expiresIn = 0
+	} else {
+		expiresIn = *t.AccessToken.ExpiresIn
+
+		// Add a warning message to tell users their token will expire in given period
+		// This warning doesn't work due to a bug in Terraform core.
+		if *t.AccessToken.ExpiresIn <= OneWeekInSeconds {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "[WARNING] Oauth authorization token is expiring soon",
+				Detail:   fmt.Sprintf("Token %s is expiring in %d seconds", d.Id(), *t.AccessToken.ExpiresIn),
+			})
+		}
+	}
+	d.Set("expires_in", expiresIn)
 
 	d.Set("scope", t.Scope)
 	d.Set("access_token", t.AccessToken.Token)
 	d.Set("description", t.Description)
-	d.Set("expires_in", *t.AccessToken.ExpiresIn)
 	d.Set("token_id", t.AccessToken.ID)
 
 	//if _, ok := d.GetOk("client"); ok {
 	//	d.Set("client", t.Client.ID)
 	//}
-
-	// Add a warning message to tell users their token will expire in given period
-	// This warning doesn't work due to a bug in Terraform core.
-	if *t.AccessToken.ExpiresIn <= OneWeekInSeconds {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "[WARNING] Oauth authorization token is expiring soon",
-			Detail:   fmt.Sprintf("Token %s is expiring in %d seconds", d.Id(), *t.AccessToken.ExpiresIn),
-		})
-	}
 
 	return diags
 }

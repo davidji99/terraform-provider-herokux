@@ -17,6 +17,20 @@ Please be very careful when deleting this resource as any deleted authorizations
 Furthermore, this resource renders the `access_token` attribute in plain-text in your state file.
 Please ensure that your state file is properly secured and encrypted at rest.
 
+### Rotating an existing authorization access token
+If you wish to rotate an existing `access_token` created by this resource, the recommended way is to `taint` the resource
+and then execute `terraform apply`. This will generate a new authorization and access token.
+
+**DO NOT USE** `heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
+as the new access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL. This out-of-band
+TTL change does not reflect an existing resource configuration TTL and will likely lead to configuration drift.
+
+### Expired authorizations
+Heroku deletes an expired authorization completely from their systems, making it unavailable via the Platform API.
+In this scenario, this resource will cause the `terraform apply` command to exit with an error
+indicating an expired authorization. Users will then need to execute `terraform taint [options] <address>` on the resource
+and `apply` again.
+
 ## Example Usage
 
 ```hcl-terraform
@@ -63,6 +77,7 @@ The following attributes are exported:
 * `access_token` - The access token. This attribute value does not get displayed in logs or regular output.
 
 * `expires_in` - How long (in seconds) before the access token will be expired.
+If there is no expiration date, this attribute value will be `0`.
 
 * `token_id` - The ID of the token. This differs from the resource ID, which is the authorization ID.
 
