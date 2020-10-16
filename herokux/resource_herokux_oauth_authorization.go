@@ -230,7 +230,7 @@ func resourceHerokuxOauthAuthorizationCreate(ctx context.Context, d *schema.Reso
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to create new Oauth Authorization",
+			Summary:  "Unable to create new OAuth Authorization",
 			Detail:   createErr.Error(),
 		})
 
@@ -246,18 +246,35 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 	var diags diag.Diagnostics
 
 	client, clientDiags := constructPlatformAPIClient(d, meta)
+
 	if clientDiags.HasError() {
 		return clientDiags
 	}
 
+	hasCustomTTL := false
+	if _, ok := d.GetOk("time_to_live"); ok {
+		hasCustomTTL = true
+	}
+
 	t, getErr := client.OAuthAuthorizationInfo(context.TODO(), d.Id())
 	if getErr != nil {
+		// Handle when an existing oauth authorization has expired and is no longer available remotely.
+		// In this scenario, provide a specific error to diagnostics.
+		if strings.Contains(getErr.Error(), "Couldn't find that OAuth") && hasCustomTTL {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Unable to retrieve info about OAuth authorization %s", d.Id()),
+				Detail: "This authorization has likely expired as it had an custom TTL set in configuration. " +
+					"If you wish to 'regenerate' the authorization, `taint` the resource and then `apply`.",
+			})
+			return diags
+		}
+
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to retrieve info about token %s", d.Id()),
+			Summary:  fmt.Sprintf("Unable to retrieve info about OAuth authorization %s", d.Id()),
 			Detail:   getErr.Error(),
 		})
-
 		return diags
 	}
 
