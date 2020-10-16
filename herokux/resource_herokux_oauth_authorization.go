@@ -283,10 +283,10 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 	// We just want to make sure the TTL was applied correctly.
 	if v, ok := d.GetOk("time_to_live"); ok {
 		ttl := v.(int)
-		if ttl < *t.AccessToken.ExpiresIn {
+		if ttl <= *t.AccessToken.ExpiresIn {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Oauth authorization time-to-live/expiration duration not set properly",
+				Summary:  "OAuth authorization time-to-live/expiration duration not set properly",
 				Detail: fmt.Sprintf("The current expiration duration [%d] is greater than the specified [%d] "+
 					"one in your configuration. This should not be the case.", ttl, *t.AccessToken.ExpiresIn),
 			})
@@ -297,10 +297,10 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 		if t.AccessToken.ExpiresIn != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  "Oauth authorization time-to-live/expiration duration not set properly",
+				Summary:  "OAuth authorization time-to-live/expiration duration not set properly",
 				Detail: fmt.Sprintf("Your configuration does not specify a time_to_live value "+
 					"but the authorization access token has an expiration duration of %d seconds. "+
-					"Please check and confirm", *t.AccessToken.ExpiresIn),
+					"Please check and confirm.", *t.AccessToken.ExpiresIn),
 			})
 			return diags
 		}
