@@ -17,6 +17,17 @@ Please be very careful when deleting this resource as any deleted authorizations
 Furthermore, this resource renders the `access_token` attribute in plain-text in your state file.
 Please ensure that your state file is properly secured and encrypted at rest.
 
+## Example Usage
+
+```hcl-terraform
+resource "herokux_oauth_authorization" "foobar" {
+	scope = ["read"]
+	auth_api_key_name = "MYBOTUSER"
+	time_to_live = 100000
+	description = "This is an oauth authorization test from Terraform"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
