@@ -63,6 +63,7 @@ The following attributes are exported:
 * `access_token` - The access token. This attribute value does not get displayed in logs or regular output.
 
 * `expires_in` - How long (in seconds) before the access token will be expired.
+If there is no expiration date, this attribute value will be `0`.
 
 * `token_id` - The ID of the token. This differs from the resource ID, which is the authorization ID.
 

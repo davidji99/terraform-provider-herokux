@@ -261,25 +261,60 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 		return diags
 	}
 
+	// Validate expires_in is less than what is defined in the configuration
+	// as the Platform API does not return a field with the original specified TTL.
+	// We just want to make sure the TTL was applied correctly.
+	if v, ok := d.GetOk("time_to_live"); ok {
+		ttl := v.(int)
+		if ttl < *t.AccessToken.ExpiresIn {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Oauth authorization time-to-live/expiration duration not set properly",
+				Detail: fmt.Sprintf("The current expiration duration [%d] is greater than the specified [%d] "+
+					"one in your configuration. This should not be the case.", ttl, *t.AccessToken.ExpiresIn),
+			})
+			return diags
+		}
+	} else {
+		// If no time_to_live is specified, make sure the expires_in is `null` or `nil`.
+		if t.AccessToken.ExpiresIn != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Oauth authorization time-to-live/expiration duration not set properly",
+				Detail: fmt.Sprintf("Your configuration does not specify a time_to_live value "+
+					"but the authorization access token has an expiration duration of %d seconds. "+
+					"Please check and confirm", *t.AccessToken.ExpiresIn),
+			})
+			return diags
+		}
+	}
+
+	var expiresIn int
+	if t.AccessToken.ExpiresIn == nil {
+		expiresIn = 0
+	} else {
+		expiresIn = *t.AccessToken.ExpiresIn
+
+		// Add a warning message to tell users their token will expire in given period
+		// This warning doesn't work due to a bug in Terraform core.
+		if *t.AccessToken.ExpiresIn <= OneWeekInSeconds {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "[WARNING] Oauth authorization token is expiring soon",
+				Detail:   fmt.Sprintf("Token %s is expiring in %d seconds", d.Id(), *t.AccessToken.ExpiresIn),
+			})
+		}
+	}
+	d.Set("expires_in", expiresIn)
+
 	d.Set("scope", t.Scope)
 	d.Set("access_token", t.AccessToken.Token)
 	d.Set("description", t.Description)
-	d.Set("expires_in", *t.AccessToken.ExpiresIn)
 	d.Set("token_id", t.AccessToken.ID)
 
 	//if _, ok := d.GetOk("client"); ok {
 	//	d.Set("client", t.Client.ID)
 	//}
-
-	// Add a warning message to tell users their token will expire in given period
-	// This warning doesn't work due to a bug in Terraform core.
-	if *t.AccessToken.ExpiresIn <= OneWeekInSeconds {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "[WARNING] Oauth authorization token is expiring soon",
-			Detail:   fmt.Sprintf("Token %s is expiring in %d seconds", d.Id(), *t.AccessToken.ExpiresIn),
-		})
-	}
 
 	return diags
 }
