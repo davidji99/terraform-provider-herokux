@@ -47,7 +47,7 @@ $ $GOPATH/bin/terraform-provider-herokux
 To use the dev provider with local Terraform, copy the freshly built plugin into Terraform's local plugins directory:
 
 ```sh
-cp $GOPATH/bin/terraform-provider-heroku ~/.terraform.d/plugins/
+cp $GOPATH/bin/terraform-provider-herokux-dev ~/.terraform.d/plugins/
 ```
 
 Set the HerokuX provider without a version constraint:
