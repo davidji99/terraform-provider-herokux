@@ -19,10 +19,11 @@ though different topics within a cluster may have a mix of these configurations.
 ### Resources
 Configuring Kafka topics is very dependent on your Kafka addon plan.
 Please refer to the following documentation when deciding how to configure a topic within the plan's limitations:
-- [Apache Kafka on Heroku](https://devcenter.heroku.com/articles/kafka-on-heroku)
-- [Apache Kafka on Heroku Plan Details](https://elements.heroku.com/addons/heroku-kafka)
-- [Multi-Tenant Apache Kafka on Heroku](https://devcenter.heroku.com/articles/multi-tenant-kafka-on-heroku#basic-plans)
-- [Apache Kafka on Heroku Add-on Migration](https://devcenter.heroku.com/articles/kafka-addon-migration)
+
+* [Apache Kafka on Heroku](https://devcenter.heroku.com/articles/kafka-on-heroku)
+* [Apache Kafka on Heroku Plan Details](https://elements.heroku.com/addons/heroku-kafka)
+* [Multi-Tenant Apache Kafka on Heroku](https://devcenter.heroku.com/articles/multi-tenant-kafka-on-heroku#basic-plans)
+* [Apache Kafka on Heroku Add-on Migration](https://devcenter.heroku.com/articles/kafka-addon-migration)
 
 ### Resource Timeouts
 This resource checks the status of a creation or update action.
@@ -30,6 +31,7 @@ Both checks' default timeout is 10 minutes, which can be customized via the
 `timeouts.kafka_topic_create_timeout` and `timeouts.kafka_topic_update_timeout` attributes in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
@@ -99,6 +101,7 @@ An existing topic can be imported using a composite value of the Kafka ID and to
 separated by a colon.
 
 For example:
+
 ```shell script
 $ terraform import herokux_kafka_topic.foobar "<KAFKA_ID>:<TOPIC_NAME>"
 ```

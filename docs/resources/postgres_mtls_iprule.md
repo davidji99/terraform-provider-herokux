@@ -20,20 +20,22 @@ This check's default timeout is ~10 minutes, which can be customized via the `ti
 in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
     mtls_iprule_create_timeout = 15
   }
 }
-``` 
+```
 
-### Why have separate resources for enabling MTLS and managing IP rules?
+### Reason for separate resources to manage MTLS and MTLS IP rules
 Although the IP rule API endpoint is a child of the MTLS endpoint, each IP rule has its own UUID. Therefore, it is better
 to have an IP rule managed as a separate resource for optimal lifecycle management with terraform. If you have a lot of IP rules
 to add, please utilize Terraform's `count` or `for_each` expression to keep your code DRY.
 
 ## Example Usage
+
 ```hcl-terraform
 resource "herokux_postgres_mtls" "foobar" {
 	database_name = "SOME_DATABASE_NAME"
@@ -51,6 +53,7 @@ resource "herokux_postgres_mtls_iprule" "foobar" {
 The following arguments are supported:
 
 * `database_name` - (Required) `<string>` The name of the database. Please note the following:
+
     * DO NOT use the database UUID.
     * It is **highly recommended** setting this attribute's value to reference an existing `herokux_postgres_mtls` resource.
     This way, Terraform will handle the dependency chain between the two resources as you cannot create an IP rule for
@@ -73,6 +76,7 @@ The following attributes are exported:
 An existing database MTLS IP rule can be imported using a composite value of the database name and IP CIDR separated by a colon.
 
 For example:
+
 ```shell script
 $ terraform import herokux_postgres_mtls_iprule.foobar "<MY_DB_NAME>:1.2.3.4/32"
 ```

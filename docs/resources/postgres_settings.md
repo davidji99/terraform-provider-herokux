@@ -24,6 +24,7 @@ The aforementioned delay can be customized via the `delays.postgres_settings_mod
 The delay value defaults to 2 minutes with a minimum requirement of 1 minute.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   delays {
@@ -62,16 +63,18 @@ and a value of `-1` will disable logging.
 * `log_statement` - `<string>` Controls which normal SQL statements are logged. This feature is useful
 when hunting a bug that involves complex queries or inspecting queries made by your app or any database user.
 Valid values for log-statement are:
-  - `none`: Stops logging normal queries. Other logs will still be generated such as slow query logs, queries waiting in locks, and syntax errors.
-  - `ddl`: All data definition statements, such as CREATE, ALTER and DROP will be logged.
-  - `mod`: Includes all statements from ddl as well as data-modifying statements such as `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `COPY.`
-  - `all`: All statements are logged.
+
+    * `none`: Stops logging normal queries. Other logs will still be generated such as slow query logs, queries waiting in locks, and syntax errors.
+    * `ddl`: All data definition statements, such as CREATE, ALTER and DROP will be logged.
+    * `mod`: Includes all statements from ddl as well as data-modifying statements such as `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE`, `COPY.`
+    * `all`: All statements are logged.
 
 ## Import
 
 Existing postgres settings can be imported using the postgres ID.
 
 For example:
+
 ```shell script
 $ terraform import herokux_postgres_settings.foobar "<POSTGRES_ID>"
 ```

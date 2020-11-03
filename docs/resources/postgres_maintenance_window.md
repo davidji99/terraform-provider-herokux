@@ -42,6 +42,7 @@ For example: `Sundays 10:30`. Note: the `s` attached to the word `Sunday` is req
 An existing maintenance window can be imported using the postgres ID.
 
 For example:
+
 ```shell script
 $ terraform import herokux_postgres_maintenance_window.foobar "<POSTGRES_ID>"
 ```

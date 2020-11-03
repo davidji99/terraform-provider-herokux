@@ -21,6 +21,7 @@ Both checks' default timeout is ~10 minutes, which can be customized via the `ti
 and `timeouts.mtls_certificate_delete_timeout` attributes in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
@@ -30,12 +31,13 @@ provider "herokux" {
 }
 ```
 
-### Why have separate resources for enabling MTLS and managing certificates?
+### Reason for separate resources to manage MTLS and MTLS certificates
 Although the certificate API endpoint is a child of the MTLS endpoint, each certificate has its own UUID. Therefore, it is better
 to have a certificate managed as a separate resource for optimal lifecycle management with terraform. If you have many certificates
 to create, please utilize Terraform's `count` or `for_each` expression to keep your code DRY.
 
 ## Example Usage
+
 ```hcl-terraform
 resource "herokux_postgres_mtls" "foobar" {
 	database_name = "SOME_DATABASE_NAME"
@@ -70,7 +72,8 @@ The following attributes are exported:
 
 * `private_key` - The client private key. This attribute value does not get displayed in logs or regular output.
 
-* `certificate_with_chain` - The client certificate with chain. This attribute value does not get displayed in logs or regular output.
+* `certificate_with_chain` - The client certificate with chain. This attribute value does not get displayed in logs
+or regular output.
 
 ## Import
 
@@ -78,6 +81,7 @@ An existing database MTLS certificate can be imported using a composite value
 of the database name and certificate ID separated by a colon.
 
 For example:
+
 ```shell script
 $ terraform import herokux_postgres_mtls_certificate.foobar "<MY_DB_NAME>:<CERT_ID>"
 ```

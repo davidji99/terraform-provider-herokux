@@ -16,6 +16,7 @@ Both checks' default timeout is 10 minutes, which can be customized via the
 `timeouts.kafka_cg_create_timeout` and `timeouts.kafka_cg_delete_timeout` attributes in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
@@ -54,6 +55,7 @@ An existing consumer group can be imported using a composite value of the Kafka 
 separated by a colon.
 
 For example:
+
 ```shell script
 $ terraform import herokux_kafka_consumer_group.foobar "<KAFKA_ID>:<GROUP_NAME>"
 ```

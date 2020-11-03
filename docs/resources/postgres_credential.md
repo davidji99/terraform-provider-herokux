@@ -26,6 +26,7 @@ can be customized via the `timeouts.postgres_credential_create_timeout` and
 `timeouts.postgres_credential_delete_timeout` attributes in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
@@ -68,6 +69,7 @@ The following attributes are exported:
 
 * `secrets` - List of maps of usernames and passwords for the credential. By default, there will be always be at least
 one set of a username and password. This attribute value does not get displayed in logs or regular output.
+
     * `username` - The username. This attribute value does not get displayed in logs or regular output.
     * `password` - The password. This attribute value does not get displayed in logs or regular output.
     * `state` - The state of the secret.
@@ -80,6 +82,7 @@ An existing credential can be imported using a composite value
 of the postgres ID and credential name separated by a colon.
 
 For example:
+
 ```shell script
 $ terraform import herokux_postgres_credential.foobar "<POSTGRES_ID>:<CREDENTIAL_NAME>"
 ```
