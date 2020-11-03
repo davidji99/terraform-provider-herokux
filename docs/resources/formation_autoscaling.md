@@ -17,7 +17,9 @@ You will need to visit the Heroku UI for further action.
 
 This resource can replace the [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation) resource.
 It is recommended NOT to use both resources concurrently. Furthermore, like the `heroku_formation` resource, users will need
-to add the following to the `herokux_formation_autoscaling` resource block when a `heroku_app_release` resource is also present:
+to add the following to the `herokux_formation_autoscaling` resource block when a `heroku_app_release` resource
+is also present:
+
 ```
     # Tells Terraform that this formation must be created/updated only after the app release has been created
     depends_on = ["heroku_app_release.foobar-release"]
@@ -87,6 +89,7 @@ Existing formation autoscaling settings can be imported using the combination
 of the application UUID, a colon, and the formation name.
 
 For example:
+
 ```shell script
 $ terraform import herokux_formation_autoscaling.foobar <APP_ID>:<FORMATION_NAME>
 ```

@@ -13,6 +13,7 @@ for Heroku Postgres events and stream them to your Apache Kafka on Heroku add-on
 or a Shield Private Space. This resource requires Postgres and Kafka addons installed in a Private or Private Shield space.
 
 Additional Heroku documentation:
+
 - [Best Practices for Heroku's Streaming Data Connectors](https://devcenter.heroku.com/articles/best-practices-for-heroku-data-connectors)
 - [Heroku's streaming data connectors](https://devcenter.heroku.com/articles/heroku-data-connectors)
 
@@ -32,6 +33,7 @@ All the aforementioned timeouts can be customized via the `timeouts.data_connect
 and `timeouts.data_connector_update_timeout` attributes in your `provider` block.
 
 For example:
+
 ```hcl-terraform
 provider "herokux" {
   timeouts {
@@ -69,9 +71,10 @@ This is an existing Heroku Kafka addon.
 
 * `state` - `<string>` Controls whether to pause or resume the data connector. Valid options are: `available` or `paused`.
 By default, the data connector is `available` on initial creation. Please also note the following:
-  - No action is taken if `state` is set to `available` on initial resource creation.
-  - No action is taken if this attribute is removed from a configuration.
-  - This attribute value will generally mirror the exported `status` attribute.
+
+    * No action is taken if `state` is set to `available` on initial resource creation.
+    * No action is taken if this attribute is removed from a configuration.
+    * This attribute value will generally mirror the exported `status` attribute.
 
 * `excluded_columns` - `<list(string)>` List of columns to exclude.
 
@@ -93,6 +96,7 @@ The following attributes are exported:
 An existing data connector can be imported using the data connector UUID.
 
 For example:
+
 ```shell script
 $ terraform import herokux_data_connector.foobar <UUID>
 ```
