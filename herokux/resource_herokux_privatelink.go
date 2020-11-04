@@ -319,9 +319,5 @@ func checkAccountsAreActive(pl *postgres.Privatelink) bool {
 		}
 	}
 
-	if stringArrayContains(aaStatuses, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString()) {
-		return false
-	}
-
-	return true
+	return !stringArrayContains(aaStatuses, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString())
 }

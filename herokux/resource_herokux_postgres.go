@@ -396,17 +396,13 @@ func validateCustomAddonName(v interface{}, k string) (ws []string, errors []err
 	// Check length
 	v1 := validation.StringLenBetween(1, 256)
 	_, errs1 := v1(v, k)
-	for _, err := range errs1 {
-		errors = append(errors, err)
-	}
+	errors = append(errors, errs1...)
 
 	// Check validity
 	valRegex := regexp.MustCompile(`^[a-zA-Z][A-Za-z0-9_-]+$`)
 	v2 := validation.StringMatch(valRegex, "Invalid custom addon name: must start with a letter and can only contain lowercase letters, numbers, and dashes")
 	_, errs2 := v2(v, k)
-	for _, err := range errs2 {
-		errors = append(errors, err)
-	}
+	errors = append(errors, errs2...)
 
 	return ws, errors
 }
