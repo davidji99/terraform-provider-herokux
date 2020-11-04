@@ -1,7 +1,6 @@
 package herokux
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -21,7 +20,7 @@ func TestAccHerokuxPrivatelink_importBasic(t *testing.T) {
 			},
 			{
 				ResourceName:      "herokux_privatelink.foobar",
-				ImportStateId:     fmt.Sprintf("%s", addonID),
+				ImportStateId:     addonID,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

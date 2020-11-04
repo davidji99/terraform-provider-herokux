@@ -49,7 +49,7 @@ func ConvertDurationToMilliseconds(d string) (int, error) {
 		return 0, fmt.Errorf("unknown duration string")
 	}
 
-	multiplier := 1
+	var multiplier int
 	magnitude, _ := strconv.Atoi(result[1])
 	unit := result[2]
 

@@ -1,7 +1,6 @@
 package herokux
 
 import (
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -20,7 +19,7 @@ func TestAccHerokuxPostgresMTLS_importBasic(t *testing.T) {
 			},
 			{
 				ResourceName:      "herokux_formation_autoscaling.foobar",
-				ImportStateId:     fmt.Sprintf("%s", dbName),
+				ImportStateId:     dbName,
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

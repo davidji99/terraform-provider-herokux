@@ -1,7 +1,6 @@
 package herokux
 
 import (
-	"fmt"
 	helper "github.com/davidji99/terraform-provider-herokux/helper/test"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
@@ -80,32 +79,32 @@ func TestAccHerokuxOauthAuthorization_NoTTL(t *testing.T) {
 }
 
 func testAccCheckHerokuxOauthAuthorization_basic() string {
-	return fmt.Sprintf(`
+	return `
 resource "herokux_oauth_authorization" "foobar" {
 	scope = ["read"]
 	time_to_live = 100000
 	description = "This is an oauth authorization test from Terraform"
 }
-`)
+`
 }
 
 func testAccCheckHerokuxOauthAuthorization_CustomAPIKey() string {
-	return fmt.Sprintf(`
+	return `
 resource "herokux_oauth_authorization" "foobar" {
 	scope = ["read"]
 	auth_api_key_name = "TESTACC"
 	time_to_live = 100000
 	description = "This is an oauth authorization test from Terraform"
 }
-`)
+`
 }
 
 func testAccCheckHerokuxOauthAuthorization_NoTTL() string {
-	return fmt.Sprintf(`
+	return `
 resource "herokux_oauth_authorization" "foobar" {
 	scope = ["read"]
 	auth_api_key_name = "TESTACC"
 	description = "This is an oauth authorization test from Terraform"
 }
-`)
+`
 }

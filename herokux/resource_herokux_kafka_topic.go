@@ -299,10 +299,7 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		if ok := d.HasChange("retention_time"); ok {
 			// Setting checkFunc so the resource knows what to check for
 			checkFuncs = append(checkFuncs, func(t *kafka.Topic) bool {
-				if t.GetRetentionTimeInMS() == targetRetentionTime {
-					return true
-				}
-				return false
+				return t.GetRetentionTimeInMS() == targetRetentionTime
 			})
 		}
 	}
@@ -348,12 +345,10 @@ func topicUpdateStateRefreshFunc(client *api.Client, kafkaID, topicName string, 
 		}
 
 		// Loop through all the checkFuncs. Return UPDATING if any of the functions return false
-		if checkFuncs != nil {
-			for _, cf := range checkFuncs {
-				if !cf(topic) {
-					log.Printf("[DEBUG] topic not updated yet")
-					return topic, kafka.TopicStatuses.UPDATING.ToString(), nil
-				}
+		for _, cf := range checkFuncs {
+			if !cf(topic) {
+				log.Printf("[DEBUG] topic not updated yet")
+				return topic, kafka.TopicStatuses.UPDATING.ToString(), nil
 			}
 		}
 

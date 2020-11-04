@@ -225,15 +225,13 @@ func resourceHerokuxDataConnectorRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("status", dc.Status.ToString())
 
 	excludedColumns := make([]string, 0)
-	for _, c := range dc.ExcludedColumns {
-		excludedColumns = append(excludedColumns, c)
-	}
+	excludedColumns = append(excludedColumns, dc.ExcludedColumns...)
 	d.Set("excluded_columns", excludedColumns)
 
 	if dc.Settings != nil {
 		d.Set("settings", dc.Settings)
 	} else {
-		d.Set("settings", make(map[string]string, 0))
+		d.Set("settings", make(map[string]string))
 	}
 
 	return nil
