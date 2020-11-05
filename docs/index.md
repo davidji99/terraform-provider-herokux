@@ -8,9 +8,12 @@ description: |-
 
 # HerokuX Provider
 
-The HerokuX provider interacts with APIs outside of the Heroku Platform APIs to provide additional resources not available
+The HerokuX provider interacts with endpoints not available in the Platform APIs and Platform API variants
+to provide additional resources not available
 in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
-Almost all of the provider's resources require Heroku provider resources as a prerequisite.
+
+Almost all resources in this provider require official Heroku provider resources as a prerequisite.
+Essentially, this provider is designed to supplement, not replace, the official Heroku provider.
 
 **This provider has no relationship with Heroku.**
 
@@ -174,3 +177,6 @@ Only a single `timeouts` block may be specified, and it supports the following a
 
     * `postgres_credential_delete_timeout` - (Optional) The number of minutes to wait for a postgres credential to be deleted.
     Defaults to 10 minutes. Minimum required is 5 minutes.
+
+    * `shield_private_space_create_timeout` - (Optional) The number of minutes to wait for a shield private space
+    to be provisioned. Defaults to 20 minutes. Minimum required is 10 minutes.

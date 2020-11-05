@@ -36,6 +36,7 @@ const (
 	DefaultPostgresCredentialCreateTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteTimeout         = int64(10)
 	DefaultPostgresSettingsModifyDelay             = int64(2)
+	DefaultPrivateSpaceCreateTimeout               = int64(20)
 )
 
 var (
@@ -71,6 +72,7 @@ type Config struct {
 	DataConnectorUpdateTimeout              int64
 	PostgresCredentialCreateTimeout         int64
 	PostgresCredentialDeleteTimeout         int64
+	PrivateSpaceCreateTimeout               int64
 
 	// Custom Delays
 	PostgresSettingsModifyDelay int64
@@ -97,6 +99,7 @@ func NewConfig() *Config {
 		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
 		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
 		PostgresSettingsModifyDelay:             DefaultPostgresSettingsModifyDelay,
+		PrivateSpaceCreateTimeout:               DefaultPrivateSpaceCreateTimeout,
 	}
 	return c
 }
@@ -248,6 +251,10 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := timeoutsConfig["postgres_credential_delete_timeout"].(int); ok {
 				c.PostgresCredentialDeleteTimeout = int64(v)
+			}
+
+			if v, ok := timeoutsConfig["shield_private_space_create_timeout"].(int); ok {
+				c.PrivateSpaceCreateTimeout = int64(v)
 			}
 		}
 	}

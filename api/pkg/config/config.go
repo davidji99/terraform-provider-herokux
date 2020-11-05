@@ -14,6 +14,9 @@ type Config struct {
 	// DataBaseURL is the base URL for Heroku's Data APIs.
 	DataBaseURL string
 
+	// PlatformBaseURL is the base URL for Heroku's Platform APIs.
+	PlatformBaseURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 

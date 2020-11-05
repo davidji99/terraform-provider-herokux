@@ -8,7 +8,7 @@ import (
 // Option is a functional option for configuring the API client.
 type Option func(*Config) error
 
-// MetricsBaseURL allows for a custom URL.
+// MetricsBaseURL allows for a custom Metrics API URL.
 func MetricsBaseURL(url string) Option {
 	return func(c *Config) error {
 		if err := validateBaseURLOption(url); err != nil {
@@ -20,7 +20,7 @@ func MetricsBaseURL(url string) Option {
 	}
 }
 
-// PostgresBaseURL allows for a custom URL.
+// PostgresBaseURL allows for a custom Postgres API URL.
 func PostgresBaseURL(url string) Option {
 	return func(c *Config) error {
 		if err := validateBaseURLOption(url); err != nil {
@@ -28,6 +28,42 @@ func PostgresBaseURL(url string) Option {
 		}
 
 		c.PostgresBaseURL = url
+		return nil
+	}
+}
+
+// KafkaBaseURL allows for a custom Kafka API URL.
+func KafkaBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.KafkaBaseURL = url
+		return nil
+	}
+}
+
+// DataBaseURL allows for a custom Data API URL.
+func DataBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.DataBaseURL = url
+		return nil
+	}
+}
+
+// PlatformBaseURL allows for a custom Platform API URL.
+func PlatformBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.PlatformBaseURL = url
 		return nil
 	}
 }

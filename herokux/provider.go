@@ -193,6 +193,13 @@ func New() *schema.Provider {
 							Default:      10,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
+
+						"shield_private_space_create_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      10,
+							ValidateFunc: validation.IntAtLeast(10),
+						},
 					},
 				},
 			},
@@ -231,6 +238,7 @@ func New() *schema.Provider {
 			"herokux_postgres_mtls_iprule":        resourceHerokuxPostgresMTLSIPRule(),
 			"herokux_postgres_settings":           resourceHerokuxPostgresSettings(),
 			"herokux_privatelink":                 resourceHerokuxPrivatelink(),
+			"herokux_shield_private_space":        resourceHerokuxShieldPrivateSpace(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
 		},

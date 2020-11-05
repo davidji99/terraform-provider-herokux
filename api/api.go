@@ -5,12 +5,13 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 )
 
 const (
-	// DefaultAPIBaseURL is the base URL.
-	DefaultAPIBaseURL = "https://api.heroku.com"
+	// DefaultPlatformAPIBaseURL is the base Platform URL.
+	DefaultPlatformAPIBaseURL = "https://api.heroku.com"
 
 	// DefaultMetricAPIBaseURL is the default base Metric URL.
 	DefaultMetricAPIBaseURL = "https://api.metrics.heroku.com"
@@ -25,6 +26,7 @@ const (
 	DefaultUserAgent = "herokux-go"
 
 	// DefaultAcceptHeader is the default Accept header.
+	// TODO: see if this can be set back to just `application/json
 	DefaultAcceptHeader = "application/vnd.heroku+json; version=3"
 
 	// DefaultContentTypeHeader is the default and Content-Type header.
@@ -39,6 +41,7 @@ type Client struct {
 	Data     *data.Data
 	Kafka    *kafka.Kafka
 	Metrics  *metrics.Metrics
+	Platform *platform.Platform
 	Postgres *postgres.Postgres
 }
 
@@ -50,6 +53,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		PostgresBaseURL:   DefaultPostgresAPIBaseURL,
 		KafkaBaseURL:      DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
 		DataBaseURL:       DefaultDataAPIBaseURL,
+		PlatformBaseURL:   DefaultPlatformAPIBaseURL,
 		UserAgent:         DefaultUserAgent,
 		APIToken:          "",
 		BasicAuth:         "",
@@ -68,6 +72,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		Data:     data.New(config),
 		Kafka:    kafka.New(config),
 		Metrics:  metrics.New(config),
+		Platform: platform.New(config),
 		Postgres: postgres.New(config),
 	}
 
