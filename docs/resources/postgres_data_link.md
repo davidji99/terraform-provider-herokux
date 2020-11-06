@@ -1,14 +1,14 @@
 ---
 layout: "herokux"
-page_title: "HerokuX: herokux_data_link"
-sidebar_current: "docs-herokux-resource-data-link"
+page_title: "HerokuX: herokux_postgres_data_link"
+sidebar_current: "docs-herokux-resource-postgres-data-link"
 description: |-
   Provides a resource to manage a Data link between two Heroku Postgres databases.
 ---
 
-# herokux\_data\_link
+# herokux\_postgres\_data\_link
 
-This resource manages a data link in Heroku.
+This resource manages a postgres data link in Heroku.
 
 [Heroku Data Links](https://devcenter.heroku.com/articles/heroku-data-links) allows you to connect disparate
 data sources, such as Heroku Postgres, to a Heroku Postgres database.
@@ -18,7 +18,7 @@ Heroku Data Links is only available on production tier Heroku Postgres databases
 that are on Postgres version 9.4 and above. Data Links is not available on hobby tier databases.
 
 When you delete the remote data store, or the remote date store moves to another host (e.g. Postgres failover),
-the data link will not be updated. This means you will need to `taint` the existing `herokux_data_link` resource
+the data link will not be updated. This means you will need to `taint` the existing `herokux_postgres_data_link` resource
 and `apply` to recreate the resource.
 
 When you reset the local database with the command like `heroku pg:reset`, the data link information will also be reset.
@@ -28,7 +28,7 @@ attempting to recreate the data link again.
 -> **IMPORTANT!**
 Only the tables that exist at the time of the link creation will be available. If you create tables after you created
 the link, they will not show up in the local database. If you want to include newly created tables, you will need
-to `taint` the existing `herokux_data_link` resource and `apply`.
+to `taint` the existing `herokux_postgres_data_link` resource and `apply`.
 
 -> **IMPORTANT!**
 Due to [Heroku documentation](https://devcenter.heroku.com/articles/heroku-data-links#linking-heroku-redis-to-heroku-postgres)
@@ -38,7 +38,7 @@ this data link setup.
 ## Example Usage
 
 ```hcl-terraform
-resource "herokux_data_link" "foobar" {
+resource "herokux_postgres_data_link" "foobar" {
 	local_db_id = "6fae1ee0-c034-4775-a798-890bc64f98eb"
 	remote_db_name = "postgresql-spherical-123456"
 	name = "my_custom_data_l1nk_name"
@@ -83,5 +83,5 @@ The data link name is the string with an asterisk on the left-hand side in the c
 For example:
 
 ```shell script
-$ terraform import herokux_data_link.foobar "6fae1ee0-c034-4775-a798-890bc64f98eb:my_custom_data_l1nk_name"
+$ terraform import herokux_postgres_data_link.foobar "6fae1ee0-c034-4775-a798-890bc64f98eb:my_custom_data_l1nk_name"
 ```

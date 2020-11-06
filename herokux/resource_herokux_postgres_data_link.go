@@ -11,14 +11,14 @@ import (
 	"regexp"
 )
 
-func resourceHerokuxDataLink() *schema.Resource {
+func resourceHerokuxPostgresDataLink() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxDataLinkCreate,
-		ReadContext:   resourceHerokuxDataLinkRead,
-		DeleteContext: resourceHerokuxDataLinkDelete,
+		CreateContext: resourceHerokuxPostgresDataLinkCreate,
+		ReadContext:   resourceHerokuxPostgresDataLinkRead,
+		DeleteContext: resourceHerokuxPostgresDataLinkDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxDataLinkImport,
+			StateContext: resourceHerokuxPostgresDataLinkImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -69,13 +69,13 @@ func validateDataLinkName(v interface{}, k string) (ws []string, errors []error)
 	return
 }
 
-func resourceHerokuxDataLinkImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxPostgresDataLinkImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	_, parseErr := parseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, fmt.Errorf("unable to import: import requires the local db ID and remote db name separated by a colon")
 	}
 
-	readErr := resourceHerokuxDataLinkRead(ctx, d, meta)
+	readErr := resourceHerokuxPostgresDataLinkRead(ctx, d, meta)
 	if readErr.HasError() {
 		return nil, fmt.Errorf("unable to import data link")
 	}
@@ -83,7 +83,7 @@ func resourceHerokuxDataLinkImport(ctx context.Context, d *schema.ResourceData, 
 	return []*schema.ResourceData{d}, nil
 }
 
-func resourceHerokuxDataLinkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPostgresDataLinkCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 	opts := &postgres.DataLinkCreateOpts{}
@@ -125,10 +125,10 @@ func resourceHerokuxDataLinkCreate(ctx context.Context, d *schema.ResourceData, 
 
 	log.Printf("[DEBUG] Created Data Link between %s & %s", localDB, opts.Remote)
 
-	return resourceHerokuxDataLinkRead(ctx, d, meta)
+	return resourceHerokuxPostgresDataLinkRead(ctx, d, meta)
 }
 
-func resourceHerokuxDataLinkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPostgresDataLinkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
@@ -171,7 +171,7 @@ func resourceHerokuxDataLinkRead(ctx context.Context, d *schema.ResourceData, me
 	return diags
 }
 
-func resourceHerokuxDataLinkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPostgresDataLinkDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
