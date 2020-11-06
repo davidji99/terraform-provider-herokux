@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestAccHerokuxDataLink_Basic(t *testing.T) {
+func TestAccHerokuxPostgresDataLink_Basic(t *testing.T) {
 	localID := testAccConfig.GetAddonIDorSkip(t)
 	remoteName := testAccConfig.GetDBNameorSkip(t)
 	name := fmt.Sprintf("tftest_%s", acctest.RandString(10))
@@ -18,25 +18,25 @@ func TestAccHerokuxDataLink_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxDataLink_WithCustomName(localID, remoteName, name),
+				Config: testAccCheckHerokuxPostgresDataLink_WithCustomName(localID, remoteName, name),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "local_db_id", localID),
+						"herokux_postgres_data_link.foobar", "local_db_id", localID),
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "remote_db_name", remoteName),
+						"herokux_postgres_data_link.foobar", "remote_db_name", remoteName),
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "name", name),
+						"herokux_postgres_data_link.foobar", "name", name),
 					resource.TestCheckResourceAttrSet(
-						"herokux_data_link.foobar", "link_id"),
+						"herokux_postgres_data_link.foobar", "link_id"),
 					resource.TestCheckResourceAttrSet(
-						"herokux_data_link.foobar", "remote_attachment_name"),
+						"herokux_postgres_data_link.foobar", "remote_attachment_name"),
 				),
 			},
 		},
 	})
 }
 
-func TestAccHerokuxDataLink_BasicNoCustomName(t *testing.T) {
+func TestAccHerokuxPostgresDataLink_BasicNoCustomName(t *testing.T) {
 	localID := testAccConfig.GetAddonIDorSkip(t)
 	remoteName := testAccConfig.GetDBNameorSkip(t)
 	expectedLinkName := strings.ReplaceAll(remoteName, "-", "_")
@@ -46,27 +46,27 @@ func TestAccHerokuxDataLink_BasicNoCustomName(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxDataLink_NoCustomName(localID, remoteName),
+				Config: testAccCheckHerokuxPostgresDataLink_NoCustomName(localID, remoteName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "local_db_id", localID),
+						"herokux_postgres_data_link.foobar", "local_db_id", localID),
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "remote_db_name", remoteName),
+						"herokux_postgres_data_link.foobar", "remote_db_name", remoteName),
 					resource.TestCheckResourceAttr(
-						"herokux_data_link.foobar", "name", expectedLinkName),
+						"herokux_postgres_data_link.foobar", "name", expectedLinkName),
 					resource.TestCheckResourceAttrSet(
-						"herokux_data_link.foobar", "link_id"),
+						"herokux_postgres_data_link.foobar", "link_id"),
 					resource.TestCheckResourceAttrSet(
-						"herokux_data_link.foobar", "remote_attachment_name"),
+						"herokux_postgres_data_link.foobar", "remote_attachment_name"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckHerokuxDataLink_WithCustomName(localID, remoteName, name string) string {
+func testAccCheckHerokuxPostgresDataLink_WithCustomName(localID, remoteName, name string) string {
 	return fmt.Sprintf(`
-resource "herokux_data_link" "foobar" {
+resource "herokux_postgres_data_link" "foobar" {
 	local_db_id = "%s"
 	remote_db_name = "%s"
 	name = "%s"
@@ -74,9 +74,9 @@ resource "herokux_data_link" "foobar" {
 `, localID, remoteName, name)
 }
 
-func testAccCheckHerokuxDataLink_NoCustomName(localID, remoteName string) string {
+func testAccCheckHerokuxPostgresDataLink_NoCustomName(localID, remoteName string) string {
 	return fmt.Sprintf(`
-resource "herokux_data_link" "foobar" {
+resource "herokux_postgres_data_link" "foobar" {
 	local_db_id = "%s"
 	remote_db_name = "%s"
 }

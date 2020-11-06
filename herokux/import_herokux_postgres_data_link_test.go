@@ -19,10 +19,10 @@ func TestAccHerokuxDataLink_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxDataLink_WithCustomName(localID, remoteName, name),
+				Config: testAccCheckHerokuxPostgresDataLink_WithCustomName(localID, remoteName, name),
 			},
 			{
-				ResourceName:      "herokux_data_link.foobar",
+				ResourceName:      "herokux_postgres_data_link.foobar",
 				ImportStateId:     fmt.Sprintf("%s:%s", localID, name),
 				ImportState:       true,
 				ImportStateVerify: true,
