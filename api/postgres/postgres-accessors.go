@@ -395,6 +395,62 @@ func (d *DataConnectorTopic) GetTopicName() string {
 	return *d.TopicName
 }
 
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (d *DataLink) GetCreatedAt() time.Time {
+	if d == nil || d.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *d.CreatedAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (d *DataLink) GetID() string {
+	if d == nil || d.ID == nil {
+		return ""
+	}
+	return *d.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataLink) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
+// GetRemote returns the Remote field.
+func (d *DataLink) GetRemote() *DataLinkRemote {
+	if d == nil {
+		return nil
+	}
+	return d.Remote
+}
+
+// GetRemoteName returns the RemoteName field if it's non-nil, zero value otherwise.
+func (d *DataLink) GetRemoteName() string {
+	if d == nil || d.RemoteName == nil {
+		return ""
+	}
+	return *d.RemoteName
+}
+
+// GetAttachmentName returns the AttachmentName field if it's non-nil, zero value otherwise.
+func (d *DataLinkRemote) GetAttachmentName() string {
+	if d == nil || d.AttachmentName == nil {
+		return ""
+	}
+	return *d.AttachmentName
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (d *DataLinkRemote) GetName() string {
+	if d == nil || d.Name == nil {
+		return ""
+	}
+	return *d.Name
+}
+
 // GetID returns the ID field if it's non-nil, zero value otherwise.
 func (g *GenericResponse) GetID() string {
 	if g == nil || g.ID == nil {

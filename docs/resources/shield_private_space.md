@@ -75,10 +75,10 @@ Valid options: `dublin`, `frankfurt`, `oregon`, `sydney`, `tokyo`, `virginia`.
 
 * `team_id` - (Required) `<string>` The UUID of the Heroku Team which will own the Shield Private Space.
 
-* `cidr` - `<string>` The RFC-1918 CIDR the Private Space will use.
+* `cidr` - (Optional) `<string>` The RFC-1918 CIDR the Private Space will use.
 It must be a /16 in `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`.
 
-* `data_cidr` - `<string>` The RFC-1918 CIDR that the Private Space will use for the Heroku-managed peering connection
+* `data_cidr` - (Optional) `<string>` The RFC-1918 CIDR that the Private Space will use for the Heroku-managed peering connection
 that’s automatically created when using Heroku Data add-ons. It must be between a `/16` and a `/20`.
 
 ## Attributes Reference
