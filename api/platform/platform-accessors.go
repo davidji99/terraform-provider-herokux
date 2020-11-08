@@ -9,6 +9,100 @@ import (
 	"time"
 )
 
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (a *App) GetID() string {
+	if a == nil || a.ID == nil {
+		return ""
+	}
+	return *a.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (a *App) GetName() string {
+	if a == nil || a.Name == nil {
+		return ""
+	}
+	return *a.Name
+}
+
+// GetApp returns the App field.
+func (a *AppWebhook) GetApp() *App {
+	if a == nil {
+		return nil
+	}
+	return a.App
+}
+
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (a *AppWebhook) GetCreatedAt() time.Time {
+	if a == nil || a.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *a.CreatedAt
+}
+
+// HasEventTypes checks if AppWebhook has any EventTypes.
+func (a *AppWebhook) HasEventTypes() bool {
+	if a == nil || a.EventTypes == nil {
+		return false
+	}
+	if len(a.EventTypes) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (a *AppWebhook) GetID() string {
+	if a == nil || a.ID == nil {
+		return ""
+	}
+	return *a.ID
+}
+
+// GetLevel returns the Level field.
+func (a *AppWebhook) GetLevel() *WebhookLevel {
+	if a == nil {
+		return nil
+	}
+	return a.Level
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (a *AppWebhook) GetName() string {
+	if a == nil || a.Name == nil {
+		return ""
+	}
+	return *a.Name
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (a *AppWebhook) GetUpdatedAt() time.Time {
+	if a == nil || a.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *a.UpdatedAt
+}
+
+// GetURL returns the URL field if it's non-nil, zero value otherwise.
+func (a *AppWebhook) GetURL() string {
+	if a == nil || a.URL == nil {
+		return ""
+	}
+	return *a.URL
+}
+
+// HasInclude checks if AppWebhookRequest has any Include.
+func (a *AppWebhookRequest) HasInclude() bool {
+	if a == nil || a.Include == nil {
+		return false
+	}
+	if len(a.Include) == 0 {
+		return false
+	}
+	return true
+}
+
 // GetAddon returns the Addon field if it's non-nil, zero value otherwise.
 func (l *LogDrain) GetAddon() string {
 	if l == nil || l.Addon == nil {
