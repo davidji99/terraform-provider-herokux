@@ -304,6 +304,10 @@ func (t *templateData) addSelectorExpr(x *ast.SelectorExpr, receiverType, fieldN
 		if xX == "time" && x.Sel.Name == "Duration" {
 			zeroValue = "0"
 		}
+
+		if xX == "json" && x.Sel.Name == "Number" {
+			zeroValue = "\"\""
+		}
 		t.Getters = append(t.Getters, newGetter(receiverType, fieldName, fieldType, zeroValue, false, false))
 	default:
 		logf("addSelectorExpr: xX %q, type %q, field %q: unknown x=%+v; skipping.", xX, receiverType, fieldName, x)
