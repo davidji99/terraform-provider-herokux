@@ -85,7 +85,7 @@ Credentials can also be sourced from the [`.netrc`](https://ec.haxx.se/usingcurl
 file in your home directory:
 
 ```hcl
-provider "heroku" {}
+provider "herokux" {}
 ```
 
 ```shell
