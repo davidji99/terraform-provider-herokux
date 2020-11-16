@@ -6,6 +6,7 @@
 package kafka
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -482,17 +483,17 @@ func (r *Response) GetMessage() string {
 }
 
 // GetBytesInPerSecond returns the BytesInPerSecond field if it's non-nil, zero value otherwise.
-func (t *Topic) GetBytesInPerSecond() int {
+func (t *Topic) GetBytesInPerSecond() json.Number {
 	if t == nil || t.BytesInPerSecond == nil {
-		return 0
+		return ""
 	}
 	return *t.BytesInPerSecond
 }
 
 // GetBytesOutPerSecond returns the BytesOutPerSecond field if it's non-nil, zero value otherwise.
-func (t *Topic) GetBytesOutPerSecond() int {
+func (t *Topic) GetBytesOutPerSecond() json.Number {
 	if t == nil || t.BytesOutPerSecond == nil {
-		return 0
+		return ""
 	}
 	return *t.BytesOutPerSecond
 }
@@ -530,9 +531,9 @@ func (t *Topic) GetDataSize() int {
 }
 
 // GetMessageInPerSecond returns the MessageInPerSecond field if it's non-nil, zero value otherwise.
-func (t *Topic) GetMessageInPerSecond() int {
+func (t *Topic) GetMessageInPerSecond() json.Number {
 	if t == nil || t.MessageInPerSecond == nil {
-		return 0
+		return ""
 	}
 	return *t.MessageInPerSecond
 }

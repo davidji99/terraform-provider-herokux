@@ -1,7 +1,9 @@
 package kafka
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/davidji99/simpleresty"
 )
 
@@ -15,21 +17,21 @@ type Topics struct {
 
 // Topic represents a single topic.
 type Topic struct {
-	Name               *string `json:"name,omitempty"`
-	Prefix             *string `json:"prefix,omitempty"`
-	MessageInPerSecond *int    `json:"messages_in_per_second,omitempty"`
-	BytesInPerSecond   *int    `json:"bytes_in_per_second,omitempty"`
-	BytesOutPerSecond  *int    `json:"bytes_out_per_second,omitempty"`
-	Partitions         *int    `json:"partitions,omitempty"`
-	ReplicationFactor  *int    `json:"replication_factor,omitempty"`
-	Status             *string `json:"status,omitempty"`
-	StatusLabel        *string `json:"status_label,omitempty"`
-	DataSize           *int    `json:"data_size,omitempty"`
-	Compaction         *bool   `json:"compaction,omitempty"`
-	RetentionTimeInMS  *int    `json:"retention_time_ms,omitempty"`
-	CleanupPolicy      *string `json:"cleanup_policy,omitempty"`
-	CompactionEnabled  *bool   `json:"compaction_enabled,omitempty"`
-	RetentionEnabled   *bool   `json:"retention_enabled,omitempty"`
+	Name               *string      `json:"name,omitempty"`
+	Prefix             *string      `json:"prefix,omitempty"`
+	MessageInPerSecond *json.Number `json:"messages_in_per_second,omitempty"`
+	BytesInPerSecond   *json.Number `json:"bytes_in_per_second,omitempty"`
+	BytesOutPerSecond  *json.Number `json:"bytes_out_per_second,omitempty"`
+	Partitions         *int         `json:"partitions,omitempty"`
+	ReplicationFactor  *int         `json:"replication_factor,omitempty"`
+	Status             *string      `json:"status,omitempty"`
+	StatusLabel        *string      `json:"status_label,omitempty"`
+	DataSize           *int         `json:"data_size,omitempty"`
+	Compaction         *bool        `json:"compaction,omitempty"`
+	RetentionTimeInMS  *int         `json:"retention_time_ms,omitempty"`
+	CleanupPolicy      *string      `json:"cleanup_policy,omitempty"`
+	CompactionEnabled  *bool        `json:"compaction_enabled,omitempty"`
+	RetentionEnabled   *bool        `json:"retention_enabled,omitempty"`
 }
 
 // TopicLimits represents limits on topics.
