@@ -2,10 +2,11 @@ package herokux
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"log"
 	"math/rand"
 	"strings"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // getAppId extracts the app ID attribute generically from a HerokuX resource.
@@ -56,8 +57,8 @@ func getDatabaseName(d *schema.ResourceData) string {
 	return dbName
 }
 
-// getKakfaID extracts the kafka/cluster ID attribute generically from a HerokuX resource.
-func getKakfaID(d *schema.ResourceData) string {
+// getKafkaID extracts the kafka/cluster ID attribute generically from a HerokuX resource.
+func getKafkaID(d *schema.ResourceData) string {
 	var kafkaID string
 	if v, ok := d.GetOk("kafka_id"); ok {
 		vs := v.(string)

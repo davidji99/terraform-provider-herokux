@@ -3,14 +3,15 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"time"
 )
 
 func resourceHerokuxKafkaConsumerGroup() *schema.Resource {
@@ -56,7 +57,7 @@ func resourceHerokuxKafkaConsumerGroupCreate(ctx context.Context, d *schema.Reso
 	client := config.API
 	opts := kafka.NewConsumerGroupRequest()
 
-	kafkaID := getKakfaID(d)
+	kafkaID := getKafkaID(d)
 
 	if v, ok := d.GetOk("name"); ok {
 		opts.Name = v.(string)
