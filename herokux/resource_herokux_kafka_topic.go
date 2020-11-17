@@ -119,7 +119,7 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 	client := config.API
 	opts := &kafka.TopicRequest{}
 
-	kafkaID := getKakfaID(d)
+	kafkaID := getKafkaID(d)
 
 	if v, ok := d.GetOk("name"); ok {
 		vs := v.(string)
@@ -259,7 +259,7 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 	client := config.API
 
 	opts := &kafka.TopicRequest{}
-	kafkaID := getKakfaID(d)
+	kafkaID := getKafkaID(d)
 	checkFuncs := make([]func(t *kafka.Topic) bool, 0)
 
 	if v, ok := d.GetOk("name"); ok {
