@@ -3,15 +3,16 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"regexp"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
-	"time"
 )
 
 func resourceHerokuxKafkaTopic() *schema.Resource {
@@ -241,6 +242,7 @@ func resourceHerokuxKafkaTopicRead(ctx context.Context, d *schema.ResourceData, 
 		}
 	}
 
+	d.Set("kafka_id", kafkaID)
 	d.Set("name", topic.GetName())
 	d.Set("partitions", topic.GetPartitions())
 	d.Set("replication_factor", topic.GetReplicationFactor())
