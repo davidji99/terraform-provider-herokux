@@ -81,6 +81,18 @@ func getPostgresID(d *schema.ResourceData) string {
 	return postgresID
 }
 
+// getRedisID extracts the redis ID attribute generically from a HerokuX resource.
+func getRedisID(d *schema.ResourceData) string {
+	var redisID string
+	if v, ok := d.GetOk("redis_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] redis_id: %s", vs)
+		redisID = vs
+	}
+
+	return redisID
+}
+
 func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 	parts := strings.SplitN(id, ":", numOfSplits)
 
@@ -102,4 +114,9 @@ func stringArrayContains(arr []string, str string) bool {
 
 func randInt(min int, max int) int {
 	return min + rand.Intn(max-min)
+}
+
+func getRandomStringFromSlice(s []string) string {
+	index := randInt(0, len(s)-1)
+	return s[index]
 }

@@ -50,6 +50,7 @@ type Config struct {
 	metricsURL  string
 	postgresURL string
 	dataURL     string
+	redisURL    string
 	token       string
 	Headers     map[string]string
 
@@ -108,7 +109,7 @@ func (c *Config) initializeAPI() error {
 	// Initialize the custom API client for non Heroku Platform APIs
 	api, clientInitErr := api.New(config.APIToken(c.token), config.CustomHTTPHeaders(c.Headers),
 		config.UserAgent(UserAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
-		config.BasicAuth("", c.token))
+		config.PlatformBaseURL(c.platformURL), config.RedisBaseURL(c.redisURL), config.BasicAuth("", c.token))
 	if clientInitErr != nil {
 		return clientInitErr
 	}
@@ -155,6 +156,11 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("data_api_url"); ok {
 		vs := v.(string)
 		c.dataURL = vs
+	}
+
+	if v, ok := d.GetOk("redis_api_url"); ok {
+		vs := v.(string)
+		c.redisURL = vs
 	}
 
 	if v, ok := d.GetOk("platform_api_url"); ok {

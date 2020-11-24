@@ -49,6 +49,12 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_DATA_API_URL", api.DefaultDataAPIBaseURL),
 			},
 
+			"redis_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_REDIS_API_URL", api.DefaultRedisAPIBaseURL),
+			},
+
 			"platform_api_url": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -240,6 +246,7 @@ func New() *schema.Provider {
 			"herokux_postgres_mtls_iprule":        resourceHerokuxPostgresMTLSIPRule(),
 			"herokux_postgres_settings":           resourceHerokuxPostgresSettings(),
 			"herokux_privatelink":                 resourceHerokuxPrivatelink(),
+			"herokux_redis_config":                resourceHerokuxRedisConfig(),
 			"herokux_shield_private_space":        resourceHerokuxShieldPrivateSpace(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
