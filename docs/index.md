@@ -112,6 +112,8 @@ The following arguments are supported:
 
 * `platform_api_url` - (Optional) Custom Platform API url
 
+* `redis_api_url` - (Optional) Custom Redis API url
+
 * `headers` - (Optional) Additional API headers.
 
 * `delays` - (Optional) Delays define a given amount of time to wait before or after a resource takes an action.

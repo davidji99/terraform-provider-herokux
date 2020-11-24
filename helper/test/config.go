@@ -18,6 +18,7 @@ const (
 	TestConfigDatabaseName
 	TestConfigKafkaID
 	TestConfigTeamID
+	TestConfigRedisID
 	TestConfigAcceptanceTestKey
 )
 
@@ -29,6 +30,7 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigDatabaseName:        "HEROKUX_DB_NAME",
 	TestConfigKafkaID:             "HEROKUX_KAFKA_ID",
 	TestConfigTeamID:              "HEROKUX_TEAM_ID",
+	TestConfigRedisID:             "HEROKUX_REDIS_ID",
 	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
@@ -102,4 +104,8 @@ func (t *TestConfig) GetCustomAPIKeyorSkip(testing *testing.T) (val string) {
 
 func (t *TestConfig) GetTeamIDorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigTeamID)
+}
+
+func (t *TestConfig) GetRedisIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigRedisID)
 }

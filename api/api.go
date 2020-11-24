@@ -7,6 +7,7 @@ import (
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/davidji99/terraform-provider-herokux/api/redis"
 )
 
 const (
@@ -21,6 +22,9 @@ const (
 
 	// DefaultDataAPIBaseURL is the default base URL for the Data Graph APIs.
 	DefaultDataAPIBaseURL = "https://data-api.heroku.com"
+
+	// DefaultRedisAPIBaseURL is the default base URL for the Redis APIs.
+	DefaultRedisAPIBaseURL = "https://redis-api.heroku.com"
 
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
@@ -43,6 +47,7 @@ type Client struct {
 	Metrics  *metrics.Metrics
 	Platform *platform.Platform
 	Postgres *postgres.Postgres
+	Redis    *redis.Redis
 }
 
 // New constructs a new client to interact with Heroku APIs.
@@ -54,6 +59,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		KafkaBaseURL:      DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
 		DataBaseURL:       DefaultDataAPIBaseURL,
 		PlatformBaseURL:   DefaultPlatformAPIBaseURL,
+		RedisBaseURL:      DefaultRedisAPIBaseURL,
 		UserAgent:         DefaultUserAgent,
 		APIToken:          "",
 		BasicAuth:         "",
@@ -74,6 +80,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		Metrics:  metrics.New(config),
 		Platform: platform.New(config),
 		Postgres: postgres.New(config),
+		Redis:    redis.New(config),
 	}
 
 	return client, nil

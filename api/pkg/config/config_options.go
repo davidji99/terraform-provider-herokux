@@ -68,6 +68,18 @@ func PlatformBaseURL(url string) Option {
 	}
 }
 
+// RedisBaseURL allows for a custom Redis API URL.
+func RedisBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.RedisBaseURL = url
+		return nil
+	}
+}
+
 // UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {

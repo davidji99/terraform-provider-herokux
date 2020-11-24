@@ -17,6 +17,9 @@ type Config struct {
 	// PlatformBaseURL is the base URL for Heroku's Platform APIs.
 	PlatformBaseURL string
 
+	// RedisBaseURL is the base URL for Heroku's Redis APIs.
+	RedisBaseURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 
