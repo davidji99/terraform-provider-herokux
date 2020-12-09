@@ -23,9 +23,9 @@ type CredentialSecret struct {
 }
 
 // ListCredentials retrieves all credentials for a database.
-func (p *Postgres) ListCredentials(dbNameOrID string) ([]*Credential, *simpleresty.Response, error) {
+func (p *Postgres) ListCredentials(nameOrID string) ([]*Credential, *simpleresty.Response, error) {
 	var result []*Credential
-	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials", nameOrID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -34,9 +34,9 @@ func (p *Postgres) ListCredentials(dbNameOrID string) ([]*Credential, *simpleres
 }
 
 // GetCredential retrieves a single credential for a database.
-func (p *Postgres) GetCredential(dbNameOrID, credentialName string) (*Credential, *simpleresty.Response, error) {
+func (p *Postgres) GetCredential(nameOrID, credentialName string) (*Credential, *simpleresty.Response, error) {
 	var result *Credential
-	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials/%s", dbNameOrID, credentialName)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials/%s", nameOrID, credentialName)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -47,9 +47,9 @@ func (p *Postgres) GetCredential(dbNameOrID, credentialName string) (*Credential
 // CreateCredential creates a postgres database credential.
 //
 // Returns a GenericResponse.
-func (p *Postgres) CreateCredential(dbNameOrID, newCredName string) (*GenericResponse, *simpleresty.Response, error) {
+func (p *Postgres) CreateCredential(nameOrID, newCredName string) (*GenericResponse, *simpleresty.Response, error) {
 	var result *GenericResponse
-	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials", dbNameOrID)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials", nameOrID)
 
 	body := struct {
 		Name string `json:"name"`
@@ -71,9 +71,9 @@ func (p *Postgres) CreateCredential(dbNameOrID, newCredName string) (*GenericRes
 //
 // Note: it takes a bit of time before the credential is fully deleted. The username/password are first to be deleted
 // and then the credential itself is deleted.
-func (p *Postgres) DeleteCredential(dbNameOrID, credentialName string) (*GenericResponse, *simpleresty.Response, error) {
+func (p *Postgres) DeleteCredential(nameOrID, credentialName string) (*GenericResponse, *simpleresty.Response, error) {
 	var result *GenericResponse
-	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials/%s", dbNameOrID, credentialName)
+	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/credentials/%s", nameOrID, credentialName)
 
 	// Execute the request
 	response, getErr := p.http.Delete(urlStr, &result, nil)

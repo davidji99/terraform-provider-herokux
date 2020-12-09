@@ -38,6 +38,8 @@ The following parameters are available for running the test. The absence of some
 * **HEROKUX_ADDON_ID** (`string`) - The UUID of an existing addon. Use this for postgres addon IDs.
 * **HEROKUX_DB_NAME** (`string`) - The name of an existing postgres database.
 * **HEROKUX_KAFKA_ID** (`string`) - The UUID of an existing Kafka addon.
+* **HEROKUX_REDIS_ID** (`string`) - The UUID of an existing Redis addon.
+* **HEROKUX_POSTGRES_ID** (`string`) - The UUID of an existing Postgres addon.
 
 **For example:**
 ```bash
