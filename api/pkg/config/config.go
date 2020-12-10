@@ -20,6 +20,9 @@ type Config struct {
 	// RedisBaseURL is the base URL for Heroku's Redis APIs.
 	RedisBaseURL string
 
+	// ConnectBaseURL is the base URL for Heroku's Connect APIs.
+	ConnectBaseURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 

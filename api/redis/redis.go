@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-// Redis represents Heroku's redis APIs.
+// Redis represents Heroku's Redis APIs.
 type Redis struct {
 	http   *simpleresty.Client
 	config *config2.Config
 }
 
-// New constructs a client to interface with the Heroku redis APIs.
+// New constructs a client to interface with the Heroku Redis APIs.
 func New(config *config2.Config) *Redis {
 	r := &Redis{http: simpleresty.NewWithBaseURL(config.PostgresBaseURL), config: config}
 	r.setHeaders()

@@ -14,11 +14,11 @@ of a Heroku postgres database.
 -> **IMPORTANT!**
 It is not possible to delete a postgres database's settings, so the resource will just be removed from state upon deletion.
 
-### Resource Delays
+### Resource Delay
 This resource will wait a given amount of time after modification. This delay is to allow for Heroku to actually reflect
 the changes to the database before the settings can be modified again. Heroku documentation does not provide
-a recommended or estimated wait period, so this provider provides the means for users to configure this wait period.
-It is likely the size of the database affects the length of this delay.
+a recommended or estimated delay period, so this provider provides the means for users to configure this delay period.
+It is likely the size of the database will affect the length of this delay.
 
 The aforementioned delay can be customized via the `delays.postgres_settings_modify_delay` attribute in your `provider` block.
 The delay value defaults to 2 minutes with a minimum requirement of 1 minute.

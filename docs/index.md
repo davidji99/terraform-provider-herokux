@@ -124,6 +124,9 @@ Only a single `delays` block may be specified, and it supports the following arg
     * `postgres_settings_modify_delay` - (Optional) The number of minutes to wait for a postgres settings modification to be
     properly reflected in Heroku. Defaults to 2 minutes. Minimum required is 1 minute.
 
+    * `connect_mapping_modify_delay` - (Optional) The number of seconds to wait Heroku Connect mapping to be
+    properly reflected in Heroku. Defaults to 15 seconds. Minimum required is 5 seconds.
+
 * `timeouts` - (Optional) Timeouts define a max duration the provider will wait for certain resources
 to be properly modified before proceeding with further action(s). Each timeout's polling intervals is set to 20 seconds.
 Only a single `timeouts` block may be specified, and it supports the following arguments:
