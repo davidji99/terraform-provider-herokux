@@ -19,6 +19,7 @@ const (
 	TestConfigKafkaID
 	TestConfigTeamID
 	TestConfigRedisID
+	TestConfigPostgresID
 	TestConfigAcceptanceTestKey
 )
 
@@ -31,6 +32,7 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigKafkaID:             "HEROKUX_KAFKA_ID",
 	TestConfigTeamID:              "HEROKUX_TEAM_ID",
 	TestConfigRedisID:             "HEROKUX_REDIS_ID",
+	TestConfigPostgresID:          "HEROKUX_POSTGRES_ID",
 	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
@@ -108,4 +110,8 @@ func (t *TestConfig) GetTeamIDorSkip(testing *testing.T) (val string) {
 
 func (t *TestConfig) GetRedisIDorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigRedisID)
+}
+
+func (t *TestConfig) GetPostgresIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigPostgresID)
 }

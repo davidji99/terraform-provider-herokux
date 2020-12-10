@@ -6,8 +6,92 @@
 package postgres
 
 import (
+	"encoding/json"
 	"time"
 )
+
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetCreatedAt() string {
+	if b == nil || b.CreatedAt == nil {
+		return ""
+	}
+	return *b.CreatedAt
+}
+
+// HasDays checks if BackupSchedule has any Days.
+func (b *BackupSchedule) HasDays() bool {
+	if b == nil || b.Days == nil {
+		return false
+	}
+	if len(b.Days) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetDeletedAt returns the DeletedAt field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetDeletedAt() string {
+	if b == nil || b.DeletedAt == nil {
+		return ""
+	}
+	return *b.DeletedAt
+}
+
+// GetHour returns the Hour field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetHour() json.Number {
+	if b == nil || b.Hour == nil {
+		return ""
+	}
+	return *b.Hour
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetID() string {
+	if b == nil || b.ID == nil {
+		return ""
+	}
+	return *b.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetName() string {
+	if b == nil || b.Name == nil {
+		return ""
+	}
+	return *b.Name
+}
+
+// GetRetainMonths returns the RetainMonths field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetRetainMonths() int {
+	if b == nil || b.RetainMonths == nil {
+		return 0
+	}
+	return *b.RetainMonths
+}
+
+// GetRetainWeeks returns the RetainWeeks field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetRetainWeeks() int {
+	if b == nil || b.RetainWeeks == nil {
+		return 0
+	}
+	return *b.RetainWeeks
+}
+
+// GetTimezone returns the Timezone field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetTimezone() string {
+	if b == nil || b.Timezone == nil {
+		return ""
+	}
+	return *b.Timezone
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (b *BackupSchedule) GetUpdatedAt() string {
+	if b == nil || b.UpdatedAt == nil {
+		return ""
+	}
+	return *b.UpdatedAt
+}
 
 // HasCredentials checks if Credential has any Credentials.
 func (c *Credential) HasCredentials() bool {

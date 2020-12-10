@@ -40,7 +40,7 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_postgres_credential" "foobar" {
-	postgres_id = "SOME_POSTGRES_ID"
+	postgres_id = "2508ebbd-74bb-4e81-a63c-d193d2bd5716"
 	name = "read-only-credential"
 }
 ```

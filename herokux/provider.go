@@ -238,6 +238,7 @@ func New() *schema.Provider {
 			"herokux_kafka_consumer_group":        resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":                 resourceHerokuxKafkaTopic(),
 			"herokux_oauth_authorization":         resourceHerokuxOauthAuthorization(),
+			"herokux_postgres_backup_schedule":    resourceHerokuxPostgresBackupSchedule(),
 			"herokux_postgres_credential":         resourceHerokuxPostgresCredential(),
 			"herokux_postgres_data_link":          resourceHerokuxPostgresDataLink(),
 			"herokux_postgres_maintenance_window": resourceHerokuxPostgresMaintenanceWindow(),
