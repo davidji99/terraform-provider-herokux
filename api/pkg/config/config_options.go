@@ -80,6 +80,18 @@ func RedisBaseURL(url string) Option {
 	}
 }
 
+// ConnectBaseURL allows for a custom Connect API URL.
+func ConnectBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.ConnectBaseURL = url
+		return nil
+	}
+}
+
 // UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {

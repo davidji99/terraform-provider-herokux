@@ -11,14 +11,14 @@ import (
 
 // getAppId extracts the app ID attribute generically from a HerokuX resource.
 func getAppId(d *schema.ResourceData) string {
-	var appName string
+	var appID string
 	if v, ok := d.GetOk("app_id"); ok {
 		vs := v.(string)
 		log.Printf("[DEBUG] app_id: %s", vs)
-		appName = vs
+		appID = vs
 	}
 
-	return appName
+	return appID
 }
 
 // getAddonID extracts the addon ID attribute generically from a HerokuX resource.
@@ -93,6 +93,29 @@ func getRedisID(d *schema.ResourceData) string {
 	return redisID
 }
 
+// getConnectID extracts the connect ID attribute generically from a HerokuX resource.
+func getConnectID(d *schema.ResourceData) string {
+	var connectID string
+	if v, ok := d.GetOk("connect_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] connect_id: %s", vs)
+		connectID = vs
+	}
+
+	return connectID
+}
+
+func getConnectMappings(d *schema.ResourceData) []byte {
+	var mappings []byte
+	if v, ok := d.GetOk("mappings"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] mappings: %s", vs)
+		mappings = []byte(vs)
+	}
+
+	return mappings
+}
+
 func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 	parts := strings.SplitN(id, ":", numOfSplits)
 
@@ -119,4 +142,13 @@ func randInt(min int, max int) int {
 func getRandomStringFromSlice(s []string) string {
 	index := randInt(0, len(s)-1)
 	return s[index]
+}
+
+func ContainsString(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

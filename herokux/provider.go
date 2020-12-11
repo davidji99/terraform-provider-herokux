@@ -222,17 +222,26 @@ func New() *schema.Provider {
 							Default:      2,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
+
+						"connect_mapping_modify_delay": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      15,
+							ValidateFunc: validation.IntAtLeast(5),
+						},
 					},
 				},
 			},
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			//"herokux_connect": dataSourceHerokuxConnect(),
 			"herokux_postgres_mtls_certificate": dataSourceHerokuxPostgresMTLSCertificate(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_app_webhook":                 resourceHerokuxAppWebhook(),
+			"herokux_connect_mappings":            resourceHerokuxConnectMappings(),
 			"herokux_data_connector":              resourceHerokuxDataConnector(),
 			"herokux_formation_autoscaling":       resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":        resourceHerokuxKafkaConsumerGroup(),

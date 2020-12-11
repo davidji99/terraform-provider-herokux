@@ -35,8 +35,10 @@ const (
 	DefaultDataConnectorUpdateTimeout              = int64(10)
 	DefaultPostgresCredentialCreateTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteTimeout         = int64(10)
-	DefaultPostgresSettingsModifyDelay             = int64(2)
 	DefaultPrivateSpaceCreateTimeout               = int64(20)
+
+	DefaultPostgresSettingsModifyDelay = int64(2)
+	DefaultConnectMappingModifyDelay   = int64(15)
 )
 
 var (
@@ -77,6 +79,7 @@ type Config struct {
 
 	// Custom Delays
 	PostgresSettingsModifyDelay int64
+	ConnectMappingModifyDelay   int64
 }
 
 func NewConfig() *Config {
@@ -99,8 +102,10 @@ func NewConfig() *Config {
 		DataConnectorUpdateTimeout:              DefaultDataConnectorUpdateTimeout,
 		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
 		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
-		PostgresSettingsModifyDelay:             DefaultPostgresSettingsModifyDelay,
 		PrivateSpaceCreateTimeout:               DefaultPrivateSpaceCreateTimeout,
+
+		PostgresSettingsModifyDelay: DefaultPostgresSettingsModifyDelay,
+		ConnectMappingModifyDelay:   DefaultConnectMappingModifyDelay,
 	}
 	return c
 }
@@ -177,6 +182,10 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 			delaysConfig := v.(map[string]interface{})
 			if v, ok := delaysConfig["postgres_settings_modify_delay"].(int); ok {
 				c.PostgresSettingsModifyDelay = int64(v)
+			}
+
+			if v, ok := delaysConfig["connect_mapping_modify_delay"].(int); ok {
+				c.ConnectMappingModifyDelay = int64(v)
 			}
 		}
 	}
