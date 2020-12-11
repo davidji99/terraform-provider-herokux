@@ -48,13 +48,17 @@ for this resource's `mappings` attribute. For example, please remove the followi
 }
 ```
 
-### Resource Behavior
-This resource uses the Connect API's mapping import endpoint as means of creating mapping(s). The Connect API does not
-provide the ability to only programmatically create a single mapping. The behavior of the import endpoint functions similar
-to a `PATCH` request. Should a user have mappings created outside of Terraform for the same target Connect instance,
-those mappings will not be affected by this resource's lifecycle.
+Please note that while the Connect API has an [endpoint](https://devcenter.heroku.com/articles/heroku-connect-api#create-a-new-mapping)
+to create a single mapping, this provider's author designed the workflow to fit Heroku's documented 'easiest' workflow
+to manage mappings as described in this section's first paragraph.
 
-This resource will delete all mappings should the resource be removed in its entirety from a Terraform configuration.
+### Resource Behavior
+This resource uses the Connect API's mapping import endpoint as means of creating mapping(s). The behavior of the import
+endpoint functions similar to a `PATCH` request. Should a user have mappings created outside of Terraform
+for the same target Connect instance, those mappings will not be affected by this resource's lifecycle.
+
+This resource will delete all mappings known to the resource should the resource be removed in its entirety
+from a Terraform configuration.
 
 -> **IMPORTANT!**
 DO NOT make modifications (creation or deletion) to mappings via the UI or CLI once Terraform manages them.
