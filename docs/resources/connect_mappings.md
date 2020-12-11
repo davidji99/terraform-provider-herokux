@@ -1,15 +1,19 @@
 ---
 layout: "herokux"
-page_title: "HerokuX: herokux_connect_mapping"
-sidebar_current: "docs-herokux-resource-connect_mapping"
+page_title: "HerokuX: herokux_connect_mappings"
+sidebar_current: "docs-herokux-resource-connect_mappings"
 description: |-
     Provides a resource to manage a Heroku Connect's mappings.
 ---
 
-# herokux\_connect\_mapping
+# herokux\_connect\_mappings
 
 This resource manages the [mappings](https://devcenter.heroku.com/articles/heroku-connect#mapping-objects)
 for a [Heroku Connect](https://devcenter.heroku.com/articles/heroku-connect) instance/addon.
+
+This resource manages multiple mappings at once with the reasoning for this peculiar design explained in the
+[Recommended Workflow](#recommended-workflow) section below. This also why the naming for this resource is plural,
+not singular.
 
 ### Prerequisites
 
@@ -89,7 +93,7 @@ provider "herokux" {
 Using shell-style "here doc" syntax:
 
 ```hcl-terraform
-resource "herokux_connect_mapping" "foobar" {
+resource "herokux_connect_mappings" "foobar" {
   app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
   connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
   mappings = <<-EOF
@@ -128,7 +132,7 @@ EOF
 Using Terraform's `file` function:
 
 ```hcl-terraform
-resource "herokux_connect_mapping" "foobar" {
+resource "herokux_connect_mappings" "foobar" {
   app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
   connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
   mappings = file("test-fixtures/path_to_mappings.json")
@@ -143,7 +147,7 @@ data "local_file" "mapping_json_file" {
   filename = "${path.module}/foo.bar"
 }
 
-resource "herokux_connect_mapping" "foobar" {
+resource "herokux_connect_mappings" "foobar" {
   app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
   connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
   mappings = data.local_file.mapping_json_file.content
@@ -179,5 +183,5 @@ separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_connect_mapping.foobar "<APP_UUID>:<CONNECT_UUID>"
+$ terraform import herokux_connect_mappings.foobar "<APP_UUID>:<CONNECT_UUID>"
 ```

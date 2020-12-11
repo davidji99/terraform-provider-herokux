@@ -103,20 +103,20 @@ func TestAccHerokuxConnectMapping_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxConnectMapping_basic(appID, connectID, TestConnectMappingBasic),
+				Config: testAccCheckHerokuxConnectMappings_basic(appID, connectID, TestConnectMappingBasic),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "app_id", appID),
+						"herokux_connect_mappings.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "connect_id", connectID),
+						"herokux_connect_mappings.foobar", "connect_id", connectID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mappings", TestConnectMappingCompressedString),
+						"herokux_connect_mappings.foobar", "mappings", TestConnectMappingCompressedString),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_ids.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_ids.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_object_names.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_object_names.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_data.%", "1"),
+						"herokux_connect_mappings.foobar", "mapping_data.%", "1"),
 				),
 			},
 		},
@@ -132,20 +132,20 @@ func TestAccHerokuxConnectMapping_ExternalFileBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxConnectMapping_externalFile(appID, connectID),
+				Config: testAccCheckHerokuxConnectMappings_externalFile(appID, connectID),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "app_id", appID),
+						"herokux_connect_mappings.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "connect_id", connectID),
+						"herokux_connect_mappings.foobar", "connect_id", connectID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mappings", TestConnectMappingCompressedString),
+						"herokux_connect_mappings.foobar", "mappings", TestConnectMappingCompressedString),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_ids.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_ids.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_object_names.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_object_names.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_data.%", "1"),
+						"herokux_connect_mappings.foobar", "mapping_data.%", "1"),
 				),
 			},
 		},
@@ -161,46 +161,46 @@ func TestAccHerokuxConnectMapping_Update(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxConnectMapping_basic(appID, connectID, TestConnectMappingBasic),
+				Config: testAccCheckHerokuxConnectMappings_basic(appID, connectID, TestConnectMappingBasic),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "app_id", appID),
+						"herokux_connect_mappings.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "connect_id", connectID),
+						"herokux_connect_mappings.foobar", "connect_id", connectID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mappings", TestConnectMappingCompressedString),
+						"herokux_connect_mappings.foobar", "mappings", TestConnectMappingCompressedString),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_ids.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_ids.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_object_names.#", "1"),
+						"herokux_connect_mappings.foobar", "mapping_object_names.#", "1"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_data.%", "1"),
+						"herokux_connect_mappings.foobar", "mapping_data.%", "1"),
 				),
 			},
 			{
-				Config: testAccCheckHerokuxConnectMapping_basic(appID, connectID, TestConnectMappingMore),
+				Config: testAccCheckHerokuxConnectMappings_basic(appID, connectID, TestConnectMappingMore),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "app_id", appID),
+						"herokux_connect_mappings.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "connect_id", connectID),
+						"herokux_connect_mappings.foobar", "connect_id", connectID),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mappings", TestConnectMappingMoreCompressedString),
+						"herokux_connect_mappings.foobar", "mappings", TestConnectMappingMoreCompressedString),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_ids.#", "2"),
+						"herokux_connect_mappings.foobar", "mapping_ids.#", "2"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_object_names.#", "2"),
+						"herokux_connect_mappings.foobar", "mapping_object_names.#", "2"),
 					resource.TestCheckResourceAttr(
-						"herokux_connect_mapping.foobar", "mapping_data.%", "2"),
+						"herokux_connect_mappings.foobar", "mapping_data.%", "2"),
 				),
 			},
 		},
 	})
 }
 
-func testAccCheckHerokuxConnectMapping_basic(appID, connectID, mappings string) string {
+func testAccCheckHerokuxConnectMappings_basic(appID, connectID, mappings string) string {
 	return fmt.Sprintf(`
-resource "herokux_connect_mapping" "foobar" {
+resource "herokux_connect_mappings" "foobar" {
 	app_id = "%s"
 	connect_id = "%s"
 	mappings = <<-EOF
@@ -210,9 +210,9 @@ EOF
 `, appID, connectID, mappings)
 }
 
-func testAccCheckHerokuxConnectMapping_externalFile(appID, connectID string) string {
+func testAccCheckHerokuxConnectMappings_externalFile(appID, connectID string) string {
 	return fmt.Sprintf(`
-resource "herokux_connect_mapping" "foobar" {
+resource "herokux_connect_mappings" "foobar" {
 	app_id = "%s"
 	connect_id = "%s"
 	mappings = file("test-fixtures/connect_mappings.json")

@@ -13,15 +13,15 @@ import (
 	"time"
 )
 
-func resourceHerokuxConnectMapping() *schema.Resource {
+func resourceHerokuxConnectMappings() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxConnectMappingCreate,
-		ReadContext:   resourceHerokuxConnectMappingRead,
-		UpdateContext: resourceHerokuxConnectMappingUpdate,
-		DeleteContext: resourceHerokuxConnectMappingDelete,
+		CreateContext: resourceHerokuxConnectMappingsCreate,
+		ReadContext:   resourceHerokuxConnectMappingsRead,
+		UpdateContext: resourceHerokuxConnectMappingsUpdate,
+		DeleteContext: resourceHerokuxConnectMappingsDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxConnectMappingImport,
+			StateContext: resourceHerokuxConnectMappingsImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -95,7 +95,7 @@ func mappingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	return string(out) == string(out2)
 }
 
-func resourceHerokuxConnectMappingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxConnectMappingsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*Config)
 	client := config.API
 
@@ -116,7 +116,7 @@ func resourceHerokuxConnectMappingImport(ctx context.Context, d *schema.Resource
 		return nil, fmt.Errorf("unable to setup API client")
 	}
 
-	readErr := resourceHerokuxConnectMappingRead(ctx, d, meta)
+	readErr := resourceHerokuxConnectMappingsRead(ctx, d, meta)
 	if readErr.HasError() {
 		return nil, fmt.Errorf("unable to import existing connect mapping: %v", readErr[0])
 	}
@@ -140,7 +140,7 @@ func setupConnectAPIClient(client *api.Client, appID, connectID string) diag.Dia
 	return diags
 }
 
-func resourceHerokuxConnectMappingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxConnectMappingsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	config := meta.(*Config)
 	client := config.API
@@ -179,10 +179,10 @@ func resourceHerokuxConnectMappingCreate(ctx context.Context, d *schema.Resource
 	// Arbitrary sleep before reading state.
 	time.Sleep(time.Duration(config.ConnectMappingModifyDelay) * time.Second)
 
-	return resourceHerokuxConnectMappingRead(ctx, d, meta)
+	return resourceHerokuxConnectMappingsRead(ctx, d, meta)
 }
 
-func resourceHerokuxConnectMappingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxConnectMappingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 	appID := getAppId(d)
@@ -249,7 +249,7 @@ func resourceHerokuxConnectMappingRead(ctx context.Context, d *schema.ResourceDa
 	return diags
 }
 
-func resourceHerokuxConnectMappingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxConnectMappingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	config := meta.(*Config)
 	client := config.API
@@ -346,10 +346,10 @@ func resourceHerokuxConnectMappingUpdate(ctx context.Context, d *schema.Resource
 	// Arbitrary sleep before reading state.
 	time.Sleep(time.Duration(config.ConnectMappingModifyDelay) * time.Second)
 
-	return resourceHerokuxConnectMappingRead(ctx, d, meta)
+	return resourceHerokuxConnectMappingsRead(ctx, d, meta)
 }
 
-func resourceHerokuxConnectMappingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxConnectMappingsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 	appID := getAppId(d)

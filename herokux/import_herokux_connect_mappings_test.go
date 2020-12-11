@@ -17,10 +17,10 @@ func TestAccHerokuxConnectMapping_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxConnectMapping_basic(appID, connectID, TestConnectMappingBasic),
+				Config: testAccCheckHerokuxConnectMappings_basic(appID, connectID, TestConnectMappingBasic),
 			},
 			{
-				ResourceName:      "herokux_connect_mapping.foobar",
+				ResourceName:      "herokux_connect_mappings.foobar",
 				ImportStateId:     fmt.Sprintf("%s:%s", appID, connectID),
 				ImportState:       true,
 				ImportStateVerify: true,

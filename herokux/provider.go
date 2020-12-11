@@ -241,7 +241,7 @@ func New() *schema.Provider {
 
 		ResourcesMap: map[string]*schema.Resource{
 			"herokux_app_webhook":                 resourceHerokuxAppWebhook(),
-			"herokux_connect_mapping":             resourceHerokuxConnectMapping(),
+			"herokux_connect_mappings":            resourceHerokuxConnectMappings(),
 			"herokux_data_connector":              resourceHerokuxDataConnector(),
 			"herokux_formation_autoscaling":       resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":        resourceHerokuxKafkaConsumerGroup(),
