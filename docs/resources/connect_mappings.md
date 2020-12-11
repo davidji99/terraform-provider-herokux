@@ -12,7 +12,7 @@ This resource manages the [mappings](https://devcenter.heroku.com/articles/herok
 for a [Heroku Connect](https://devcenter.heroku.com/articles/heroku-connect) instance/addon.
 
 This resource manages multiple mappings at once with the reasoning for this peculiar design explained in the
-[Recommended Workflow](#recommended-workflow) section below. This also why the naming for this resource is plural,
+[Recommended Workflow](#recommended-workflow) section below. This is why this resource name is plural,
 not singular.
 
 ### Prerequisites
