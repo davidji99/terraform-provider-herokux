@@ -48,8 +48,8 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_data_connector" "foobar" {
-	source_id = "<SOME_POSTGRES_ID>"
-	store_id = "<SOME_KAFKA_ID"
+	source_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
+	store_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
 	name = "my-custom-connector-name"
 	tables = ["public.users"]
 }
@@ -98,5 +98,5 @@ An existing data connector can be imported using the data connector UUID.
 For example:
 
 ```shell script
-$ terraform import herokux_data_connector.foobar <UUID>
+$ terraform import herokux_data_connector.foobar "6f4a392b-914b-4e3e-9362-7c07bbab9cde"
 ```

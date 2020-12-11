@@ -71,5 +71,5 @@ An existing database MTLS configuration can be imported using the database name.
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_mtls.foobar <MY_DB_NAME>
+$ terraform import herokux_postgres_mtls.foobar "my_database_name"
 ```

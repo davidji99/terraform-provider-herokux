@@ -30,7 +30,7 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_kafka_consumer_group" "foobar" {
-	kafka_id = "SOME_KAFKA_ID"
+	kafka_id = "2bccd770-e7aa-4865-98d2-6e222f2d2582"
 	name = "my new group"
 }
 ```
@@ -57,5 +57,5 @@ separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_kafka_consumer_group.foobar "<KAFKA_ID>:<GROUP_NAME>"
+$ terraform import herokux_kafka_consumer_group.foobar "2bccd770-e7aa-4865-98d2-6e222f2d2582:ac42b355-074e-493a-8fa4-d7e4364623a3"
 ```

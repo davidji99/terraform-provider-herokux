@@ -15,11 +15,12 @@ in the official [Heroku Terraform provider](https://github.com/heroku/terraform-
 Almost all resources in this provider require official Heroku provider resources as a prerequisite.
 Essentially, this provider is designed to supplement, not supplant, the official Heroku provider.
 
-**Please note, this provider has no relationship with Heroku.**
+**This provider has no relationship with Heroku.**
 
 -> **IMPORTANT!**
 This provider should be treated as experimental and to be used with caution when Terraforming resources in environments
-that receive customer traffic. Additionally, the resources may change in behavior or be removed at any given time to match any API changes.
+that receive your customers' traffic. Additionally, the resources may change in behavior or be removed at any given time
+to match any API changes.
 
 ## Contributing
 

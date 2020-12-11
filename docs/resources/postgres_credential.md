@@ -84,7 +84,7 @@ of the postgres ID and credential name separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_credential.foobar "<POSTGRES_ID>:<CREDENTIAL_NAME>"
+$ terraform import herokux_postgres_credential.foobar "2508ebbd-74bb-4e81-a63c-d193d2bd5716:read-only-credential"
 ```
 
 **Please Note:** DO NOT import the 'default' credential provisioned with every new Heroku postgres database.

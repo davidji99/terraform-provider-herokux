@@ -40,7 +40,7 @@ to create, please utilize Terraform's `count` or `for_each` expression to keep y
 
 ```hcl-terraform
 resource "herokux_postgres_mtls" "foobar" {
-	database_name = "SOME_DATABASE_NAME"
+	database_name = "my_database_name"
 }
 
 resource "herokux_postgres_mtls_certificate" "foobar" {
@@ -83,5 +83,5 @@ of the database name and certificate ID separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_mtls_certificate.foobar "<MY_DB_NAME>:<CERT_ID>"
+$ terraform import herokux_postgres_mtls_certificate.foobar "my_database_name:0bb82d7f-8d25-44ae-9e90-b9064513e4d1"
 ```
