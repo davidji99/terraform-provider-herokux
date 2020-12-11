@@ -36,7 +36,7 @@ and apps in the Common Runtime.
 
 ```hcl-terraform
 resource "herokux_formation_autoscaling" "foobar" {
-	app_id = "SOME_APP_ID"
+	app_id = "d54b26d4-a6e1-48a3-a71f-8bf833b82c04"
 	formation_name = "web"
 	is_active = true
 	min_quantity = 2
@@ -91,5 +91,5 @@ of the application UUID, a colon, and the formation name.
 For example:
 
 ```shell script
-$ terraform import herokux_formation_autoscaling.foobar <APP_ID>:<FORMATION_NAME>
+$ terraform import herokux_formation_autoscaling.foobar "d54b26d4-a6e1-48a3-a71f-8bf833b82c04:5f1091b8-eff5-4670-b1ad-20e980d24fc0"
 ```

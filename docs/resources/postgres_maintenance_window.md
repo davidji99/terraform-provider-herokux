@@ -23,7 +23,7 @@ It is not possible to delete a maintenance window, so the resource will just be 
 
 ```hcl-terraform
 resource "herokux_postgres_maintenance_window" "foobar" {
-	postgres_id = "SOME_POSTGRES_ID"
+	postgres_id = "717e9e8f-c4ad-4f45-9ac3-069ecb0fcd60"
 	window = "Mondays 10:30"
 }
 ```
@@ -44,5 +44,5 @@ An existing maintenance window can be imported using the postgres ID.
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_maintenance_window.foobar "<POSTGRES_ID>"
+$ terraform import herokux_postgres_maintenance_window.foobar "717e9e8f-c4ad-4f45-9ac3-069ecb0fcd60"
 ```

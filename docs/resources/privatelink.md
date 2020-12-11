@@ -42,7 +42,7 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_privatelink" "foobar" {
-	addon_id = "SOME_ADDON_ID"
+	addon_id = "6e00025a-306c-406a-9f95-cda26bee2a86"
 	allowed_accounts = ["123456789123", "123456789124"]
 }
 ```
@@ -70,5 +70,5 @@ An existing privatelink can be imported using the Heroku Redis, Postgres, or Kaf
 For example:
 
 ```shell script
-$ terraform import herokux_privatelink.foobar <ADDON_UUID>
+$ terraform import herokux_privatelink.foobar "6e00025a-306c-406a-9f95-cda26bee2a86"
 ```

@@ -71,7 +71,7 @@ However, the resource only stores the UUIDs in state.
 For example:
 
 ```shell script
-$ terraform import herokux_app_webhook.foobar <APP_UUID>:<WEBHOOK_UUID>
+$ terraform import herokux_app_webhook.foobar "6fae1ee0-c034-4775-a798-890bc64f98eb:38b6e411-1361-4adf-ace6-734c9a95513d"
 ```
 
 -> **IMPORTANT!**

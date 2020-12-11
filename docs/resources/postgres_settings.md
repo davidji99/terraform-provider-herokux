@@ -37,7 +37,7 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_postgres_settings" "foobar" {
-	postgres_id = "SOME_POSTGRES_ID"
+	postgres_id = "867f0740-82f9-4b9d-9994-cfbae2011abc"
 	log_lock_waits = true
 	log_connections = false
 	log_min_duration_statement = 123
@@ -76,5 +76,5 @@ Existing postgres settings can be imported using the postgres ID.
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_settings.foobar "<POSTGRES_ID>"
+$ terraform import herokux_postgres_settings.foobar "867f0740-82f9-4b9d-9994-cfbae2011abc"
 ```

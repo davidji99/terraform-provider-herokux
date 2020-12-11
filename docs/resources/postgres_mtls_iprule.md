@@ -38,7 +38,7 @@ to add, please utilize Terraform's `count` or `for_each` expression to keep your
 
 ```hcl-terraform
 resource "herokux_postgres_mtls" "foobar" {
-	database_name = "SOME_DATABASE_NAME"
+	database_name = "my_database_name"
 }
 
 resource "herokux_postgres_mtls_iprule" "foobar" {
@@ -78,5 +78,5 @@ An existing database MTLS IP rule can be imported using a composite value of the
 For example:
 
 ```shell script
-$ terraform import herokux_postgres_mtls_iprule.foobar "<MY_DB_NAME>:1.2.3.4/32"
+$ terraform import herokux_postgres_mtls_iprule.foobar "my_database_name:1.2.3.4/32"
 ```

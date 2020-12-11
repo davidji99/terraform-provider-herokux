@@ -45,7 +45,7 @@ provider "herokux" {
 
 ```hcl-terraform
 resource "herokux_kafka_topic" "foobar" {
-	kafka_id = "SOME_KAFKA_ID"
+	kafka_id = "11db7126-0cb7-4b42-a64a-d4ae70110216"
 	name = "my-cool-topic"
 	partitions = 8
 	replication_factor = 3
@@ -103,5 +103,5 @@ separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_kafka_topic.foobar "<KAFKA_ID>:<TOPIC_NAME>"
+$ terraform import herokux_kafka_topic.foobar "11db7126-0cb7-4b42-a64a-d4ae70110216:7ffb272c-7079-4666-9ca0-add848e01c7f"
 ```

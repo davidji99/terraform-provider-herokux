@@ -99,5 +99,5 @@ a non-shield private space.
 For example:
 
 ```shell script
-$ terraform import herokux_shield_private_space.foobar <UUID>
+$ terraform import herokux_shield_private_space.foobar "19ef8940-6ad2-4ea8-825e-cee883f679e2"
 ```

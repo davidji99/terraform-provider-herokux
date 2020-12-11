@@ -97,5 +97,5 @@ Existing redis configurations can be imported using the Heroku Redis instance UU
 For example:
 
 ```shell script
-$ terraform import herokux_redis_config.foobar <REDIS_UUID>
+$ terraform import herokux_redis_config.foobar "57d660e0-3d20-40b7-8d20-e77b95189e5a"
 ```

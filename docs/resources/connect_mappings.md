@@ -173,7 +173,7 @@ The following attributes are exported:
 
 * `mapping_object_names` - List of all Connect mapping object names currently managed by this resource.
 
-* `mapping_data` - A map of the mapping data where the key is the mapping object name, and the value is ID.
+* `mapping_data` - Map of the mappings where the key is the mapping object name, and the value is the map UUID.
 
 ## Import
 
@@ -183,5 +183,5 @@ separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_connect_mappings.foobar "<APP_UUID>:<CONNECT_UUID>"
+$ terraform import herokux_connect_mappings.foobar "33d4631b-2c77-4b99-b657-752ad8f68322:7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
 ```
