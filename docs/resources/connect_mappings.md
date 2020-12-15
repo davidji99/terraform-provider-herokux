@@ -25,6 +25,10 @@ Due to Connect API limitations, the following MUST be completed prior to using t
 1. [Configure the database key and schema for the connection](https://devcenter.heroku.com/articles/heroku-connect-api#step-4-configure-the-database-key-and-schema-for-the-connection)
 1. [Authenticate the connection to your Salesforce Org](https://devcenter.heroku.com/articles/heroku-connect-api#step-5-authenticate-the-connection-to-your-salesforce-org)
 
+Steps #1 and #2 can be achieved using the Heroku provider's `heroku_app` & `heroku_addon` resource.
+Step #3 is done automatically as part of this resource's lifecycle but can be done externally should
+users run into any authentication issues.
+
 ### Recommended Workflow
 Mirroring [Heroku's documentation](https://devcenter.heroku.com/articles/heroku-connect-api#step-6-import-a-mapping-configuration),
 the easiest way to have this resource manage mappings is to first export them from an existing Connect instance.
@@ -154,11 +158,18 @@ resource "herokux_connect_mappings" "foobar" {
 }
 ```
 
+### Resource Dependency
+It is recommended to make use of Terraform's [`depends_on`](https://www.terraform.io/docs/configuration/meta-arguments/depends_on.html)
+meta-argument to establish a resource dependency on a `heroku_addon` resource representing the Heroku postgres instance.
+This resource does not provide a `postgres_id` attribute as this ID is not used by the underlying APIs.
+
 ## Argument Reference
 
 The following arguments are supported:
 
-* `app_id` - (Required) `<string>` The UUID of the app.
+* `app_id` - (Required) `<string>` The UUID of the app. It is recommended to reference the UUID via
+`heroku_app.foobar.uuid` if the app was created via Terraform. This allows the configuration to create
+resource dependencies.
 
 * `connect_id` - (Required) `<string>` The UUID of the Heroku Connect instance/addon.
 
