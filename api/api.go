@@ -9,6 +9,7 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/terraform-provider-herokux/api/redis"
+	"github.com/davidji99/terraform-provider-herokux/api/registry"
 )
 
 const (
@@ -31,6 +32,9 @@ const (
 	// Setting to the 3-virginia endpoint by default.
 	// Reference: https://devcenter.heroku.com/articles/heroku-connect-api#endpoints
 	DefaultConnectAPIBaseURL = "https://connect-3-virginia.heroku.com/api/v3"
+
+	// DefaultRegistryBaseURL is the default base URL for Heroku's Registry.
+	DefaultRegistryBaseURL = "https://registry.heroku.com"
 
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
@@ -55,6 +59,7 @@ type Client struct {
 	Postgres *postgres.Postgres
 	Redis    *redis.Redis
 	Connect  *connect.Connect
+	Registry *registry.Registry
 }
 
 // New constructs a new client to interact with Heroku APIs.
@@ -68,6 +73,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		PlatformBaseURL:   DefaultPlatformAPIBaseURL,
 		RedisBaseURL:      DefaultRedisAPIBaseURL,
 		ConnectBaseURL:    DefaultConnectAPIBaseURL,
+		RegistryBaseURL:   DefaultRegistryBaseURL,
 		UserAgent:         DefaultUserAgent,
 		APIToken:          "",
 		BasicAuth:         "",
@@ -90,6 +96,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		Postgres: postgres.New(config),
 		Redis:    redis.New(config),
 		Connect:  connect.New(config),
+		Registry: registry.New(config),
 	}
 
 	return client, nil

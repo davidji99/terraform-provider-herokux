@@ -12,8 +12,9 @@ const (
 	DefaultAcceptHeader = "application/vnd.heroku+json; version=3"
 
 	// The following are various Accept headers for Platform API variants.
-	DogwoodAcceptHeader  = "application/vnd.heroku+json; version=3.dogwood"
-	WebhooksAcceptHeader = "application/vnd.heroku+json; version=3.webhooks"
+	DogwoodAcceptHeader        = "application/vnd.heroku+json; version=3.dogwood"
+	WebhooksAcceptHeader       = "application/vnd.heroku+json; version=3.webhooks"
+	DockerReleasesAcceptHeader = "application/vnd.heroku+json; version=3.docker-releases"
 )
 
 // Platform represents Heroku's Platform API.

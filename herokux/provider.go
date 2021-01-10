@@ -240,6 +240,7 @@ func New() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"herokux_app_container_release":       resourceHerokuxAppContainerRelease(),
 			"herokux_app_webhook":                 resourceHerokuxAppWebhook(),
 			"herokux_connect_mappings":            resourceHerokuxConnectMappings(),
 			"herokux_data_connector":              resourceHerokuxDataConnector(),

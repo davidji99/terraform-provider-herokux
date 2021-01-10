@@ -92,6 +92,18 @@ func ConnectBaseURL(url string) Option {
 	}
 }
 
+// RegistryBaseURL allows for a custom Registry URL.
+func RegistryBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.RegistryBaseURL = url
+		return nil
+	}
+}
+
 // UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {

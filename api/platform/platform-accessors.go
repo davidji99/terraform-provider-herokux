@@ -103,6 +103,89 @@ func (a *AppWebhookRequest) HasInclude() bool {
 	return true
 }
 
+// GetCommand returns the Command field if it's non-nil, zero value otherwise.
+func (f *Formation) GetCommand() string {
+	if f == nil || f.Command == nil {
+		return ""
+	}
+	return *f.Command
+}
+
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (f *Formation) GetCreatedAt() time.Time {
+	if f == nil || f.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *f.CreatedAt
+}
+
+// GetDockerImage returns the DockerImage field.
+func (f *Formation) GetDockerImage() *FormationDocker {
+	if f == nil {
+		return nil
+	}
+	return f.DockerImage
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (f *Formation) GetID() string {
+	if f == nil || f.ID == nil {
+		return ""
+	}
+	return *f.ID
+}
+
+// GetSize returns the Size field if it's non-nil, zero value otherwise.
+func (f *Formation) GetSize() string {
+	if f == nil || f.Size == nil {
+		return ""
+	}
+	return *f.Size
+}
+
+// GetType returns the Type field if it's non-nil, zero value otherwise.
+func (f *Formation) GetType() string {
+	if f == nil || f.Type == nil {
+		return ""
+	}
+	return *f.Type
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (f *Formation) GetUpdatedAt() time.Time {
+	if f == nil || f.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *f.UpdatedAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (f *FormationDocker) GetID() string {
+	if f == nil || f.ID == nil {
+		return ""
+	}
+	return *f.ID
+}
+
+// HasUpdates checks if FormationDockerBatchUpdateOpts has any Updates.
+func (f *FormationDockerBatchUpdateOpts) HasUpdates() bool {
+	if f == nil || f.Updates == nil {
+		return false
+	}
+	if len(f.Updates) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetDockerImageID returns the DockerImageID field if it's non-nil, zero value otherwise.
+func (f *FormationDockerUpdateOpts) GetDockerImageID() string {
+	if f == nil || f.DockerImageID == nil {
+		return ""
+	}
+	return *f.DockerImageID
+}
+
 // GetAddon returns the Addon field if it's non-nil, zero value otherwise.
 func (l *LogDrain) GetAddon() string {
 	if l == nil || l.Addon == nil {

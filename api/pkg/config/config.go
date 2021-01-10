@@ -23,6 +23,9 @@ type Config struct {
 	// ConnectBaseURL is the base URL for Heroku's Connect APIs.
 	ConnectBaseURL string
 
+	// RegistryBaseURL is the base URL for Heroku's Registry.
+	RegistryBaseURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 
