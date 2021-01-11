@@ -20,6 +20,9 @@ type Config struct {
 	// RedisBaseURL is the base URL for Heroku's Redis APIs.
 	RedisBaseURL string
 
+	// ConnectCentralBaseURL is the base URL for Heroku's Connect Central API.
+	ConnectCentralBaseURL string
+
 	// ConnectBaseURL is the base URL for Heroku's Connect APIs.
 	ConnectBaseURL string
 

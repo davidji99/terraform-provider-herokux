@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-const (
-	ConnectCentralBaseAPIURL = "https://hc-central.heroku.com"
-)
-
 // Connect represents Heroku's Connect APIs.
 type Connect struct {
 	http   *simpleresty.Client
@@ -29,7 +25,7 @@ func New(config *config2.Config) *Connect {
 // This is required.
 func (c *Connect) SetRootAPIBaseURL(appID, connectID string) error {
 	c.setHeaders()
-	c.http.SetBaseURL(ConnectCentralBaseAPIURL)
+	c.http.SetBaseURL(c.config.ConnectCentralBaseURL)
 
 	var result *AuthResponse
 	urlStr := c.http.RequestURL("/auth/%s", appID)

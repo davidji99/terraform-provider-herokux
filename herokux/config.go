@@ -48,13 +48,17 @@ var (
 type Config struct {
 	API         *api.Client
 	PlatformAPI *heroku.Service
-	platformURL string
-	metricsURL  string
-	postgresURL string
-	dataURL     string
-	redisURL    string
 	token       string
 	Headers     map[string]string
+
+	// Custom API URLs
+	platformURL       string
+	metricsURL        string
+	postgresURL       string
+	dataURL           string
+	redisURL          string
+	connectCentralURL string
+	registryURL       string
 
 	// Custom Timeouts
 	MTLSProvisionTimeout                    int64
@@ -112,9 +116,16 @@ func NewConfig() *Config {
 
 func (c *Config) initializeAPI() error {
 	// Initialize the custom API client for non Heroku Platform APIs
-	api, clientInitErr := api.New(config.APIToken(c.token), config.CustomHTTPHeaders(c.Headers),
-		config.UserAgent(UserAgent), config.MetricsBaseURL(c.metricsURL), config.PostgresBaseURL(c.postgresURL),
-		config.PlatformBaseURL(c.platformURL), config.RedisBaseURL(c.redisURL), config.BasicAuth("", c.token))
+	api, clientInitErr := api.New(config.APIToken(c.token), config.BasicAuth("", c.token),
+		config.CustomHTTPHeaders(c.Headers),
+		config.UserAgent(UserAgent),
+		config.MetricsBaseURL(c.metricsURL),
+		config.PostgresBaseURL(c.postgresURL),
+		config.PlatformBaseURL(c.platformURL),
+		config.RedisBaseURL(c.redisURL),
+		config.ConnectCentralBaseURL(c.connectCentralURL),
+		config.RegistryBaseURL(c.registryURL),
+	)
 	if clientInitErr != nil {
 		return clientInitErr
 	}
@@ -166,6 +177,16 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("redis_api_url"); ok {
 		vs := v.(string)
 		c.redisURL = vs
+	}
+
+	if v, ok := d.GetOk("connect_central_api_url"); ok {
+		vs := v.(string)
+		c.connectCentralURL = vs
+	}
+
+	if v, ok := d.GetOk("registry_api_url"); ok {
+		vs := v.(string)
+		c.registryURL = vs
 	}
 
 	if v, ok := d.GetOk("platform_api_url"); ok {

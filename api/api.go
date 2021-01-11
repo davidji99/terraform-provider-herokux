@@ -28,6 +28,9 @@ const (
 	// DefaultRedisAPIBaseURL is the default base URL for the Redis APIs.
 	DefaultRedisAPIBaseURL = "https://redis-api.heroku.com"
 
+	// DefaultConnectCentralBaseURL is the default base URL for Connect Central API.
+	DefaultConnectCentralBaseURL = "https://hc-central.heroku.com"
+
 	// DefaultConnectAPIBaseURL is the default base URL for the Connect APIs.
 	// Setting to the 3-virginia endpoint by default.
 	// Reference: https://devcenter.heroku.com/articles/heroku-connect-api#endpoints
@@ -66,19 +69,20 @@ type Client struct {
 func New(opts ...config2.Option) (*Client, error) {
 	// Define baseline config values.
 	config := &config2.Config{
-		MetricsBaseURL:    DefaultMetricAPIBaseURL,
-		PostgresBaseURL:   DefaultPostgresAPIBaseURL,
-		KafkaBaseURL:      DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
-		DataBaseURL:       DefaultDataAPIBaseURL,
-		PlatformBaseURL:   DefaultPlatformAPIBaseURL,
-		RedisBaseURL:      DefaultRedisAPIBaseURL,
-		ConnectBaseURL:    DefaultConnectAPIBaseURL,
-		RegistryBaseURL:   DefaultRegistryBaseURL,
-		UserAgent:         DefaultUserAgent,
-		APIToken:          "",
-		BasicAuth:         "",
-		ContentTypeHeader: DefaultContentTypeHeader,
-		AcceptHeader:      DefaultAcceptHeader,
+		MetricsBaseURL:        DefaultMetricAPIBaseURL,
+		PostgresBaseURL:       DefaultPostgresAPIBaseURL,
+		KafkaBaseURL:          DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
+		DataBaseURL:           DefaultDataAPIBaseURL,
+		PlatformBaseURL:       DefaultPlatformAPIBaseURL,
+		RedisBaseURL:          DefaultRedisAPIBaseURL,
+		ConnectBaseURL:        DefaultConnectAPIBaseURL,
+		ConnectCentralBaseURL: DefaultConnectCentralBaseURL,
+		RegistryBaseURL:       DefaultRegistryBaseURL,
+		UserAgent:             DefaultUserAgent,
+		APIToken:              "",
+		BasicAuth:             "",
+		ContentTypeHeader:     DefaultContentTypeHeader,
+		AcceptHeader:          DefaultAcceptHeader,
 	}
 
 	// Define any user custom Client settings

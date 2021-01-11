@@ -17,7 +17,7 @@ not singular.
 
 ### Prerequisites
 
-Due to Connect API limitations, the following MUST be completed prior to using this resource:
+Due to Connect API limitations, the following MUST be completed either manually or via Terraform prior to using this resource:
 
 1. [Create a Heroku app and Heroku PostgreSQL database](https://devcenter.heroku.com/articles/heroku-connect-api#step-1-create-a-heroku-app-and-heroku-postgresql-database).
 1. [Create the Heroku Connect add-on](https://devcenter.heroku.com/articles/heroku-connect-api#step-2-create-the-heroku-connect-add-on)

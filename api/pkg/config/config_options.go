@@ -92,6 +92,18 @@ func ConnectBaseURL(url string) Option {
 	}
 }
 
+// ConnectCentralBaseURL allows for a custom Connect Central API URL.
+func ConnectCentralBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.ConnectCentralBaseURL = url
+		return nil
+	}
+}
+
 // RegistryBaseURL allows for a custom Registry URL.
 func RegistryBaseURL(url string) Option {
 	return func(c *Config) error {
