@@ -19,17 +19,17 @@ type Registry struct {
 
 // New constructs a client to interface with the Heroku Platform APIs.
 func New(config *config2.Config) *Registry {
-	p := &Registry{http: simpleresty.NewWithBaseURL(config.RegistryBaseURL), config: config}
-	p.setHeaders()
+	r := &Registry{http: simpleresty.NewWithBaseURL(config.RegistryBaseURL), config: config}
+	r.setHeaders()
 
-	return p
+	return r
 }
 
 func (r *Registry) setHeaders() {
 	r.http.SetHeader("Content-type", r.config.ContentTypeHeader).
 		SetHeader("Accept", DistributionManifestAcceptHeader).
 		SetHeader("User-Agent", r.config.UserAgent).
-		SetHeader("Authorization", fmt.Sprintf("Bearer %s", r.config.APIToken)).
+		SetHeader("Authorization", fmt.Sprintf("Basic %s", r.config.BasicAuth)).
 		SetTimeout(2 * time.Minute).
 		SetAllowGetMethodPayload(true)
 

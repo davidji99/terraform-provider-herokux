@@ -24,10 +24,10 @@ type ManifestLayer struct {
 	Digest    *string `json:"digest,omitempty"`
 }
 
-// ListAppProcessManifests lists pushed docker images by tag.
+// GetAppProcessManifests retrieves a pushed docker images by tag.
 //
-// The tag parameter is usually 'latest'.
-func (r *Registry) ListAppProcessManifests(appIDorName, processType, tag string) (*Manifest, *simpleresty.Response, error) {
+// Note: the only acceptable tag parameter is 'latest' as 01-11-2021.
+func (r *Registry) GetAppProcessManifests(appIDorName, processType, tag string) (*Manifest, *simpleresty.Response, error) {
 	var result *Manifest
 
 	urlStr := r.http.RequestURL("/v2/%s/%s/manifests/%s", appIDorName, processType, tag)
