@@ -237,9 +237,11 @@ func New() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			//"herokux_connect": dataSourceHerokuxConnect(),
 			"herokux_postgres_mtls_certificate": dataSourceHerokuxPostgresMTLSCertificate(),
+			"herokux_registry_image":            dataSourceHerokuxRegistryImage(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
+			"herokux_app_container_release":       resourceHerokuxAppContainerRelease(),
 			"herokux_app_webhook":                 resourceHerokuxAppWebhook(),
 			"herokux_connect_mappings":            resourceHerokuxConnectMappings(),
 			"herokux_data_connector":              resourceHerokuxDataConnector(),

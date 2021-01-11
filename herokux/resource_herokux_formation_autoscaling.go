@@ -141,7 +141,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 	client := meta.(*Config).API
 
 	// Get app id and formation name
-	appID := getAppId(d)
+	appID := getAppID(d)
 	formationName := getFormationName(d)
 
 	opts := constructAutoscalingOpts(d)
@@ -212,7 +212,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	client := meta.(*Config).API
 
 	// Get app id and formation name
-	appID := getAppId(d)
+	appID := getAppID(d)
 	formationName := getFormationName(d)
 
 	opts := constructAutoscalingOpts(d)

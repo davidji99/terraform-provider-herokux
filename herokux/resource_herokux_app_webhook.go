@@ -117,7 +117,7 @@ func resourceHerokuxAppWebhookCreate(ctx context.Context, d *schema.ResourceData
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 	opts := constructAppWebhookOpts(d)
-	appID := getAppId(d)
+	appID := getAppID(d)
 
 	log.Printf("[DEBUG] Creating webhook on app %s", appID)
 
@@ -192,7 +192,7 @@ func resourceHerokuxAppWebhookUpdate(ctx context.Context, d *schema.ResourceData
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 	opts := constructAppWebhookOpts(d)
-	appID := getAppId(d)
+	appID := getAppID(d)
 
 	result, parseErr := parseCompositeID(d.Id(), 2)
 	if parseErr != nil {

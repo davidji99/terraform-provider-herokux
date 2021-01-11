@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-// getAppId extracts the app ID attribute generically from a HerokuX resource.
-func getAppId(d *schema.ResourceData) string {
+// getAppID extracts the app ID attribute generically from a HerokuX resource.
+func getAppID(d *schema.ResourceData) string {
 	var appID string
 	if v, ok := d.GetOk("app_id"); ok {
 		vs := v.(string)
@@ -122,6 +122,16 @@ func parseCompositeID(id string, numOfSplits int) ([]string, error) {
 	if len(parts) != numOfSplits {
 		return nil, fmt.Errorf("Error: import composite ID requires %d parts separated by a colon (x:y). "+
 			"Please check resource documentation for more information.", numOfSplits)
+	}
+	return parts, nil
+}
+
+func parseCompositeIDCustom(id, sep string, numOfSplits int) ([]string, error) {
+	parts := strings.SplitN(id, sep, numOfSplits)
+
+	if len(parts) != numOfSplits {
+		return nil, fmt.Errorf("Error: import composite ID requires %d parts each separated by a `%s`. "+
+			"Please check resource documentation for more information.", numOfSplits, sep)
 	}
 	return parts, nil
 }

@@ -144,7 +144,7 @@ func resourceHerokuxConnectMappingsCreate(ctx context.Context, d *schema.Resourc
 	var diags diag.Diagnostics
 	config := meta.(*Config)
 	client := config.API
-	appID := getAppId(d)
+	appID := getAppID(d)
 	connectID := getConnectID(d)
 
 	setupClientErr := setupConnectAPIClient(client, appID, connectID)
@@ -185,7 +185,7 @@ func resourceHerokuxConnectMappingsCreate(ctx context.Context, d *schema.Resourc
 func resourceHerokuxConnectMappingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
-	appID := getAppId(d)
+	appID := getAppID(d)
 	connectID := getConnectID(d)
 
 	setupClientErr := setupConnectAPIClient(client, appID, connectID)
@@ -253,7 +253,7 @@ func resourceHerokuxConnectMappingsUpdate(ctx context.Context, d *schema.Resourc
 	var diags diag.Diagnostics
 	config := meta.(*Config)
 	client := config.API
-	appID := getAppId(d)
+	appID := getAppID(d)
 	connectID := getConnectID(d)
 
 	setupClientErr := setupConnectAPIClient(client, appID, connectID)
@@ -352,7 +352,7 @@ func resourceHerokuxConnectMappingsUpdate(ctx context.Context, d *schema.Resourc
 func resourceHerokuxConnectMappingsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
-	appID := getAppId(d)
+	appID := getAppID(d)
 	connectID := getConnectID(d)
 
 	setupClientErr := setupConnectAPIClient(client, appID, connectID)
