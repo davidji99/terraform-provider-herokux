@@ -105,15 +105,26 @@ The following arguments are supported:
 * `api_key` - (Required) Heroku API token. It must be provided, but it can also
   be sourced from [other locations](#Authentication).
 
-* `metrics_api_url` - (Optional) Custom Metrics API url
+* `metrics_api_url` - (Optional) Custom Metrics API url.
+  Can also be sourced from the `HEROKUX_METRICS_API_URL` environment variable.
 
-* `postgres_api_url` - (Optional) Custom Postgres API url
+* `postgres_api_url` - (Optional) Custom Postgres API url.
+  Can also be sourced from the `HEROKUX_POSTGRES_API_URL` environment variable.
 
-* `data_api_url` - (Optional) Custom Data API url
+* `data_api_url` - (Optional) Custom Data API url.
+  Can also be sourced from the `HEROKUX_DATA_API_URL` environment variable.
 
-* `platform_api_url` - (Optional) Custom Platform API url
+* `platform_api_url` - (Optional) Custom Platform API url.
+  Can also be sourced from the `HEROKU_API_URL` environment variable.
 
-* `redis_api_url` - (Optional) Custom Redis API url
+* `redis_api_url` - (Optional) Custom Redis API url.
+  Can also be sourced from the `HEROKUX_REDIS_API_URL` environment variable.
+
+* `connect_central_api_url` - (Optional) Custom Connect Central API url.
+  Can also be sourced from the `HEROKUX_CONNECT_CENTRAL_API_URL` environment variable.
+
+* `registry_api_url` - (Optional) Custom Registry API url.
+  Can also be sourced from the `HEROKUX_REGISTRY_API_URL` environment variable.
 
 * `headers` - (Optional) Additional API headers.
 

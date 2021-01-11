@@ -55,6 +55,18 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_REDIS_API_URL", api.DefaultRedisAPIBaseURL),
 			},
 
+			"connect_central_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_CONNECT_CENTRAL_API_URL", api.DefaultConnectCentralBaseURL),
+			},
+
+			"registry_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_REGISTRY_API_URL", api.DefaultRegistryBaseURL),
+			},
+
 			"platform_api_url": {
 				Type:     schema.TypeString,
 				Optional: true,
