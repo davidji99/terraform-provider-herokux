@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -45,8 +46,9 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 			},
 
 			"image_id": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validateImageID,
 			},
 
 			//"container": {
@@ -73,6 +75,14 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 			//},
 		},
 	}
+}
+
+func validateImageID(v interface{}, k string) (ws []string, errors []error) {
+	name := v.(string)
+	if !regexp.MustCompile(`^sha256:[A-Fa-f0-9]{64}$`).MatchString(name) {
+		errors = append(errors, fmt.Errorf("invalid image ID"))
+	}
+	return
 }
 
 func resourceHerokuxAppContainerReleaseImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

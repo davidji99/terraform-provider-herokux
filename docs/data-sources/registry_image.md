@@ -53,6 +53,6 @@ The following attributes are exported:
   or copied into the image, etc) are unchanged between builds, the built image will always resolve to the same digest.
   This is important as a change in digest indicates that something changed in the image.
 
-  - This computed attribute is handy for the `herokux_app_container_release.image_id` attribute.
+    * This computed attribute is a handy value for the `herokux_app_container_release.image_id` attribute.
 
 * `number_of_layers` - Number of layers that exist for the docker image.

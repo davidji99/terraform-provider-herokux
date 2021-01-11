@@ -26,9 +26,17 @@ resource "heroku_app" "foobar" {
   region = "us"
 }
 
+# Push Image
+
+data "herokux_registry_image" "foobar" {
+  app_id = heroku_app.foobar.uuid
+  process_type = "web"
+  docker_tag = "latest"
+}
+
 resource "herokux_app_container_release" "foobar" {
 	app_id = heroku_app.foobar.uuid
-	image_id = "sha256:4d2647aab0e8fbe92cb0fc88c500eb51661c5907f4f14e79efe8bfbda1f7d159"
+	image_id = data.herokux_registry_image.foobar.digest
 	process_type = "web"
 }
 
