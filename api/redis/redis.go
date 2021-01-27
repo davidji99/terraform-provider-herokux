@@ -13,9 +13,15 @@ type Redis struct {
 	config *config2.Config
 }
 
+// GenericResponse represents a generic response from the Redis API.
+type GenericResponse struct {
+	ID      *string `json:"id,omitempty"`
+	Message *string `json:"message,omitempty"`
+}
+
 // New constructs a client to interface with the Heroku Redis APIs.
 func New(config *config2.Config) *Redis {
-	r := &Redis{http: simpleresty.NewWithBaseURL(config.PostgresBaseURL), config: config}
+	r := &Redis{http: simpleresty.NewWithBaseURL(config.RedisBaseURL), config: config}
 	r.setHeaders()
 
 	return r

@@ -148,3 +148,27 @@ func (c *ConfigUpdateRequest) GetTimeout() int {
 	}
 	return *c.Timeout
 }
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (g *GenericResponse) GetID() string {
+	if g == nil || g.ID == nil {
+		return ""
+	}
+	return *g.ID
+}
+
+// GetMessage returns the Message field if it's non-nil, zero value otherwise.
+func (g *GenericResponse) GetMessage() string {
+	if g == nil || g.Message == nil {
+		return ""
+	}
+	return *g.Message
+}
+
+// GetWindow returns the Window field if it's non-nil, zero value otherwise.
+func (m *MaintenanceWindowResponse) GetWindow() string {
+	if m == nil || m.Window == nil {
+		return ""
+	}
+	return *m.Window
+}
