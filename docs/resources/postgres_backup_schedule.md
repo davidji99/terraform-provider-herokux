@@ -11,7 +11,11 @@ Provides a resource to manage a backup schedule for a Postgres database.
 This resource manages a [backup schedule](https://devcenter.heroku.com/articles/heroku-postgres-backups#scheduling-backups)
 for a Postgres database.
 
-This resource **cannot be used** to manage backup schedules for hobby tier Postgres databases.
+By default, this resource is configured to work with Heroku Postgres professional plans. If you wish to set backup
+schedules for Heroku Postgres starter plans, please set the
+[`postgres_api_url` attribute](https://registry.terraform.io/providers/davidji99/herokux/latest/docs#postgres_api_url)
+to ` https://postgres-starter-api.heroku.com`. If you have a mix of starter and professional Postgres databases within one
+terraform configuration, please consider leveraging [provider aliases](https://www.terraform.io/docs/language/providers/configuration.html).
 
 -> **IMPORTANT!**
 Production tier Postgres databases have Continuous protection enabled, so scheduled backups of large databases
