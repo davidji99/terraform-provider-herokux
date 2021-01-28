@@ -19,7 +19,7 @@ Essentially, this provider is designed to supplement, not supplant, the official
 
 -> **IMPORTANT!**
 This provider should be treated as experimental and to be used with caution when Terraforming resources in environments
-that receive your customers' traffic. Additionally, the resources may change in behavior or be removed at any given time
+that receive customer traffic. Additionally, resources may change in behavior or be removed at any given time
 to match any API changes.
 
 ## Contributing

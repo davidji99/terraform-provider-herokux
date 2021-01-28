@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"regexp"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -161,4 +162,12 @@ func ContainsString(s []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func validateMaintenanceWindow(v interface{}, k string) (ws []string, errors []error) {
+	name := v.(string)
+	if !regexp.MustCompile(`^[A-Za-z]{2,10}s \d\d?:[03]0$`).MatchString(name) {
+		errors = append(errors, fmt.Errorf("maintenance window format should be 'Days HH:MM' where where MM is 00 or 30"))
+	}
+	return
 }

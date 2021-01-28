@@ -32,19 +32,10 @@ func resourceHerokuxRedisMaintenanceWindow() *schema.Resource {
 			"window": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validateRedisMaintenanceWindow,
+				ValidateFunc: validateMaintenanceWindow,
 			},
 		},
 	}
-}
-
-func validateRedisMaintenanceWindow(v interface{}, k string) (ws []string, errors []error) {
-	name := v.(string)
-	if !regexp.MustCompile(`^[A-Za-z]{2,10}s \d\d?:[03]0$`).MatchString(name) {
-		errors = append(errors, fmt.Errorf("maintenance window format should be 'Days HH:MM' where where MM is 00 or 30"))
-	}
-
-	return
 }
 
 func resourceHerokuxRedisMaintenanceWindowImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
