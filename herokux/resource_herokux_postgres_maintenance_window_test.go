@@ -31,7 +31,7 @@ func TestAccHerokuxPostgresMaintenanceWindow_Basic(t *testing.T) {
 }
 
 func TestAccHerokuxPostgresMaintenanceWindow_BasicInvalidWindow(t *testing.T) {
-	redisID := testAccConfig.GetRedisIDorSkip(t)
+	postgresID := testAccConfig.GetAddonIDorSkip(t)
 	window := fmt.Sprintf("%ss1 10:30", strings.Title(time.Weekday(randInt(0, 6)).String()))
 
 	resource.Test(t, resource.TestCase{
@@ -39,7 +39,7 @@ func TestAccHerokuxPostgresMaintenanceWindow_BasicInvalidWindow(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccCheckHerokuxRedisMaintenanceWindow_basic(redisID, window),
+				Config:      testAccCheckHerokuxPostgresMaintenanceWindow_basic(postgresID, window),
 				ExpectError: regexp.MustCompile(`maintenance window format should be 'Days HH:MM' where where MM is 00 or 30`),
 			},
 		},
