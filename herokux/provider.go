@@ -271,6 +271,7 @@ func New() *schema.Provider {
 			"herokux_postgres_settings":           resourceHerokuxPostgresSettings(),
 			"herokux_privatelink":                 resourceHerokuxPrivatelink(),
 			"herokux_redis_config":                resourceHerokuxRedisConfig(),
+			"herokux_redis_maintenance_window":    resourceHerokuxRedisMaintenanceWindow(),
 			"herokux_shield_private_space":        resourceHerokuxShieldPrivateSpace(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
