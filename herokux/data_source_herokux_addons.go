@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -20,16 +21,8 @@ func dataSourceHerokuxAddons() *schema.Resource {
 				Optional: true,
 			},
 
-			"addon_ids": {
-				Type:     schema.TypeList,
-				Computed: true,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-			},
-
-			"addon_names": {
-				Type:     schema.TypeList,
+			"addons": {
+				Type:     schema.TypeMap,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -40,33 +33,32 @@ func dataSourceHerokuxAddons() *schema.Resource {
 }
 
 func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*Config).API
+	platformAPI := meta.(*Config).PlatformAPI
 
-	var appID string
-	var addonIDs, addonNames []string
-	addonServiceName := d.Get("addon_service_name")
-	if v, ok := d.GetOk("app_id"); ok {
-		appID = v.(string)
-		result, _, setErr := client.Platform.ListAppAddons(appID)
-		if setErr != nil {
-			return diag.FromErr(setErr)
-		}
-		if len(result) > 0 {
-			d.SetId(result[0].GetID())
-		}
-		for _, addon := range result {
-			if addonServiceName == "" || addon.GetAddonService().GetName() == addonServiceName {
-				addonIDs = append(addonIDs, addon.GetID())
-				addonNames = append(addonNames, addon.GetName())
-			}
+	appID := getAppID(d)
+	addOnServiceName := d.Get("addon_service_name")
+	addOns := make(map[string]string)
+
+	addOnList, listErr := platformAPI.AddOnListByApp(ctx, appID, nil)
+	if listErr != nil {
+		var diags diag.Diagnostics
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to retrieve add-ons for app %s", appID),
+			Detail:   listErr.Error(),
+		})
+		return diags
+	}
+	for _, addOn := range addOnList {
+		if addOnServiceName == "" || addOnServiceName == addOn.AddonService.Name {
+			addOns[addOn.ID] = addOn.Name
 		}
 	}
-	if len(addonIDs) == 0 {
-		return diag.Errorf("Could not find the requested add-ons installed in %s", appID)
+	if len(addOns) > 0 {
+		d.SetId(fmt.Sprintf("%s:%s", appID, addOnServiceName))
+		d.Set("addons", addOns)
+	} else {
+		return diag.Errorf("Could not find any '%s' add-on installed in %s", addOnServiceName, appID)
 	}
-
-	d.Set("addon_ids", addonIDs)
-	d.Set("addon_names", addonNames)
-
 	return nil
 }

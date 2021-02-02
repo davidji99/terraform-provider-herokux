@@ -29,10 +29,6 @@ The following arguments are supported:
 
 ## Attributes Reference
 
-In addition to all arguments above, the following attributes are exported:
+In addition to all arguments above, the following attribute is exported:
 
-* `addon_ids` - A list of the add-ons IDs installed on the app.
-
-* `addon_names` - A list of the add-ons names installed on the app.
-
-Note that the indexes of add-ons names and IDs correspond.
+* `addons` - A map containing the add-ons UID and names as key-value pairs.
