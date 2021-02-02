@@ -64,7 +64,7 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 
 func validateBackupScheduleTimezone(v interface{}, k string) (ws []string, errors []error) {
 	timezone := v.(string)
-	if !regexp.MustCompile(`^UTC|[a-zA-Z]+/[a-zA-Z]+$`).MatchString(timezone) {
+	if !regexp.MustCompile(`^UTC|[a-zA-Z]+/[a-zA-Z_]+$`).MatchString(timezone) {
 		errors = append(errors, fmt.Errorf("Invalid timezone format. Timezone should be in full TZ format (Africa/Cairo) or UTC."))
 	}
 	return
