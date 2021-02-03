@@ -1,22 +1,19 @@
 <a class="repo-badge" href="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"><img src="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"></a>
 <a href="https://goreportcard.com/report/github.com/davidji99/terraform-provider-herokux"><img class="badge" tag="github.com/davidji99/terraform-provider-herokux" src="https://goreportcard.com/badge/github.com/davidji99/terraform-provider-herokux"></a>
 
-Terraform Provider HerokuX
-=========================
+# Terraform Provider HerokuX
 
-The HerokuX provider interacts with undocumented Heroku APIs to provide additional resources not available
-in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
+The HerokuX provider interacts with Heroku's undocumented APIs and Platform API variants to provide additional resources
+not available in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
 
 Please be advised that this provider has no relationship with the official Heroku provider.
 
-Requirements
-------------
+## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) `v0.12.x`, `v0.13.x`
+- [Terraform](https://www.terraform.io/downloads.html) `v0.12+`
 - [Go](https://golang.org/doc/install) 1.14 (to build the provider plugin)
 
-Usage
------
+## Usage
 
 ```hcl
 provider "herokux" {
@@ -26,8 +23,20 @@ provider "herokux" {
 
 This provider is not compatible with terraform `v0.11.x`.
 
-Development
------------
+## Contributing
+
+When contributing new resources, please make sure the new resource adheres to one of the following criteria:
+
+* Uses an undocumented API.
+* Uses a Platform API variant.
+* Significantly alters the design and logic of an existing `heroku` provider resource.
+
+Regardless of the aforementioned guideline, please feel free to submit contributions. The provider's maintainer(s)
+will initiate a discussion regardless resource placement if deemed necessary.
+
+Please also view the `CONTRIBUTING.md` file for the general policy.
+
+## Development
 
 If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is *required*).
 
@@ -71,6 +80,5 @@ Please see the [TESTING](TESTING.md) guide for detailed instructions on running 
 This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) for dependency management.
 
 This example will fetch a module at the release tag and record it in your project's `go.mod` and `go.sum` files.
-It's a good idea to run `go mod tidy` afterward and then `go mod vendor` to copy the dependencies into a `vendor/` directory.
 
 If a module does not have release tags, then `module@SHA` can be used instead.

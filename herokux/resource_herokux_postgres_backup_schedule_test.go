@@ -51,7 +51,35 @@ func TestAccHerokuxPostgresBackupSchedule_Basic(t *testing.T) {
 	})
 }
 
-func TestAccHerokuxPostgresBackupSchedule_ZeroHour(t *testing.T) {
+func TestAccHerokuxPostgresBackupSchedule_BasicTimezoneWithUnderscore(t *testing.T) {
+	postgresID := testAccConfig.GetPostgresIDorSkip(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuxPostgresBackupSchedule_basic(postgresID, "America/New_York", 3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "postgres_id", postgresID),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "hour", "3"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "timezone", "America/New_York"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "name"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_weeks"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_months"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccHerokuxPostgresBackupSchedule_BasicZeroHour(t *testing.T) {
 	postgresID := testAccConfig.GetPostgresIDorSkip(t)
 
 	resource.Test(t, resource.TestCase{
