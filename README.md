@@ -32,7 +32,7 @@ When contributing new resources, please make sure the new resource adheres to on
 * Significantly alters the design and logic of an existing `heroku` provider resource.
 
 Regardless of the aforementioned guideline, please feel free to submit contributions. The provider's maintainer(s)
-will initiate a discussion regardless resource placement if deemed necessary.
+will initiate a discussion regarding resource placement if deemed necessary.
 
 Please also view the `CONTRIBUTING.md` file for the general policy.
 
