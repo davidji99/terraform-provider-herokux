@@ -11,6 +11,7 @@ description: |-
 The HerokuX provider interacts with non-Platform APIs and Platform API variants
 to provide additional resources not available
 in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
+Almost all resources in this provider use the same API endpoints used by Heroku CLI or the web UI itself.
 
 Almost all resources in this provider require official Heroku provider resources as a prerequisite.
 Essentially, this provider is designed to supplement, not supplant, the official Heroku provider.
@@ -18,9 +19,8 @@ Essentially, this provider is designed to supplement, not supplant, the official
 **This provider has no relationship with Heroku.**
 
 -> **IMPORTANT!**
-This provider should be treated as experimental and to be used with caution when Terraforming resources in environments
-that receive customer traffic. Additionally, resources may change in behavior or be removed at any given time
-to match any API changes.
+This provider should be used with caution when Terraforming resources in environments that receive customer traffic.
+Additionally, resources may change in behavior or be removed at any given time to match any API changes.
 
 ## Contributing
 
