@@ -61,6 +61,9 @@ linters-settings:
     allow-unused: false # report any unused nolint directives
     require-explanation: false # don't require an explanation for nolint directives
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+  nestif:
+    # minimal complexity of if statements to report, 5 by default
+    min-complexity: 4
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
@@ -97,6 +100,11 @@ issues:
         - gocritic
       text: "unnecessaryDefer:"
 
+    # Exclude some staticcheck messages
+    - linters:
+        - staticcheck
+      text: "SA1019:"
+
 run:
   skip-dirs:
     - test/testdata_etc
@@ -110,3 +118,17 @@ service:
   golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly
   prepare:
     - echo "here I can run custom commands, but no preparation needed for this repo"
+
+output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
+  format: colored-line-number
+  # print lines of code with issue, default is true
+  print-issued-lines: true
+  # print linter name in the end of issue text, default is true
+  print-linter-name: true
+  # make issues output unique by line, default is true
+  uniq-by-line: true
+  # add a prefix to the output file references; default is no prefix
+  path-prefix: ""
+  # sorts results by: filepath, line and column
+  sort-results: false
