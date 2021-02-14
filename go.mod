@@ -7,10 +7,10 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/davidji99/heroku-go/v5 v5.0.0-develop3
 	github.com/davidji99/simpleresty v0.2.3
-	github.com/elliotchance/orderedmap v1.3.0
+	github.com/elliotchance/orderedmap v1.4.0
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pborman/uuid v1.2.1 // indirect
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 )
