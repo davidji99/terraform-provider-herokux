@@ -34,16 +34,16 @@ func getAddonID(d *schema.ResourceData) string {
 	return addonID
 }
 
-// getFormationName extracts the formation name attribute generically from a HerokuX resource.
-func getFormationName(d *schema.ResourceData) string {
-	var formationName string
-	if v, ok := d.GetOk("formation_name"); ok {
+// getProcessType extracts the process type attribute generically from a HerokuX resource.
+func getProcessType(d *schema.ResourceData) string {
+	var processType string
+	if v, ok := d.GetOk("process_type"); ok {
 		vs := v.(string)
-		log.Printf("[DEBUG] formation_name: %s", vs)
-		formationName = vs
+		log.Printf("[DEBUG] process_type: %s", vs)
+		processType = vs
 	}
 
-	return formationName
+	return processType
 }
 
 // getDatabaseName extracts the database name name attribute generically from a HerokuX resource.

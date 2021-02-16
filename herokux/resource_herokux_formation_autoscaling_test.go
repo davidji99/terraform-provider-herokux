@@ -10,7 +10,7 @@ import (
 // IMPORTANT: this test only works on an APP that wasn't autoscaled previously.
 func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
-	formationName := "web"
+	processType := "web"
 	minQuantity := acctest.RandIntRange(1, 8)
 	maxQuantity := minQuantity + 2
 	p95ResponseTime := acctest.RandIntRange(500, 1000)
@@ -20,12 +20,12 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxFormationAutoscaling_basic(appID, formationName, minQuantity, maxQuantity, p95ResponseTime),
+				Config: testAccCheckHerokuxFormationAutoscaling_basic(appID, processType, minQuantity, maxQuantity, p95ResponseTime),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "formation_name", formationName),
+						"herokux_formation_autoscaling.foobar", "process_type", processType),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "is_active", "true"),
 					resource.TestCheckResourceAttr(
@@ -43,12 +43,12 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, formationName, minQuantity+1, maxQuantity, p95ResponseTime),
+				Config: testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, processType, minQuantity+1, maxQuantity, p95ResponseTime),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "app_id", appID),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "formation_name", formationName),
+						"herokux_formation_autoscaling.foobar", "process_type", processType),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "is_active", "true"),
 					resource.TestCheckResourceAttr(
@@ -69,11 +69,11 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 	})
 }
 
-func testAccCheckHerokuxFormationAutoscaling_basic(appID, formationName string, min, max, p95 int) string {
+func testAccCheckHerokuxFormationAutoscaling_basic(appID, processType string, min, max, p95 int) string {
 	return fmt.Sprintf(`
 resource "herokux_formation_autoscaling" "foobar" {
 	app_id = "%s"
-	formation_name = "%s"
+	process_type = "%s"
 	is_active = true
 	min_quantity = %d
 	max_quantity = %d
@@ -81,14 +81,14 @@ resource "herokux_formation_autoscaling" "foobar" {
 	dyno_size = "performance-l"
 	notification_channels = ["app"]
 }
-`, appID, formationName, min, max, p95)
+`, appID, processType, min, max, p95)
 }
 
-func testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, formationName string, min, max, p95 int) string {
+func testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, processType string, min, max, p95 int) string {
 	return fmt.Sprintf(`
 resource "herokux_formation_autoscaling" "foobar" {
 	app_id = "%s"
-	formation_name = "%s"
+	process_type = "%s"
 	is_active = true
 	min_quantity = %d
 	max_quantity = %d
@@ -96,5 +96,5 @@ resource "herokux_formation_autoscaling" "foobar" {
 	dyno_size = "performance-l"
 	notification_channels = []
 }
-`, appID, formationName, min, max, p95)
+`, appID, processType, min, max, p95)
 }

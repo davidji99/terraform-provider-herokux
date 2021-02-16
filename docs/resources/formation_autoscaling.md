@@ -26,7 +26,7 @@ if you are using dyno sizes that can be autoscaled and wish to do so. Otherwise,
 
 Users will need to add the [`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
 to `herokux_formation_autoscaling` when `heroku_app_release` and/or `heroku_formation` are present. `heroku_formation`
-does not need to be in `herokux_formation_autoscaling.depends_on` if `herokux_formation_autoscaling.formation_name` is set
+does not need to be in `herokux_formation_autoscaling.depends_on` if `herokux_formation_autoscaling.process_type` is set
 to `heroku_formation.foobar.type`.
 
 See the example [resource configuration](#example-usage) below on how to use `heroku_formation` with `herokux_formation_autoscaling`.
@@ -95,7 +95,7 @@ resource "heroku_formation" "foobar" {
 
 resource "herokux_formation_autoscaling" "foobar" {
   app_id = heroku_app.foobar.uuid
-  formation_name = heroku_formation.foobar.type
+  process_type = heroku_formation.foobar.type
   is_active = true
   min_quantity = 7
   max_quantity = 9
@@ -115,7 +115,7 @@ The following arguments are supported:
 
 * `app_id` - (Required) `<string>` An existing app's UUID. The app name is not valid for this argument.
 
-* `formation_name` - (Required) `<string>` The name of the dyno formation process, such as `web`.
+* `process_type` - (Required) `<string>` The type of the dyno formation process, such as `web`.
 
 * `is_active` - (Required) `<boolean>` Whether to enable or disable the autoscaling.
 

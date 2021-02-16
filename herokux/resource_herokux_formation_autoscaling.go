@@ -34,7 +34,7 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 
-			"formation_name": {
+			"process_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -112,16 +112,16 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
-	// Parse te import ID for the appID and formationName
+	// Parse te import ID for the appID and processType
 	importID, parseErr := parseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}
 
 	appID := importID[0]
-	formationName := importID[1]
+	processType := importID[1]
 
-	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName, metrics.FormationMonitorActionTypes.Scale)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, processType, metrics.FormationMonitorActionTypes.Scale)
 	if findErr != nil {
 		return nil, findErr
 	}
@@ -141,7 +141,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	// Get app id and formation name
 	appID := getAppID(d)
-	formationName := getFormationName(d)
+	processType := getProcessType(d)
 
 	opts := constructAutoscalingOpts(d)
 
@@ -160,7 +160,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Creating formation autoscaling for app %s", appID)
 
-	fm, _, createErr := client.Metrics.CreateAutoscaling(appID, formationName, opts)
+	fm, _, createErr := client.Metrics.CreateAutoscaling(appID, processType, opts)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
@@ -168,26 +168,32 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 	log.Printf("[DEBUG] Created formation autoscaling for app %s", appID)
 
 	// Set the ID to be a composite of the APP_ID, FORMATION_NAME, and MONITOR_ID
-	d.SetId(fmt.Sprintf("%s:%s:%s", appID, formationName, fm.GetID()))
+	d.SetId(fmt.Sprintf("%s:%s:%s", appID, processType, fm.GetID()))
 
 	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
 
 func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*Config).API
+	var diags diag.Diagnostics
+	metricsAPI := meta.(*Config).API
+	platformAPI := meta.(*Config).PlatformAPI
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
 
-	monitor, _, getErr := client.Metrics.GetMonitor(resourceID[0], resourceID[1], resourceID[2])
+	appID := resourceID[0]
+	processType := resourceID[1]
+	monitorID := resourceID[2]
+
+	monitor, _, getErr := metricsAPI.Metrics.GetMonitor(appID, processType, monitorID)
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
 
 	d.Set("app_id", monitor.GetAppID())
-	d.Set("formation_name", monitor.GetProcessType())
+	d.Set("process_type", monitor.GetProcessType())
 	d.Set("is_active", monitor.GetIsActive())
 	d.Set("min_quantity", monitor.GetMinQuantity())
 	d.Set("max_quantity", monitor.GetMaxQuantity())
@@ -196,6 +202,19 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 	d.Set("action_type", monitor.GetActionType())
 	d.Set("operation", monitor.GetOperation())
 	d.Set("notification_period", monitor.GetNotificationPeriod())
+
+	// Get formation information in order to retrieve the dyno size as it's not returned by the above call.
+	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, processType)
+	if formationGetErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("unable to retrieve formation %s information", processType),
+			Detail:   formationGetErr.Error(),
+		})
+		return diags
+	}
+
+	d.Set("dyno_size", formation.Size)
 
 	notChannels := make([]string, 0)
 	if monitor.HasNotificationChannels() {
@@ -216,7 +235,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	}
 
 	appID := resourceID[0]
-	formationName := resourceID[1]
+	processType := resourceID[1]
 	monitorID := resourceID[2]
 
 	opts := constructAutoscalingOpts(d)
@@ -236,9 +255,9 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	log.Printf("[DEBUG] new notification_channels is : %v", notificationChannels)
 	opts.NotificationChannels = notificationChannels
 
-	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := client.Metrics.UpdateAutoscaling(appID, formationName, monitorID, opts)
+	isSet, resp, setErr := client.Metrics.UpdateAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -252,7 +271,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 		return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
 	}
 
-	log.Printf("[DEBUG] Updated formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+	log.Printf("[DEBUG] Updated formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
 	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
@@ -265,7 +284,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	}
 
 	appID := resourceID[0]
-	formationName := resourceID[1]
+	processType := resourceID[1]
 	monitorID := resourceID[2]
 
 	config := meta.(*Config)
@@ -273,7 +292,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	platformAPI := config.PlatformAPI
 
 	// Get current monitor information
-	monitor, _, getErr := metricsAPI.Metrics.GetMonitor(appID, formationName, monitorID)
+	monitor, _, getErr := metricsAPI.Metrics.GetMonitor(appID, processType, monitorID)
 	if getErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -283,12 +302,12 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		return diags
 	}
 
-	// Get formation information in order to retrieve the dyno size/type as it's not returned by the above call.
-	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, formationName)
+	// Get formation information in order to retrieve the dyno size as it's not returned by the above call.
+	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, processType)
 	if formationGetErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to retrieve formation %s information prior to resource deletion", formationName),
+			Summary:  fmt.Sprintf("unable to retrieve formation %s information", processType),
 			Detail:   formationGetErr.Error(),
 		})
 		return diags
@@ -310,9 +329,9 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		Name:                 monitor.GetName(),
 	}
 
-	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := metricsAPI.Metrics.UpdateAutoscaling(appID, formationName, monitorID, opts)
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -321,7 +340,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		return diag.Errorf("Did not successfully disable autoscaling. StatusCode: %d", resp.StatusCode)
 	}
 
-	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
 	d.SetId("")
 
