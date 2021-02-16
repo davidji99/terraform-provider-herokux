@@ -35,7 +35,7 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "dyno_type", "performance-l"),
+						"herokux_formation_autoscaling.foobar", "dyno_size", "performance-l"),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "notification_channels.0", "app"),
 					resource.TestCheckResourceAttr(
@@ -58,7 +58,7 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "dyno_type", "performance-l"),
+						"herokux_formation_autoscaling.foobar", "dyno_size", "performance-l"),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "notification_channels.#", "0"),
 					resource.TestCheckResourceAttr(
@@ -78,7 +78,7 @@ resource "herokux_formation_autoscaling" "foobar" {
 	min_quantity = %d
 	max_quantity = %d
 	desired_p95_response_time = %d
-	dyno_type = "performance-l"
+	dyno_size = "performance-l"
 	notification_channels = ["app"]
 }
 `, appID, formationName, min, max, p95)
@@ -93,7 +93,7 @@ resource "herokux_formation_autoscaling" "foobar" {
 	min_quantity = %d
 	max_quantity = %d
 	desired_p95_response_time = %d
-	dyno_type = "performance-l"
+	dyno_size = "performance-l"
 	notification_channels = []
 }
 `, appID, formationName, min, max, p95)

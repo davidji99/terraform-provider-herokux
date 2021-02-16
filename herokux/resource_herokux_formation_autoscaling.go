@@ -63,7 +63,7 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 				Required:     true,
 			},
 
-			"dyno_type": {
+			"dyno_size": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
@@ -338,9 +338,9 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 		opts.IsActive = vs
 	}
 
-	if v, ok := d.GetOk("dyno_type"); ok {
+	if v, ok := d.GetOk("dyno_size"); ok {
 		vs := v.(string)
-		log.Printf("[DEBUG] dyno_type is : %s", vs)
+		log.Printf("[DEBUG] dyno_size is : %s", vs)
 		opts.DynoSize = vs
 	}
 

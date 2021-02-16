@@ -21,21 +21,20 @@ them will result in potentially bricking your app dynos. You have been warned!
 
 ## Regarding `heroku_formation`
 
-This resource can replace [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation)
-if you are using dynos that can be autoscaled and wish to do so. Otherwise, continue using `heroku_formation`.
-It is recommended NOT TO USE both resources concurrently.
+This resource should be used with [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation)
+if you are using dyno sizes that can be autoscaled and wish to do so. Otherwise, continue using just `heroku_formation`.
 
-Like `heroku_formation`, users will need to add the
-[`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
-to `herokux_formation_autoscaling` when `heroku_app_release` is present. See the example [resource configuration](#example-usage) below.
+Users will need to add the [`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
+to `herokux_formation_autoscaling` when `heroku_app_release` and/or `heroku_formation` are present. `heroku_formation`
+does not need to be in `herokux_formation_autoscaling.depends_on` if `herokux_formation_autoscaling.formation_name` is set
+to `heroku_formation.foobar.type`.
+
+See the example [resource configuration](#example-usage) below on how to use `heroku_formation` with `herokux_formation_autoscaling`.
 
 ## Common Issues
 
 1. If you receive a `403` error during a `terraform apply`, it is likely you are trying to setup autoscaling
 on an unsupported dyno type. Autoscaling is currently available only for Performance-tier dynos and dynos running in Private Spaces.
-
-1. If you are migrating from using `heroku_formation` to `herokux_formation_autoscaling`, you can simply replace the former
-with the latter ONLY IF the app dyno has never been autoscaled previously. Otherwise, follow the guidance below.
 
 1. In the event you remove an existing `herokux_formation_autoscaling.foobar` resource after it's been successfully applied to an app,
    you will HAVE to `import` the resource first if the new `herokux_formation_autoscaling.foobar` resource is targeting
@@ -53,6 +52,14 @@ and start over.
 ## Example Usage
 
 ```hcl-terraform
+variable "process_type" {
+  value = "web"
+}
+
+variable "dyno_size" {
+  value = "Performance-L"
+}
+
 resource "heroku_app" "foobar" {
   name   = "my-cool-app"
   region = "us"
@@ -76,18 +83,28 @@ resource "heroku_app_release" "foobar" {
   slug_id = heroku_slug.foobar.id
 }
 
+resource "heroku_formation" "foobar" {
+  app = heroku_app.foobar.id
+  type = var.process_type
+  quantity = 8
+  size = var.dyno_size
+
+  # Tells Terraform that this formation must be created/updated only after the app release has been created
+  depends_on = ["heroku_app_release.foobar-release"]
+}
+
 resource "herokux_formation_autoscaling" "foobar" {
   app_id = heroku_app.foobar.uuid
-  formation_name = "web"
+  formation_name = heroku_formation.foobar.type
   is_active = true
-  min_quantity = 2
-  max_quantity = 4
+  min_quantity = 7
+  max_quantity = 9
   desired_p95_response_time = 1001
-  dyno_type = "performance-l"
+  dyno_size = var.dyno_size
   set_notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
-  # only after the app release has been successfully.
+  # only after the app release and formation has been successfully.
   depends_on = ["heroku_app_release.foobar"]
 }
 ```
@@ -108,7 +125,7 @@ The following arguments are supported:
 
 * `desired_p95_response_time` - (Required) `<integer>` Desired P95 Response Time in milliseconds. Must be at least 1ms.
 
-* `dyno_type` - (Optional) `<string>` The type of dyno. (Example: “standard-1X”). Capitalization does not matter.
+* `dyno_size` - (Optional) `<string>` The size of dyno. (Example: “standard-1X”). Capitalization does not matter.
     - Use with caution if you already defined the dyno type in a `heroku_formation.size` resource attribute.
     Defining different values can lead to an infinite `plan` delta.
 
