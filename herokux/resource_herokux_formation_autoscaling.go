@@ -8,11 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
-)
-
-var (
-	ValidDynoTypesForAutoscaling = []string{"performance-m", "performance-l", "private-s", "private-m",
-		"private-l", "shield-s", "shield-m", "shield-l"}
+	"strings"
 )
 
 func resourceHerokuxFormationAutoscaling() *schema.Resource {
@@ -64,9 +60,9 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 			},
 
 			"dyno_size": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringInSlice(ValidDynoTypesForAutoscaling, true),
+				Type:      schema.TypeString,
+				Required:  true,
+				StateFunc: formatSize,
 			},
 
 			"notification_channels": {
@@ -399,4 +395,44 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 	opts.Operation = metrics.AutoscalingOperationAttrVal
 
 	return opts
+}
+
+// Guarantees a consistent format for the string that describes the
+// size of a dyno. A formation's size can be "free" or "standard-1x"
+// or "Private-M".
+//
+// Heroku's PATCH formation endpoint accepts lowercase but
+// returns the capitalised version. This ensures consistent
+// capitalisation for state.
+//
+// For all supported dyno types see:
+// https://devcenter.heroku.com/articles/dyno-types
+// https://devcenter.heroku.com/articles/heroku-enterprise#available-dyno-types
+func formatSize(quant interface{}) string {
+	if quant == nil || quant == (*string)(nil) {
+		return ""
+	}
+
+	var rawQuant string
+	switch quant.(type) {
+	case string:
+		rawQuant = quant.(string)
+	case *string:
+		rawQuant = *quant.(*string)
+	default:
+		return ""
+	}
+
+	// Capitalise the first descriptor, uppercase the remaining descriptors
+	var formattedSlice []string
+	s := strings.Split(rawQuant, "-")
+	for i := range s {
+		if i == 0 {
+			formattedSlice = append(formattedSlice, strings.Title(s[i]))
+		} else {
+			formattedSlice = append(formattedSlice, strings.ToUpper(s[i]))
+		}
+	}
+
+	return strings.Join(formattedSlice, "-")
 }

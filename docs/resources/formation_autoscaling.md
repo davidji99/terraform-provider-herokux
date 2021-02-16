@@ -21,8 +21,10 @@ them will result in potentially bricking your app dynos. You have been warned!
 
 ## Regarding `heroku_formation`
 
-This resource should be used with [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation)
+This resource can be used with [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation)
 if you are using dyno sizes that can be autoscaled and wish to do so. Otherwise, continue using just `heroku_formation`.
+If you end up using `heroku_formation` in conjunction with `herokux_formation_autoscaling`, do not make any changes to
+`heroku_formation` as those changes will not be reflected on the app dyno if autoscaling is enabled.
 
 Users will need to add the [`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
 to `herokux_formation_autoscaling` when `heroku_app_release` and/or `heroku_formation` are present. `heroku_formation`
@@ -125,7 +127,8 @@ The following arguments are supported:
 
 * `desired_p95_response_time` - (Required) `<integer>` Desired P95 Response Time in milliseconds. Must be at least 1ms.
 
-* `dyno_size` - (Required) `<string>` The size of dyno. (Example: “standard-1X”). Capitalization does not matter.
+* `dyno_size` - (Required) `<string>` The size of dyno. (Example: “performance-l”). Capitalization does not matter.
+Only specify dyno sizes that can be autoscaled.
 
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
 for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.
