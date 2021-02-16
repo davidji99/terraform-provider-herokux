@@ -16,12 +16,12 @@ func (a *AutoscalingRequest) HasNotificationChannels() bool {
 	return true
 }
 
-// GetActionType returns the ActionType field if it's non-nil, zero value otherwise.
-func (f *FormationMonitor) GetActionType() string {
-	if f == nil || f.ActionType == nil {
-		return ""
+// GetActionType returns the ActionType field.
+func (f *FormationMonitor) GetActionType() *FormationMonitorActionType {
+	if f == nil {
+		return nil
 	}
-	return *f.ActionType
+	return f.ActionType
 }
 
 // GetAppID returns the AppID field if it's non-nil, zero value otherwise.
