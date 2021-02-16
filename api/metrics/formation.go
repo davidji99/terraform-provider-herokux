@@ -9,22 +9,39 @@ import (
 
 // FormationMonitor represents a formation monitor.
 type FormationMonitor struct {
-	ID                   *string  `json:"id,omitempty"`
-	AppID                *string  `json:"app_id,omitempty"`
-	MetricUUID           *string  `json:"metric_uuid,omitempty"`
-	ProcessType          *string  `json:"process_type,omitempty"`
-	Name                 *string  `json:"name,omitempty"`
-	Value                *int     `json:"value,omitempty"`
-	Operation            *string  `json:"op,omitempty"`
-	Period               *int     `json:"period,omitempty"`
-	IsActive             *bool    `json:"is_active"`
-	State                *string  `json:"state,omitempty"`
-	ActionType           *string  `json:"action_type,omitempty"`
-	NotificationChannels []string `json:"notification_channels,omitempty"`
-	NotificationPeriod   *int     `json:"notification_period"`
-	MinQuantity          *int     `json:"min_quantity"`
-	MaxQuantity          *int     `json:"max_quantity"`
-	ForecastPeriod       *int     `json:"forecast_period,omitempty"`
+	ID                   *string                     `json:"id,omitempty"`
+	AppID                *string                     `json:"app_id,omitempty"`
+	MetricUUID           *string                     `json:"metric_uuid,omitempty"`
+	ProcessType          *string                     `json:"process_type,omitempty"`
+	Name                 *string                     `json:"name,omitempty"`
+	Value                *int                        `json:"value,omitempty"`
+	Operation            *string                     `json:"op,omitempty"`
+	Period               *int                        `json:"period,omitempty"`
+	IsActive             *bool                       `json:"is_active"`
+	State                *string                     `json:"state,omitempty"`
+	ActionType           *FormationMonitorActionType `json:"action_type,omitempty"`
+	NotificationChannels []string                    `json:"notification_channels,omitempty"`
+	NotificationPeriod   *int                        `json:"notification_period"`
+	MinQuantity          *int                        `json:"min_quantity"`
+	MaxQuantity          *int                        `json:"max_quantity"`
+	ForecastPeriod       *int                        `json:"forecast_period,omitempty"`
+}
+
+// FormationMonitorActionType represents a formation monitor's action type.
+type FormationMonitorActionType string
+
+// FormationMonitorActionTypes represents all possible action types.
+var FormationMonitorActionTypes = struct {
+	Alert FormationMonitorActionType
+	Scale FormationMonitorActionType
+}{
+	Alert: "alert",
+	Scale: "scale",
+}
+
+// ToString is a helper method to return the string of a FormationMonitorActionType.
+func (f FormationMonitorActionType) ToString() string {
+	return string(f)
 }
 
 // AutoscalingRequest represents a request to autoscale an app dyno's formation.
@@ -43,6 +60,8 @@ type AutoscalingRequest struct {
 }
 
 // ListMonitors lists all monitors for a formation.
+//
+// This endpoint returns 200 and an empty array even if the app has no dyno and/or process type ('web')  associated to it.
 func (m *Metrics) ListMonitors(appID, formationName string) ([]*FormationMonitor, *simpleresty.Response, error) {
 	var result []*FormationMonitor
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
@@ -76,14 +95,14 @@ func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*Formation
 }
 
 // FindMonitorByName gets a single monitor for a formation by its associated app ID and formation name/process type.
-func (m *Metrics) FindMonitorByName(appID, formationName string) (*FormationMonitor, *simpleresty.Response, error) {
+func (m *Metrics) FindMonitorByName(appID, formationName string, actionType FormationMonitorActionType) (*FormationMonitor, *simpleresty.Response, error) {
 	monitors, response, listErr := m.ListMonitors(appID, formationName)
 	if listErr != nil {
 		return nil, response, listErr
 	}
 
 	for _, m := range monitors {
-		if m.GetAppID() == appID && m.GetProcessType() == formationName {
+		if m.GetAppID() == appID && m.GetProcessType() == formationName && *m.GetActionType() == actionType {
 			return m, nil, nil
 		}
 	}
