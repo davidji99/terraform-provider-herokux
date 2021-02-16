@@ -82,7 +82,7 @@ as the Heroku provider to retrieve the API key. This will be the only common var
 
 ### Netrc
 
-Credentials can also be sourced from the [`.netrc`](https://ec.haxx.se/usingcurl-netrc.html)
+Credentials can also be sourced from the [`.netrc`](https://everything.curl.dev/usingcurl/netrc)
 file in your home directory:
 
 ```hcl
