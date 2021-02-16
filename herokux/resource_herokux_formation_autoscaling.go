@@ -303,14 +303,15 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	if formationGetErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to retrieve formation %s information", processType),
+			Summary:  fmt.Sprintf("unable to retrieve formation %s information prior to resource deletion", processType),
 			Detail:   formationGetErr.Error(),
 		})
 		return diags
 	}
 
 	// In order to disable the autoscaling, we'll need to first retrieve the current details of the autoscaling.
-	// Then, create a new request to update the autoscaling with the current information sans is_active = false.
+	// Then, create a new request to update the autoscaling with the current information but is_active set to `false`.
+	// This is the only way to safely, programmatically disable autoscaling like how the UI does it.
 	opts := &metrics.AutoscalingRequest{
 		DynoSize:             formation.Size,
 		IsActive:             false,

@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	// AutoscalingOperationAttrVal defines the only possible value for `op` or operation.
 	AutoscalingOperationAttrVal = "GREATER_OR_EQUAL"
 )
 
