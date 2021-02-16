@@ -414,10 +414,12 @@ func formatSize(quant interface{}) string {
 	}
 
 	var rawQuant string
-	switch quant.(type) {
+	switch t := quant.(type) {
 	case string:
+		log.Printf("[DEBUG] quant %v", t)
 		rawQuant = quant.(string)
 	case *string:
+		log.Printf("[DEBUG] quant %v", t)
 		rawQuant = *quant.(*string)
 	default:
 		return ""

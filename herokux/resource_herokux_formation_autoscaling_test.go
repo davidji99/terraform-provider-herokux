@@ -35,7 +35,7 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "dyno_size", "performance-l"),
+						"herokux_formation_autoscaling.foobar", "dyno_size", "Performance-L"),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "notification_channels.0", "app"),
 					resource.TestCheckResourceAttr(
@@ -58,7 +58,7 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
 					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "dyno_size", "performance-l"),
+						"herokux_formation_autoscaling.foobar", "dyno_size", "Performance-L"),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "notification_channels.#", "0"),
 					resource.TestCheckResourceAttr(
