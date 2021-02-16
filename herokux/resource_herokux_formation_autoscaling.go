@@ -65,8 +65,7 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 
 			"dyno_size": {
 				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
+				Required:     true,
 				ValidateFunc: validation.StringInSlice(ValidDynoTypesForAutoscaling, true),
 			},
 

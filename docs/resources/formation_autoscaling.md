@@ -125,9 +125,7 @@ The following arguments are supported:
 
 * `desired_p95_response_time` - (Required) `<integer>` Desired P95 Response Time in milliseconds. Must be at least 1ms.
 
-* `dyno_size` - (Optional) `<string>` The size of dyno. (Example: “standard-1X”). Capitalization does not matter.
-    - Use with caution if you already defined the dyno type in a `heroku_formation.size` resource attribute.
-    Defining different values can lead to an infinite `plan` delta.
+* `dyno_size` - (Required) `<string>` The size of dyno. (Example: “standard-1X”). Capitalization does not matter.
 
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
 for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.
