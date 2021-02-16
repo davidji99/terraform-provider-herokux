@@ -9,25 +9,33 @@ description: |-
 # herokux\_formation\_autoscaling
 
 This resource manages the autoscaling settings of an app dyno formation.
-For more information about Heroku dyno formation scaling, please visit this [help article](https://devcenter.heroku.com/articles/scaling#autoscaling).
-
-This resource can replace  [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation).
-It is recommended NOT TO USE both resources concurrently. Furthermore like `heroku_formation`, users will need
-to add the [`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
-to `herokux_formation_autoscaling` when `heroku_app_release` is present. See the example [resource configuration](#example-usage) below.
+For more information about Heroku dyno formation autoscaling, please visit this [help article](https://devcenter.heroku.com/articles/scaling#autoscaling).
 
 -> **IMPORTANT!**
-Due to API limitations, the provider will only remove the resource from state if you remove an existing
-`herokux_formation_autoscaling` from your terraform configuration. You will then need to visit the Heroku UI for further action.
+When an existing `herokux_formation_autoscaling` is deleted, the provider will disable the autoscaling remotely
+and remove the resource from state.
 
 ~> **WARNING:**
 Please make sure you understand all [common issues](#common-issues) prior to using this resource. Failure to understand
 them will result in potentially bricking your app dynos. You have been warned!
 
+## Regarding `heroku_formation`
+
+This resource can replace [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation)
+if you are using dynos that can be autoscaled and wish to do so. Otherwise, continue using `heroku_formation`.
+It is recommended NOT TO USE both resources concurrently.
+
+Like `heroku_formation`, users will need to add the
+[`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
+to `herokux_formation_autoscaling` when `heroku_app_release` is present. See the example [resource configuration](#example-usage) below.
+
 ## Common Issues
 
 1. If you receive a `403` error during a `terraform apply`, it is likely you are trying to setup autoscaling
 on an unsupported dyno type. Autoscaling is currently available only for Performance-tier dynos and dynos running in Private Spaces.
+
+1. If you are migrating from using `heroku_formation` to `herokux_formation_autoscaling`, you can simply replace the former
+with the latter ONLY IF the app dyno has never been autoscaled previously. Otherwise, follow the guidance below.
 
 1. In the event you remove an existing `herokux_formation_autoscaling.foobar` resource after it's been successfully applied to an app,
    you will HAVE to `import` the resource first if the new `herokux_formation_autoscaling.foobar` resource is targeting
@@ -39,8 +47,8 @@ on an unsupported dyno type. Autoscaling is currently available only for Perform
     * Due to the first reason, the underlying API does not allow for a `POST` request when an existing formation autoscaling
       exists in the API. Therefore, the resource must be imported first and then modified afterwards.
 
-1. In the event you fail to comply with the aforementioned issue's directive, the only solution is to delete the app
-start over.
+1. In the event you fail to comply with the aforementioned issue's guidance, the only solution is to delete the app
+and start over.
 
 ## Example Usage
 

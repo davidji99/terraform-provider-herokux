@@ -6,6 +6,10 @@ import (
 	"github.com/davidji99/simpleresty"
 )
 
+const (
+	AutoscalingOperationAttrVal = "GREATER_OR_EQUAL"
+)
+
 // FormationMonitor represents a formation monitor.
 type FormationMonitor struct {
 	ID                   *string                     `json:"id,omitempty"`

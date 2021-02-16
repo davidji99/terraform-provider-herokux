@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+// IMPORTANT: this test only works on an APP that wasn't autoscaled previously.
 func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
 	formationName := "web"

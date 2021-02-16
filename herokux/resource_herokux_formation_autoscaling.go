@@ -259,7 +259,71 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] formation autoscaling resource %s will only be removed from state", d.Id())
+	var diags diag.Diagnostics
+	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	if parseErr != nil {
+		return diag.FromErr(parseErr)
+	}
+
+	appID := resourceID[0]
+	formationName := resourceID[1]
+	monitorID := resourceID[2]
+
+	config := meta.(*Config)
+	metricsAPI := config.API
+	platformAPI := config.PlatformAPI
+
+	// Get current monitor information
+	monitor, _, getErr := metricsAPI.Metrics.GetMonitor(appID, formationName, monitorID)
+	if getErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("unable to retrieve monitor %s's information prior to resource deletion", monitorID),
+			Detail:   getErr.Error(),
+		})
+		return diags
+	}
+
+	// Get formation information in order to retrieve the dyno size/type as it's not returned by the above call.
+	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, formationName)
+	if formationGetErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("unable to retrieve formation %s information prior to resource deletion", formationName),
+			Detail:   formationGetErr.Error(),
+		})
+		return diags
+	}
+
+	// In order to disable the autoscaling, we'll need to first retrieve the current details of the autoscaling.
+	// Then, create a new request to update the autoscaling with the current information sans is_active = false.
+	opts := &metrics.AutoscalingRequest{
+		DynoSize:             formation.Size,
+		IsActive:             false,
+		MaxQuantity:          monitor.GetMaxQuantity(),
+		MinQuantity:          monitor.GetMinQuantity(),
+		NotificationChannels: monitor.NotificationChannels,
+		NotificationPeriod:   monitor.GetNotificationPeriod(),
+		DesiredP95RespTime:   monitor.GetValue(),
+		Period:               monitor.GetPeriod(),
+		ActionType:           metrics.FormationMonitorActionTypes.Scale.ToString(),
+		Operation:            metrics.AutoscalingOperationAttrVal,
+		Name:                 monitor.GetName(),
+	}
+
+	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateAutoscaling(appID, formationName, monitorID, opts)
+	if setErr != nil {
+		return diag.FromErr(setErr)
+	}
+
+	if !isSet {
+		return diag.Errorf("Did not successfully disable autoscaling. StatusCode: %d", resp.StatusCode)
+	}
+
+	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+
 	d.SetId("")
 
 	return nil
@@ -314,7 +378,7 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 	// only have a single value.
 	opts.ActionType = metrics.FormationMonitorActionTypes.Scale.ToString()
 	opts.Quantity = 1
-	opts.Operation = "GREATER_OR_EQUAL"
+	opts.Operation = metrics.AutoscalingOperationAttrVal
 
 	return opts
 }
