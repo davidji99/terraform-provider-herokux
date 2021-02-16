@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/davidji99/simpleresty"
-	"log"
 )
 
 // FormationMonitor represents a formation monitor.
@@ -14,7 +13,7 @@ type FormationMonitor struct {
 	MetricUUID           *string                     `json:"metric_uuid,omitempty"`
 	ProcessType          *string                     `json:"process_type,omitempty"`
 	Name                 *string                     `json:"name,omitempty"`
-	Value                *int                        `json:"value,omitempty"`
+	Value                *int                        `json:"value,omitempty"` // represents the desired p95 response time.
 	Operation            *string                     `json:"op,omitempty"`
 	Period               *int                        `json:"period,omitempty"`
 	IsActive             *bool                       `json:"is_active"`
@@ -44,6 +43,17 @@ func (f FormationMonitorActionType) ToString() string {
 	return string(f)
 }
 
+// FormationMonitorNames represents all the names available.
+var FormationMonitorNames = struct {
+	Latency      string
+	LatencyScale string
+	ErrorRate    string
+}{
+	Latency:      "LATENCY",
+	LatencyScale: "LATENCY_SCALE",
+	ErrorRate:    "ERROR_RATE",
+}
+
 // AutoscalingRequest represents a request to autoscale an app dyno's formation.
 type AutoscalingRequest struct {
 	DynoSize             string   `json:"dyno_size,omitempty"`
@@ -56,7 +66,8 @@ type AutoscalingRequest struct {
 	Period               int      `json:"period,omitempty"`
 	ActionType           string   `json:"action_type,omitempty"`
 	Operation            string   `json:"op,omitempty"`
-	Quantity             int      `json:"quantity,omitempty"`
+	Quantity             int      `json:"quantity"`
+	Name                 string   `json:"name,omitempty"`
 }
 
 // ListMonitors lists all monitors for a formation.
@@ -94,6 +105,18 @@ func (m *Metrics) GetMonitor(appID, formationName, monitorID string) (*Formation
 	return &result, response, nil
 }
 
+// DeleteMonitor destroys an existing formation monitor.
+//
+// Returns '202 Accepted' if successful. WARNING! This method may cause unknown issues if used.
+func (m *Metrics) DeleteMonitor(appID, formationName, monitorID string) (*simpleresty.Response, error) {
+	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
+
+	// Execute the request
+	response, deleteErr := m.http.Delete(urlStr, nil, nil)
+
+	return response, deleteErr
+}
+
 // FindMonitorByName gets a single monitor for a formation by its associated app ID and formation name/process type.
 func (m *Metrics) FindMonitorByName(appID, formationName string, actionType FormationMonitorActionType) (*FormationMonitor, *simpleresty.Response, error) {
 	monitors, response, listErr := m.ListMonitors(appID, formationName)
@@ -110,13 +133,25 @@ func (m *Metrics) FindMonitorByName(appID, formationName string, actionType Form
 	return nil, nil, fmt.Errorf("did not find a monitor for app %s's formation %s", appID, formationName)
 }
 
-// SetAutoscale modifies the autoscaling properties for an app dyno formation.
-func (m *Metrics) SetAutoscale(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
+// CreateAutoscaling sets up the autoscaling properties for an app dyno formation.
+//
+// API response only returns the formation monitor UUID.
+func (m *Metrics) CreateAutoscaling(appID, formationName string, opts *AutoscalingRequest) (*FormationMonitor, *simpleresty.Response, error) {
+	var result *FormationMonitor
+
+	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
+
+	// Execute the request
+	response, createErr := m.http.Post(urlStr, &result, opts)
+
+	return result, response, createErr
+}
+
+// UpdateAutoscaling modifies the autoscaling properties for an app dyno formation.
+//
+// The endpoint does not return any response. Instead, the method returns true if request is successful; false otherwise,
+func (m *Metrics) UpdateAutoscaling(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
-
-	opts.Operation = "GREATER_OR_EQUAL"
-
-	log.Printf("%+v\n", opts)
 
 	// Execute the request
 	response, updateErr := m.http.Patch(urlStr, nil, opts)

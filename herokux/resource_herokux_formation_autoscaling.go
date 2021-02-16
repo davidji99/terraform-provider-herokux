@@ -82,7 +82,7 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 			"notification_period": {
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  0,
+				Computed: true,
 			},
 
 			"period": {
@@ -146,35 +146,30 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	opts := constructAutoscalingOpts(d)
 
-	// First, find the monitor ID. This ID isn't exposed in the UI so we are going to programmatically
-	// retrieve it from the API for resource creation.
-	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, formationName, metrics.FormationMonitorActionTypes.Scale)
-	if findErr != nil {
-		return diag.FromErr(findErr)
+	opts.Name = metrics.FormationMonitorNames.LatencyScale
+
+	notificationChannels := make([]string, 0)
+	if v, ok := d.GetOk("notification_channels"); ok {
+		raw := v.([]interface{})
+
+		for _, r := range raw {
+			notificationChannels = append(notificationChannels, r.(string))
+		}
+	}
+	log.Printf("[DEBUG] notification_channels is : %v", notificationChannels)
+	opts.NotificationChannels = notificationChannels
+
+	log.Printf("[DEBUG] Creating formation autoscaling for app %s", appID)
+
+	fm, _, createErr := client.Metrics.CreateAutoscaling(appID, formationName, opts)
+	if createErr != nil {
+		return diag.FromErr(createErr)
 	}
 
-	monitorID := monitor.GetID()
-
-	log.Printf("[DEBUG] Setting formation autoscaling for app %s", appID)
-
-	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, monitorID, opts)
-	if setErr != nil {
-		return diag.FromErr(setErr)
-	}
-
-	// Specific error msg if the response code is 403, which might mean the user is trying to autoscale an unsupported dyno type
-	if resp.StatusCode == 403 {
-		return diag.Errorf("unable to autoscale likely due to unsupported dyno type")
-	}
-
-	if !isSet {
-		return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
-	}
-
-	log.Printf("[DEBUG] Setted formation autoscaling for app %s", appID)
+	log.Printf("[DEBUG] Created formation autoscaling for app %s", appID)
 
 	// Set the ID to be a composite of the APP_ID, FORMATION_NAME, and MONITOR_ID
-	d.SetId(fmt.Sprintf("%s:%s:%s", appID, formationName, monitorID))
+	d.SetId(fmt.Sprintf("%s:%s:%s", appID, formationName, fm.GetID()))
 
 	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
@@ -216,12 +211,35 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	client := meta.(*Config).API
 
 	// Get app id and formation name
-	appID := getAppID(d)
-	formationName := getFormationName(d)
+	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	if parseErr != nil {
+		return diag.FromErr(parseErr)
+	}
+
+	appID := resourceID[0]
+	formationName := resourceID[1]
+	monitorID := resourceID[2]
 
 	opts := constructAutoscalingOpts(d)
 
-	isSet, resp, setErr := client.Metrics.SetAutoscale(appID, formationName, d.Id(), opts)
+	notificationChannels := make([]string, 0)
+	if ok := d.HasChange("notification_channels"); ok {
+		_, n := d.GetChange("notification_channels")
+		if n != nil {
+			raw := n.([]interface{})
+
+			for _, r := range raw {
+				notificationChannels = append(notificationChannels, r.(string))
+			}
+		}
+	}
+
+	log.Printf("[DEBUG] new notification_channels is : %v", notificationChannels)
+	opts.NotificationChannels = notificationChannels
+
+	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+
+	isSet, resp, setErr := client.Metrics.UpdateAutoscaling(appID, formationName, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -235,32 +253,13 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 		return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
 	}
 
+	log.Printf("[DEBUG] Updated formation autoscaling for app %s, formation: %s, monitor %s", appID, formationName, monitorID)
+
 	return resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 }
 
 func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	//client := meta.(*Config).API
-	//
-	//resourceID, parseErr := parseCompositeID(d.Id(), 3)
-	//if parseErr != nil {
-	//	return diag.FromErr(parseErr)
-	//}
-	//
-	//// Setting default values for the PATCH request to disable the autoscaling
-	//opts := &metrics.AutoscalingRequest{IsActive: false, Period: 1, MinQuantity: 1, MaxQuantity: 2, DesiredP95RespTime: 1000}
-	//
-	//isSet, resp, setErr := client.Formations.SetAutoscale(resourceID[0], resourceID[1], resourceID[2], opts)
-	//if setErr != nil {
-	//	return diag.FromErr(setErr)
-	//}
-	//
-	//if !isSet {
-	//	return diag.Errorf("Did not successfully set autoscaling. StatusCode: %d", resp.StatusCode)
-	//}
-
-	// It is potentially too destructive to attempt to properly disable the autoscaling without access to the last known
-	// configuration of the resource. So for now, this resource will simply remove itself from state.
-	// It is up to the user to determine the best course of action in the Heroku UI for the autoscaling settings.
+	log.Printf("[DEBUG] formation autoscaling resource %s will only be removed from state", d.Id())
 	d.SetId("")
 
 	return nil
@@ -299,17 +298,6 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 		opts.DesiredP95RespTime = vs
 	}
 
-	notificationChannels := make([]string, 0)
-	if v, ok := d.GetOk("notification_channels"); ok {
-		raw := v.([]interface{})
-
-		for _, r := range raw {
-			notificationChannels = append(notificationChannels, r.(string))
-		}
-	}
-	log.Printf("[DEBUG] notification_channels is : %v", notificationChannels)
-	opts.NotificationChannels = notificationChannels
-
 	if v, ok := d.GetOk("notification_period"); ok {
 		vs := v.(int)
 		log.Printf("[DEBUG] notification_period is : %d", vs)
@@ -324,8 +312,9 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 
 	// Define default values for certain AutoscalingRequest fields based on the fact that these request fields
 	// only have a single value.
-	opts.ActionType = "scale"
-	opts.Quantity = 4
+	opts.ActionType = metrics.FormationMonitorActionTypes.Scale.ToString()
+	opts.Quantity = 1
+	opts.Operation = "GREATER_OR_EQUAL"
 
 	return opts
 }

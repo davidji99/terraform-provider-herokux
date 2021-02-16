@@ -41,6 +41,29 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 						"herokux_formation_autoscaling.foobar", "period", "1"),
 				),
 			},
+			{
+				Config: testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, formationName, minQuantity+1, maxQuantity, p95ResponseTime),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "app_id", appID),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "formation_name", formationName),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "is_active", "true"),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "min_quantity", fmt.Sprintf("%d", minQuantity+1)),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "max_quantity", fmt.Sprintf("%d", maxQuantity)),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "desired_p95_response_time", fmt.Sprintf("%d", p95ResponseTime)),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "dyno_type", "performance-l"),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "notification_channels.#", "0"),
+					resource.TestCheckResourceAttr(
+						"herokux_formation_autoscaling.foobar", "period", "1"),
+				),
+			},
 		},
 	})
 }
@@ -56,6 +79,21 @@ resource "herokux_formation_autoscaling" "foobar" {
 	desired_p95_response_time = %d
 	dyno_type = "performance-l"
 	notification_channels = ["app"]
+}
+`, appID, formationName, min, max, p95)
+}
+
+func testAccCheckHerokuxFormationAutoscaling_basicNoNotifications(appID, formationName string, min, max, p95 int) string {
+	return fmt.Sprintf(`
+resource "herokux_formation_autoscaling" "foobar" {
+	app_id = "%s"
+	formation_name = "%s"
+	is_active = true
+	min_quantity = %d
+	max_quantity = %d
+	desired_p95_response_time = %d
+	dyno_type = "performance-l"
+	notification_channels = []
 }
 `, appID, formationName, min, max, p95)
 }

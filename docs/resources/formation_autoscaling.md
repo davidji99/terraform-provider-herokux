@@ -11,32 +11,65 @@ description: |-
 This resource manages the autoscaling settings of an app dyno formation.
 For more information about Heroku dyno formation scaling, please visit this [help article](https://devcenter.heroku.com/articles/scaling#autoscaling).
 
-Autoscaling is currently available only for Performance-tier dynos and dynos running in Private Spaces.
-Heroku’s auto-scaling uses response time which relies on your application to have very small variance in response time.
-If your application does not, then you may want to consider a third-party add-on such as Rails Auto Scale
-which scales based on queuing time instead of overall response time. Scaling limits are also between apps
-in Private Spaces and Common Runtime.
-
 This resource can replace  [`heroku_formation`](https://registry.terraform.io/providers/heroku/heroku/latest/docs/resources/formation).
-It is recommended NOT TO USE both resources concurrently. Furthermore, like `heroku_formation`, users will need
+It is recommended NOT TO USE both resources concurrently. Furthermore like `heroku_formation`, users will need
 to add the [`depends_on`](https://www.terraform.io/docs/language/meta-arguments/depends_on.html) meta-argument
-to `herokux_formation_autoscaling` when `heroku_app_release` is present.
-See the example [resource configuration](#example-usage) below.
+to `herokux_formation_autoscaling` when `heroku_app_release` is present. See the example [resource configuration](#example-usage) below.
 
 -> **IMPORTANT!**
 Due to API limitations, the provider will only remove the resource from state if you remove an existing
 `herokux_formation_autoscaling` from your terraform configuration. You will then need to visit the Heroku UI for further action.
 
+~> **WARNING:**
+Please make sure you understand all [common issues](#common-issues) prior to using this resource. Failure to understand
+them will result in potentially bricking your app dynos. You have been warned!
+
+## Common Issues
+
+1. If you receive a `403` error during a `terraform apply`, it is likely you are trying to setup autoscaling
+on an unsupported dyno type. Autoscaling is currently available only for Performance-tier dynos and dynos running in Private Spaces.
+
+1. In the event you remove an existing `herokux_formation_autoscaling.foobar` resource after it's been successfully applied to an app,
+   you will HAVE to `import` the resource first if the new `herokux_formation_autoscaling.foobar` resource is targeting
+   the same app prior to its removal. This is due to two reasons:
+
+    * The resource does not delete the formation autoscaling during resource destruction as it'll render any subsequent
+      autoscaling operations an impossibility for the same dyno.
+
+    * Due to the first reason, the underlying API does not allow for a `POST` request when an existing formation autoscaling
+      exists in the API. Therefore, the resource must be imported first and then modified afterwards.
+
+1. In the event you fail to comply with the aforementioned issue's directive, the only solution is to delete the app
+start over.
+
 ## Example Usage
 
 ```hcl-terraform
-resource "heroku_app_release" "foobar-release" {
-  app = "SOME_APP"
-  slug_id = "01234567-89ab-cdef-0123-456789abcdef"
+resource "heroku_app" "foobar" {
+  name   = "my-cool-app"
+  region = "us"
+
+  config_vars = {
+    FOOBAR = "baz"
+  }
+}
+
+resource "heroku_slug" "foobar" {
+  app      = heroku_app.foobar.id
+  file_url = "url_to_slug_artifact"
+
+  process_types = {
+    web = "ruby server.rb"
+  }
+}
+
+resource "heroku_app_release" "foobar" {
+  app = heroku_app.foobar.id
+  slug_id = heroku_slug.foobar.id
 }
 
 resource "herokux_formation_autoscaling" "foobar" {
-  app_id = "d54b26d4-a6e1-48a3-a71f-8bf833b82c04"
+  app_id = heroku_app.foobar.uuid
   formation_name = "web"
   is_active = true
   min_quantity = 2
@@ -46,8 +79,8 @@ resource "herokux_formation_autoscaling" "foobar" {
   set_notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
-  # only after the app release has been created.
-  depends_on = ["heroku_app_release.foobar-release"]
+  # only after the app release has been successfully.
+  depends_on = ["heroku_app_release.foobar"]
 }
 ```
 
@@ -72,9 +105,9 @@ The following arguments are supported:
     Defining different values can lead to an infinite `plan` delta.
 
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
-for a dyno formation. The only currently valid value is `["app"]`, which will turn on email notifications.
+for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.
 
-* `notification_period` - (Optional) `<integer>` Not sure what this does at the moment, but the default value is `0`.
+* `notification_period` - (Optional) `<integer>` Not sure what this does at the moment. Default value is `0`.
 
 * `period` - (Optional) `<integer>` Not sure what this does at the moment, but the valid options are `1`, `5`, and `10`.
 Default value is `1`.
