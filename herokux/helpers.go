@@ -1,10 +1,12 @@
 package herokux
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -44,6 +46,18 @@ func getProcessType(d *schema.ResourceData) string {
 	}
 
 	return processType
+}
+
+// getName extracts the name attribute generically from a HerokuX resource.
+func getName(d *schema.ResourceData) string {
+	var name string
+	if v, ok := d.GetOk("name"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] name: %s", vs)
+		name = vs
+	}
+
+	return name
 }
 
 // getDatabaseName extracts the database name name attribute generically from a HerokuX resource.
@@ -170,4 +184,8 @@ func validateMaintenanceWindow(v interface{}, k string) (ws []string, errors []e
 		errors = append(errors, fmt.Errorf("maintenance window format should be 'Days HH:MM' where where MM is 00 or 30"))
 	}
 	return
+}
+
+func convertIntToJSONNumber(i int) json.Number {
+	return json.Number(strconv.Itoa(i))
 }

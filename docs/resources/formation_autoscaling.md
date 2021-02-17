@@ -137,9 +137,6 @@ for a dyno formation. The only currently valid value is `["app"]` or `[]`, which
 
 * `notification_period` - (Optional) `<integer>` Not sure what this does at the moment. Default value is `0`.
 
-* `period` - (Optional) `<integer>` Not sure what this does at the moment, but the valid options are `1`, `5`, and `10`.
-Default value is `1`.
-
 ## Attributes Reference
 
 The following attributes are exported:

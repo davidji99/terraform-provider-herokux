@@ -80,13 +80,6 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 				Computed: true,
 			},
 
-			"period": {
-				Type:         schema.TypeInt,
-				ValidateFunc: validation.IntInSlice([]int{1, 5, 10}),
-				Optional:     true,
-				Default:      1,
-			},
-
 			"action_type": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -165,7 +158,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	opts := constructAutoscalingOpts(d)
 
-	opts.Name = metrics.FormationMonitorNames.LatencyScale
+	opts.Name = metrics.FormationMonitorNames.LatencyScale.ToString()
 
 	notificationChannels := make([]string, 0)
 	if v, ok := d.GetOk("notification_channels"); ok {
@@ -180,7 +173,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Creating formation autoscaling for app %s", appID)
 
-	fm, _, createErr := client.Metrics.CreateAutoscaling(appID, processType, opts)
+	fm, _, createErr := client.Metrics.CreateMonitorAutoscaling(appID, processType, opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -222,11 +215,12 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 	d.Set("is_active", monitor.GetIsActive())
 	d.Set("min_quantity", monitor.GetMinQuantity())
 	d.Set("max_quantity", monitor.GetMaxQuantity())
-	d.Set("desired_p95_response_time", monitor.GetValue())
-	d.Set("period", monitor.GetPeriod())
 	d.Set("action_type", monitor.GetActionType())
 	d.Set("operation", monitor.GetOperation())
 	d.Set("notification_period", monitor.GetNotificationPeriod())
+
+	p95, _ := monitor.GetValue().Int64()
+	d.Set("desired_p95_response_time", p95)
 
 	// Get formation information in order to retrieve the dyno size as it's not returned by the above call.
 	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, processType)
@@ -241,11 +235,11 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 
 	d.Set("dyno_size", formation.Size)
 
-	notChannels := make([]string, 0)
+	notificationChannels := make([]string, 0)
 	if monitor.HasNotificationChannels() {
-		notChannels = monitor.NotificationChannels
+		notificationChannels = monitor.NotificationChannels
 	}
-	d.Set("notification_channels", notChannels)
+	d.Set("notification_channels", notificationChannels)
 
 	return nil
 }
@@ -282,7 +276,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := client.Metrics.UpdateAutoscaling(appID, processType, monitorID, opts)
+	isSet, resp, setErr := client.Metrics.UpdateMonitorAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -341,6 +335,8 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	// In order to disable the autoscaling, we'll need to first retrieve the current details of the autoscaling.
 	// Then, create a new request to update the autoscaling with the current information but is_active set to `false`.
 	// This is the only way to safely, programmatically disable autoscaling like how the UI does it.
+	p95Raw, _ := monitor.GetValue().Int64()
+
 	opts := &metrics.AutoscalingRequest{
 		DynoSize:             formation.Size,
 		IsActive:             false,
@@ -348,16 +344,16 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		MinQuantity:          monitor.GetMinQuantity(),
 		NotificationChannels: monitor.NotificationChannels,
 		NotificationPeriod:   monitor.GetNotificationPeriod(),
-		DesiredP95RespTime:   monitor.GetValue(),
+		DesiredP95RespTime:   int(p95Raw),
 		Period:               monitor.GetPeriod(),
 		ActionType:           metrics.FormationMonitorActionTypes.Scale.ToString(),
-		Operation:            metrics.AutoscalingOperationAttrVal,
+		Operation:            metrics.DefaultOperationAttrVal,
 		Name:                 monitor.GetName(),
 	}
 
-	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
+	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, process_type %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := metricsAPI.Metrics.UpdateAutoscaling(appID, processType, monitorID, opts)
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateMonitorAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -366,7 +362,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		return diag.Errorf("Did not successfully disable autoscaling. StatusCode: %d", resp.StatusCode)
 	}
 
-	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
+	log.Printf("[DEBUG] Disabled formation autoscaling for app %s, process_type %s, monitor %s", appID, processType, monitorID)
 
 	d.SetId("")
 
@@ -375,6 +371,9 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 
 func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingRequest {
 	opts := &metrics.AutoscalingRequest{}
+
+	// Period is mainly used for app alerts so setting the value to be the default of 1.
+	opts.Period = 1
 
 	if v, ok := d.GetOk("is_active"); ok {
 		vs := v.(bool)
@@ -409,20 +408,14 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 	if v, ok := d.GetOk("notification_period"); ok {
 		vs := v.(int)
 		log.Printf("[DEBUG] notification_period is : %d", vs)
-		opts.Period = vs
-	}
-
-	if v, ok := d.GetOk("period"); ok {
-		vs := v.(int)
-		log.Printf("[DEBUG] period is : %d", vs)
-		opts.Period = vs
+		opts.NotificationPeriod = vs
 	}
 
 	// Define default values for certain AutoscalingRequest fields based on the fact that these request fields
 	// only have a single value.
 	opts.ActionType = metrics.FormationMonitorActionTypes.Scale.ToString()
 	opts.Quantity = 1
-	opts.Operation = metrics.AutoscalingOperationAttrVal
+	opts.Operation = metrics.DefaultOperationAttrVal
 
 	return opts
 }
