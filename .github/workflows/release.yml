@@ -28,7 +28,7 @@ jobs:
         name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2.4.1
         with:
-          version: latest
+          version: v0.155.2 # hard peg to this version for now prior to supporting Apple silicon
           args: release --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
