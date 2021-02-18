@@ -17,7 +17,7 @@ and remove the resource from state.
 
 ~> **WARNING:**
 Please make sure you understand all [common issues](#common-issues) prior to using this resource. Failure to understand
-them will result in potentially bricking your app dynos. You have been warned!
+them will result in potentially bricking your app dynos. This resource is VERY experimental. You have been warned!
 
 ## Regarding `heroku_formation`
 
