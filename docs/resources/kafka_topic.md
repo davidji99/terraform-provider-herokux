@@ -103,5 +103,5 @@ separated by a colon.
 For example:
 
 ```shell script
-$ terraform import herokux_kafka_topic.foobar "11db7126-0cb7-4b42-a64a-d4ae70110216:7ffb272c-7079-4666-9ca0-add848e01c7f"
+$ terraform import herokux_kafka_topic.foobar "11db7126-0cb7-4b42-a64a-d4ae70110216:my-cool-topic"
 ```
