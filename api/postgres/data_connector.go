@@ -176,11 +176,11 @@ func (p *Postgres) ResumeDataConnector(id string) (*simpleresty.Response, error)
 //
 // Reference: https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration
 func (p *Postgres) UpdateDataConnectorSettings(id string, opts *DataConnectSettings) (*DataConnector, *simpleresty.Response, error) {
-	var result *DataConnector
+	var result DataConnector
 	urlStr := p.http.RequestURL("/data/cdc/v0/connectors/%s", id)
 
 	// Execute the request
-	response, resume := p.http.Patch(urlStr, &result, &opts)
+	response, resume := p.http.Patch(urlStr, &result, opts)
 
-	return result, response, resume
+	return &result, response, resume
 }
