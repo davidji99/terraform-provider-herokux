@@ -81,6 +81,7 @@ func resourceHerokuxDataConnector() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Computed: true,
+				Elem:     schema.TypeString,
 			},
 
 			"status": {
@@ -167,7 +168,7 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 
 	dc, _, createErr := client.Postgres.CreateDataConnector(storeID, opts)
 	if createErr != nil {
-		diag.FromErr(createErr)
+		return diag.FromErr(createErr)
 	}
 
 	log.Printf("[DEBUG] Waiting Data Connector %s to be provisioned", dc.GetID())
@@ -261,10 +262,16 @@ func updateSettingsDataConnector(ctx context.Context, d *schema.ResourceData, me
 
 	settings := d.Get("settings").(map[string]interface{})
 
+	log.Printf("[DEBUG] data connector settings %v", settings)
+
+	log.Printf("[DEBUG] Updating settings of Data Connector %s", d.Id())
+
 	_, _, settingsErr := client.Postgres.UpdateDataConnectorSettings(d.Id(), &postgres.DataConnectSettings{Settings: settings})
 	if settingsErr != nil {
 		return diag.FromErr(settingsErr)
 	}
+
+	log.Printf("[DEBUG] Updated settings of Data Connector %s", d.Id())
 
 	return nil
 }
@@ -281,6 +288,8 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	var pendingState, targetState string
+
+	log.Printf("[DEBUG] Modifying status of Data Connector %s", d.Id())
 
 	switch action {
 	case postgres.DataConnectorStatuses.PAUSED.ToString():
@@ -322,6 +331,8 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for data connector %s to %s: %s", d.Id(), action, err.Error())
 	}
+
+	log.Printf("[DEBUG] Modified status of Data Connector %s", d.Id())
 
 	return nil
 }
