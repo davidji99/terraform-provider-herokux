@@ -87,9 +87,9 @@ type DataConnectSettings struct {
 }
 
 // ListDataConnectors retrieves all data connectors for an app.
-func (p *Postgres) ListDataConnectors(nameOrID string) ([]*DataConnector, *simpleresty.Response, error) {
+func (p *Postgres) ListDataConnectors(appNameOrID string) ([]*DataConnector, *simpleresty.Response, error) {
 	var result []*DataConnector
-	urlStr := p.http.RequestURL("/data/cdc/v0/apps/%s", nameOrID)
+	urlStr := p.http.RequestURL("/data/cdc/v0/apps/%s", appNameOrID)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)

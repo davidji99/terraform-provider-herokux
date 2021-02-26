@@ -93,10 +93,13 @@ The following attributes are exported:
 
 ## Import
 
-An existing data connector can be imported using the data connector UUID.
+An existing data connector can be imported using a composite value of the app name and data connector name
+separated by a colon.
+
+The simplest way to get the data connector name is via the `heroku data:connectors:list --app APP` command.
 
 For example:
 
 ```shell script
-$ terraform import herokux_data_connector.foobar "6f4a392b-914b-4e3e-9362-7c07bbab9cde"
+$ terraform import herokux_data_connector.foobar "APP_NAME:DATA_CONNECTOR_NAME"
 ```

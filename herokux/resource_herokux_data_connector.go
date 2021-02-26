@@ -100,7 +100,33 @@ func resourceHerokuxDataConnector() *schema.Resource {
 }
 
 func resourceHerokuxDataConnectorImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.SetId(d.Id())
+	client := meta.(*Config).API
+
+	result, parseErr := parseCompositeID(d.Id(), 2)
+	if parseErr != nil {
+		return nil, parseErr
+	}
+
+	appName := result[0]
+	dataConnectorName := result[1]
+
+	dataConnectors, _, listErr := client.Postgres.ListDataConnectors(appName)
+	if listErr != nil {
+		return nil, listErr
+	}
+
+	var dataConnectorID string
+	for _, dc := range dataConnectors {
+		if dc.GetName() == dataConnectorName {
+			dataConnectorID = dc.GetID()
+		}
+	}
+
+	if dataConnectorID == "" {
+		return nil, fmt.Errorf("could not find data connector [%s] on app [%s]", dataConnectorName, appName)
+	}
+
+	d.SetId(dataConnectorID)
 
 	readErr := resourceHerokuxDataConnectorRead(ctx, d, meta)
 	if readErr.HasError() {
