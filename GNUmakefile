@@ -15,7 +15,11 @@ build: fmtcheck
 install: fmtcheck
 	make fmt
 	make build
+	mkdir -p ~/.terraform.d/plugins/${OS}_amd64/${FILE_NAME}
 	cp ${GOPATH}/bin/terraform-provider-${PKG_NAME} ~/.terraform.d/plugins/${OS}_amd64/${FILE_NAME}
+	# Support for terraform 0.13+ plugin lookup path
+	mkdir -p ~/.terraform.d/plugins/registry.terraform.io/davidji99/${PKG_NAME}/${VERSION}/${OS}_amd64
+	cp ${GOPATH}/bin/terraform-provider-${PKG_NAME} ~/.terraform.d/plugins/registry.terraform.io/davidji99/${PKG_NAME}/${VERSION}/${OS}_amd64/${FILE_NAME}
 
 release: fmtcheck
 	scripts/build-release
