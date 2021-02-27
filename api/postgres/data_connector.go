@@ -178,7 +178,8 @@ func (p *Postgres) ResumeDataConnector(id string) (*simpleresty.Response, error)
 //
 // This endpoint does not provide any status of the update request. Users will need to poll and check
 // to confirm the desired settings are actually applied remotely. Subsequent updates will return a 422
-// if a prior update has not been fully applied to the data connector.
+// if a prior update has not been fully applied to the data connector. Additionally, it is not possible to null out
+// an existing settings value.
 //
 // Reference: https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration
 func (p *Postgres) UpdateDataConnectorSettings(id string, opts *DataConnectSettings) (*DataConnector, *simpleresty.Response, error) {

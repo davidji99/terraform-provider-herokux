@@ -83,7 +83,10 @@ By default, the data connector is `available` on initial creation. Please also n
 * `excluded_columns` - `<list(string)>` List of columns to exclude.
 
 * `settings` - `<map>` Properties of the connector. Please visit [this article](https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration)
-for a list of valid properties that can be set for this attribute.
+for a list of valid properties that can be set for this attribute. Please also note the following:
+
+    * Due to API limitations, settings that are removed do not get unset remotely. Therefore, if you wish to remove a settings,
+      please set its value to the default value as mentioned in the article above and keep the setting in your configuration.
 
 -> **IMPORTANT!**
 The only updatable attributes are `settings` and `state`. All other attribute modifications will result
@@ -94,6 +97,8 @@ in destruction and recreation.
 The following attributes are exported:
 
 * `status` - The status of data connector.
+
+* `lag` - The lag of the data connector.
 
 ## Import
 

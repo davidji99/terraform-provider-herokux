@@ -49,6 +49,8 @@ func TestAccHerokuxDataConnector_Basic(t *testing.T) {
 						"herokux_data_connector.foobar", "settings.%", "0"),
 					resource.TestCheckResourceAttr(
 						"herokux_data_connector.foobar", "status", "available"),
+					resource.TestCheckResourceAttr(
+						"herokux_data_connector.foobar", "state", "available"),
 				),
 			},
 		},
@@ -81,6 +83,9 @@ func TestAccHerokuxDataConnector_Paused(t *testing.T) {
 						"herokux_data_connector.foobar", "settings.%", "0"),
 					resource.TestCheckResourceAttr(
 						"herokux_data_connector.foobar", "status", "available"),
+					resource.TestCheckResourceAttr(
+						"herokux_data_connector.foobar", "state", "available"),
+					resource.TestCheckResourceAttrSet("herokux_data_connector.foobar", "lag"),
 				),
 			},
 			{
@@ -122,6 +127,7 @@ func TestAccHerokuxDataConnector_WithSettings(t *testing.T) {
 						"herokux_data_connector.foobar", "settings.%", "0"),
 					resource.TestCheckResourceAttr(
 						"herokux_data_connector.foobar", "status", "available"),
+					resource.TestCheckResourceAttrSet("herokux_data_connector.foobar", "lag"),
 				),
 			},
 		},

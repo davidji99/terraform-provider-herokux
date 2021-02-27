@@ -64,6 +64,7 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			"state": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					postgres.DataConnectorStatuses.AVAILABLE.ToString(), postgres.DataConnectorStatuses.PAUSED.ToString()}, false),
 			},
@@ -85,6 +86,11 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			},
 
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"lag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -250,6 +256,10 @@ func resourceHerokuxDataConnectorRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("name", dc.GetName())
 	d.Set("tables", dc.Tables)
 	d.Set("status", dc.Status.ToString())
+	d.Set("lag", dc.GetLag())
+
+	// Set the state attribute to be the same as status.
+	d.Set("state", dc.Status.ToString())
 
 	excludedColumns := make([]string, 0)
 	excludedColumns = append(excludedColumns, dc.ExcludedColumns...)
@@ -325,10 +335,10 @@ func DataConnectorSettingsUpdateRefreshFunc(client *api.Client, connectorID stri
 
 		// The API endpoint does not provide any information that the settings are still being updated. One could
 		// try to make the same update request again and if the response code is 422, then the data connector settings
-		// are still being updated. This is not ideal. Instead, the resource check if the values from the
+		// are still being updated. This is not ideal. Instead, this resource checks if the values from the
 		//`settings` attribute and the remote `settings` are the same.
 		//
-		// The one flaw of this approach is that if certain settings are removed from the terraform configuration,
+		// The one flaw to this approach is that if certain settings are removed from the terraform configuration,
 		// check for equivalence may never become true as removed settings cannot be removed via the API. Those settings
 		// can only be manually changed to be their default value.
 		isUpdated := reflect.DeepEqual(settings, dc.Settings)
