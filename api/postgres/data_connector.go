@@ -87,9 +87,11 @@ type DataConnectSettings struct {
 }
 
 // ListDataConnectors retrieves all data connectors for an app.
-func (p *Postgres) ListDataConnectors(appNameOrID string) ([]*DataConnector, *simpleresty.Response, error) {
+//
+// Note: Only the Heroku app name is acceptable here, not its UUID.
+func (p *Postgres) ListDataConnectors(appName string) ([]*DataConnector, *simpleresty.Response, error) {
 	var result []*DataConnector
-	urlStr := p.http.RequestURL("/data/cdc/v0/apps/%s", appNameOrID)
+	urlStr := p.http.RequestURL("/data/cdc/v0/apps/%s", appName)
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
@@ -173,6 +175,10 @@ func (p *Postgres) ResumeDataConnector(id string) (*simpleresty.Response, error)
 }
 
 // UpdateDataConnectorSettings updates the settings for a Data Connector.
+//
+// This endpoint does not provide any status of the update request. Users will need to poll and check
+// to confirm the desired settings are actually applied remotely. Subsequent updates will return a 422
+// if a prior update has not been fully applied to the data connector.
 //
 // Reference: https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration
 func (p *Postgres) UpdateDataConnectorSettings(id string, opts *DataConnectSettings) (*DataConnector, *simpleresty.Response, error) {

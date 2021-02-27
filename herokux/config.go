@@ -31,8 +31,9 @@ const (
 	DefaultPrivatelinkAllowedAccountsAddTimeout    = int64(10)
 	DefaultPrivatelinkAllowedAccountsRemoveTimeout = int64(10)
 	DefaultDataConnectorCreateTimeout              = int64(10)
+	DefaultDataConnectorSettingsUpdateTimeout      = int64(10)
 	DefaultDataConnectorDeleteTimeout              = int64(10)
-	DefaultDataConnectorUpdateTimeout              = int64(10)
+	DefaultDataConnectorStatusUpdateTimeout        = int64(10)
 	DefaultPostgresCredentialCreateTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteTimeout         = int64(10)
 	DefaultPrivateSpaceCreateTimeout               = int64(20)
@@ -75,8 +76,9 @@ type Config struct {
 	PrivatelinkAllowedAccountsAddTimeout    int64
 	PrivatelinkAllowedAccountsRemoveTimeout int64
 	DataConnectorCreateTimeout              int64
+	DataConnectorSettingsUpdateTimeout      int64
 	DataConnectorDeleteTimeout              int64
-	DataConnectorUpdateTimeout              int64
+	DataConnectorStatusUpdateTimeout        int64
 	PostgresCredentialCreateTimeout         int64
 	PostgresCredentialDeleteTimeout         int64
 	PrivateSpaceCreateTimeout               int64
@@ -102,8 +104,9 @@ func NewConfig() *Config {
 		PrivatelinkAllowedAccountsAddTimeout:    DefaultPrivatelinkAllowedAccountsAddTimeout,
 		PrivatelinkAllowedAccountsRemoveTimeout: DefaultPrivatelinkAllowedAccountsRemoveTimeout,
 		DataConnectorCreateTimeout:              DefaultDataConnectorCreateTimeout,
+		DataConnectorSettingsUpdateTimeout:      DefaultDataConnectorSettingsUpdateTimeout,
 		DataConnectorDeleteTimeout:              DefaultDataConnectorDeleteTimeout,
-		DataConnectorUpdateTimeout:              DefaultDataConnectorUpdateTimeout,
+		DataConnectorStatusUpdateTimeout:        DefaultDataConnectorStatusUpdateTimeout,
 		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
 		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
 		PrivateSpaceCreateTimeout:               DefaultPrivateSpaceCreateTimeout,
@@ -273,12 +276,16 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 				c.DataConnectorCreateTimeout = int64(v)
 			}
 
+			if v, ok := timeoutsConfig["data_connector_settings_update_timeout"].(int); ok {
+				c.DataConnectorSettingsUpdateTimeout = int64(v)
+			}
+
 			if v, ok := timeoutsConfig["data_connector_delete_timeout"].(int); ok {
 				c.DataConnectorDeleteTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["data_connector_update_timeout"].(int); ok {
-				c.DataConnectorUpdateTimeout = int64(v)
+			if v, ok := timeoutsConfig["data_connector_status_update_timeout"].(int); ok {
+				c.DataConnectorStatusUpdateTimeout = int64(v)
 			}
 
 			if v, ok := timeoutsConfig["postgres_credential_create_timeout"].(int); ok {
