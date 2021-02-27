@@ -133,11 +133,35 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 }
 
 func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
 	// Get app id and formation name
 	appID := getAppID(d)
 	processType := getProcessType(d)
+
+	// Check first if autoscaling already exists on the app/dyno.
+	// If so, error out and tell user to import first.
+	monitors, _, listErr := client.Metrics.ListMonitors(appID, processType)
+	if listErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "Unable to fetch autoscaling in order to check if one already exists prior to initial creation",
+			Detail:   listErr.Error(),
+		})
+		return diags
+	}
+
+	for _, m := range monitors {
+		if *m.ActionType == metrics.FormationMonitorActionTypes.Scale {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("Cannot create autoscaling for app [%s] process type [%s]", appID, processType),
+				Detail:   "An existing autoscaling formation already exists. Please import first.",
+			})
+			return diags
+		}
+	}
 
 	opts := constructAutoscalingOpts(d)
 
@@ -158,7 +182,12 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	fm, _, createErr := client.Metrics.CreateAutoscaling(appID, processType, opts)
 	if createErr != nil {
-		return diag.FromErr(createErr)
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to setup autoscaling for app [%s] process type [%s]", appID, processType),
+			Detail:   createErr.Error(),
+		})
+		return diags
 	}
 
 	log.Printf("[DEBUG] Created formation autoscaling for app %s", appID)
