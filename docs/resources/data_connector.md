@@ -28,9 +28,13 @@ or philosophical beliefs, trade-union membership, information concerning health 
 physical or mental health; and information related to the provision or payment of health care.
 
 ### Resource Timeouts
-During creation, modification and deletion, this resource checks the status of the data connector.
-All the aforementioned timeouts can be customized via the `timeouts.data_connector_create_timeout`, `timeouts.data_connector_delete_timeout`
-and `timeouts.data_connector_update_timeout` attributes in your `provider` block.
+During creation, modification and deletion, this resource checks the progress of the action you took for the `apply`.
+All the aforementioned timeouts can be customized via the following attributes in your `provider` block:
+
+* `tdata_connector_create_timeout`
+* `tdata_connector_delete_timeout`
+* `tdata_connector_status_update_timeout`
+* `tdata_connector_settings_update_timeout`
 
 For example:
 
@@ -39,7 +43,7 @@ provider "herokux" {
   timeouts {
     data_connector_create_timeout = 20
     data_connector_delete_timeout = 20
-    data_connector_update_timeout = 20
+    data_connector_status_update_timeout = 20
   }
 }
 ```
@@ -78,8 +82,11 @@ By default, the data connector is `available` on initial creation. Please also n
 
 * `excluded_columns` - `<list(string)>` List of columns to exclude.
 
-* `settings` - `<map>` Properties of the connector. Please [visit](https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration)
-this article for more information.
+* `settings` - `<map>` Properties of the connector. Please visit [this article](https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration)
+for a list of valid properties that can be set for this attribute. Please also note the following:
+
+    * Due to API limitations, settings that are removed do not get unset remotely. Therefore, if you wish to remove a settings,
+      please set its value to the default value as mentioned in the article above and keep the setting in your configuration.
 
 -> **IMPORTANT!**
 The only updatable attributes are `settings` and `state`. All other attribute modifications will result
@@ -91,12 +98,21 @@ The following attributes are exported:
 
 * `status` - The status of data connector.
 
+* `lag` - The lag of the data connector.
+
+* `source_app_name` - The source's app name.
+
+* `store_app_name` - The store's app name.
+
 ## Import
 
-An existing data connector can be imported using the data connector UUID.
+An existing data connector can be imported using a composite value of the source app name and data connector name
+separated by a colon.
+
+The simplest way to get the data connector name is via the `heroku data:connectors:list --app APP` command.
 
 For example:
 
 ```shell script
-$ terraform import herokux_data_connector.foobar "6f4a392b-914b-4e3e-9362-7c07bbab9cde"
+$ terraform import herokux_data_connector.foobar "SOURCE_APP_NAME:DATA_CONNECTOR_NAME"
 ```

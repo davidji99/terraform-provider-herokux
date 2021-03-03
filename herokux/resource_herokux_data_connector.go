@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -63,6 +64,7 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			"state": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					postgres.DataConnectorStatuses.AVAILABLE.ToString(), postgres.DataConnectorStatuses.PAUSED.ToString()}, false),
 			},
@@ -80,10 +82,25 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			"settings": {
 				Type:     schema.TypeMap,
 				Optional: true,
-				Computed: true,
+				Elem:     schema.TypeString,
 			},
 
 			"status": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"lag": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"source_app_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"store_app_name": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -99,7 +116,33 @@ func resourceHerokuxDataConnector() *schema.Resource {
 }
 
 func resourceHerokuxDataConnectorImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.SetId(d.Id())
+	client := meta.(*Config).API
+
+	result, parseErr := parseCompositeID(d.Id(), 2)
+	if parseErr != nil {
+		return nil, parseErr
+	}
+
+	appName := result[0]
+	dataConnectorName := result[1]
+
+	dataConnectors, _, listErr := client.Postgres.ListDataConnectors(appName)
+	if listErr != nil {
+		return nil, listErr
+	}
+
+	var dataConnectorID string
+	for _, dc := range dataConnectors {
+		if dc.GetName() == dataConnectorName {
+			dataConnectorID = dc.GetID()
+		}
+	}
+
+	if dataConnectorID == "" {
+		return nil, fmt.Errorf("could not find data connector [%s] on app [%s]", dataConnectorName, appName)
+	}
+
+	d.SetId(dataConnectorID)
 
 	readErr := resourceHerokuxDataConnectorRead(ctx, d, meta)
 	if readErr.HasError() {
@@ -167,7 +210,7 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 
 	dc, _, createErr := client.Postgres.CreateDataConnector(storeID, opts)
 	if createErr != nil {
-		diag.FromErr(createErr)
+		return diag.FromErr(createErr)
 	}
 
 	log.Printf("[DEBUG] Waiting Data Connector %s to be provisioned", dc.GetID())
@@ -223,6 +266,12 @@ func resourceHerokuxDataConnectorRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("name", dc.GetName())
 	d.Set("tables", dc.Tables)
 	d.Set("status", dc.Status.ToString())
+	d.Set("lag", dc.GetLag())
+	d.Set("source_app_name", dc.GetPostgresApp().GetName())
+	d.Set("store_app_name", dc.GetKafkaApp().GetName())
+
+	// Set the state attribute to be the same as status.
+	d.Set("state", dc.Status.ToString())
 
 	excludedColumns := make([]string, 0)
 	excludedColumns = append(excludedColumns, dc.ExcludedColumns...)
@@ -261,12 +310,58 @@ func updateSettingsDataConnector(ctx context.Context, d *schema.ResourceData, me
 
 	settings := d.Get("settings").(map[string]interface{})
 
+	log.Printf("[DEBUG] Data Connector settings %v", settings)
+
+	log.Printf("[DEBUG] Updating Data Connector settings %s", d.Id())
+
 	_, _, settingsErr := client.Postgres.UpdateDataConnectorSettings(d.Id(), &postgres.DataConnectSettings{Settings: settings})
 	if settingsErr != nil {
 		return diag.FromErr(settingsErr)
 	}
 
+	log.Printf("[DEBUG] Checking if Data Connector settings were updated")
+
+	stateConf := &resource.StateChangeConf{
+		Pending:      []string{"updating"},
+		Target:       []string{"updated"},
+		Refresh:      DataConnectorSettingsUpdateRefreshFunc(client, d.Id(), settings),
+		Timeout:      time.Duration(config.DataConnectorSettingsUpdateTimeout) * time.Minute,
+		PollInterval: StateRefreshPollInterval,
+	}
+
+	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+		return diag.Errorf("error waiting for Data Connector settings to be updated %s: %s", d.Id(), err.Error())
+	}
+
+	log.Printf("[DEBUG] Data Connector settings %s", d.Id())
+
 	return nil
+}
+
+func DataConnectorSettingsUpdateRefreshFunc(client *api.Client, connectorID string, settings map[string]interface{}) resource.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		dc, _, getErr := client.Postgres.GetDataConnector(connectorID)
+		if getErr != nil {
+			return nil, "", getErr
+		}
+
+		// The API endpoint does not provide any information that the settings are still being updated. One could
+		// try to make the same update request again and if the response code is 422, then the data connector settings
+		// are still being updated. This is not ideal. Instead, this resource checks if the values from the
+		//`settings` attribute and the remote `settings` are the same.
+		//
+		// The one flaw to this approach is that if certain settings are removed from the terraform configuration,
+		// check for equivalence may never become true as removed settings cannot be removed via the API. Those settings
+		// can only be manually changed to be their default value.
+		isUpdated := reflect.DeepEqual(settings, dc.Settings)
+
+		if isUpdated {
+			log.Printf("[DEBUG] Still waiting for data connector settings to be updated")
+			return dc, "updated", nil
+		}
+
+		return dc, "updating", nil
+	}
 }
 
 func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -281,6 +376,8 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 	}
 
 	var pendingState, targetState string
+
+	log.Printf("[DEBUG] Modifying status of Data Connector %s", d.Id())
 
 	switch action {
 	case postgres.DataConnectorStatuses.PAUSED.ToString():
@@ -314,14 +411,16 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{pendingState},
 		Target:       []string{targetState},
-		Refresh:      DataConnectorStateRefreshFunc(client, d.Id(), pendingState, targetState),
-		Timeout:      time.Duration(config.DataConnectorUpdateTimeout) * time.Minute,
+		Refresh:      DataConnectorStatusRefreshFunc(client, d.Id(), pendingState, targetState),
+		Timeout:      time.Duration(config.DataConnectorStatusUpdateTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for data connector %s to %s: %s", d.Id(), action, err.Error())
 	}
+
+	log.Printf("[DEBUG] Modified status of Data Connector %s", d.Id())
 
 	return nil
 }
@@ -398,7 +497,7 @@ func DataConnectorCreateStateRefreshFunc(client *api.Client, dcID string) resour
 	}
 }
 
-func DataConnectorStateRefreshFunc(client *api.Client, dcID string, pendingState, targetState string) resource.StateRefreshFunc {
+func DataConnectorStatusRefreshFunc(client *api.Client, dcID string, pendingState, targetState string) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		// Check the status of the data connector.
 		dc, _, getErr := client.Postgres.GetDataConnector(dcID)

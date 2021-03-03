@@ -184,6 +184,13 @@ func New() *schema.Provider {
 							ValidateFunc: validation.IntAtLeast(10),
 						},
 
+						"data_connector_settings_update_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      20,
+							ValidateFunc: validation.IntAtLeast(10),
+						},
+
 						"data_connector_delete_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
@@ -191,7 +198,7 @@ func New() *schema.Provider {
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 
-						"data_connector_update_timeout": {
+						"data_connector_status_update_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      10,
