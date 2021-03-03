@@ -100,9 +100,13 @@ The following attributes are exported:
 
 * `lag` - The lag of the data connector.
 
+* `source_app_name` - The source's app name.
+
+* `store_app_name` - The store's app name.
+
 ## Import
 
-An existing data connector can be imported using a composite value of the app name and data connector name
+An existing data connector can be imported using a composite value of the source app name and data connector name
 separated by a colon.
 
 The simplest way to get the data connector name is via the `heroku data:connectors:list --app APP` command.
@@ -110,5 +114,5 @@ The simplest way to get the data connector name is via the `heroku data:connecto
 For example:
 
 ```shell script
-$ terraform import herokux_data_connector.foobar "APP_NAME:DATA_CONNECTOR_NAME"
+$ terraform import herokux_data_connector.foobar "SOURCE_APP_NAME:DATA_CONNECTOR_NAME"
 ```

@@ -95,6 +95,16 @@ func resourceHerokuxDataConnector() *schema.Resource {
 				Computed: true,
 			},
 
+			"source_app_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
+			"store_app_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			//"platform_version": {
 			//	Type:     schema.TypeString,
 			//	Optional: true,
@@ -257,6 +267,8 @@ func resourceHerokuxDataConnectorRead(ctx context.Context, d *schema.ResourceDat
 	d.Set("tables", dc.Tables)
 	d.Set("status", dc.Status.ToString())
 	d.Set("lag", dc.GetLag())
+	d.Set("source_app_name", dc.GetPostgresApp().GetName())
+	d.Set("store_app_name", dc.GetKafkaApp().GetName())
 
 	// Set the state attribute to be the same as status.
 	d.Set("state", dc.Status.ToString())

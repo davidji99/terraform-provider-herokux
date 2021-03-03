@@ -30,7 +30,7 @@ const (
 	DefaultPrivatelinkDeleteTimeout                = int64(15)
 	DefaultPrivatelinkAllowedAccountsAddTimeout    = int64(10)
 	DefaultPrivatelinkAllowedAccountsRemoveTimeout = int64(10)
-	DefaultDataConnectorCreateTimeout              = int64(10)
+	DefaultDataConnectorCreateTimeout              = int64(20)
 	DefaultDataConnectorSettingsUpdateTimeout      = int64(10)
 	DefaultDataConnectorDeleteTimeout              = int64(10)
 	DefaultDataConnectorStatusUpdateTimeout        = int64(10)
