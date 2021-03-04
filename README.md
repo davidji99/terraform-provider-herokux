@@ -1,5 +1,4 @@
-<a class="repo-badge" href="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"><img src="https://github.com/davidji99/terraform-provider-herokux/workflows/tests/badge.svg"></a>
-<a href="https://goreportcard.com/report/github.com/davidji99/terraform-provider-herokux"><img class="badge" tag="github.com/davidji99/terraform-provider-herokux" src="https://goreportcard.com/badge/github.com/davidji99/terraform-provider-herokux"></a>
+[![tests](https://github.com/davidji99/terraform-provider-herokux/actions/workflows/tests.yml/badge.svg)](https://github.com/davidji99/terraform-provider-herokux/actions/workflows/tests.yml)
 
 # Terraform Provider HerokuX
 
