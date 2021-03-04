@@ -50,7 +50,7 @@ on an unsupported dyno type. Autoscaling is currently available only for Perform
       exists in the API. Therefore, the resource must be imported first and then modified afterwards.
 
 1. In the event you fail to adhere with the aforementioned guidances, the only solution is to delete the app and start over.
- 
+
 ## Example Usage
 
 ```hcl-terraform
