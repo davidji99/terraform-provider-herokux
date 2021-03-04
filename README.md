@@ -1,4 +1,5 @@
 [![tests](https://github.com/davidji99/terraform-provider-herokux/actions/workflows/tests.yml/badge.svg)](https://github.com/davidji99/terraform-provider-herokux/actions/workflows/tests.yml)
+<a href="https://goreportcard.com/report/github.com/davidji99/terraform-provider-herokux"><img class="badge" tag="github.com/davidji99/terraform-provider-herokux" src="https://goreportcard.com/badge/github.com/davidji99/terraform-provider-herokux"></a>
 
 # Terraform Provider HerokuX
 
