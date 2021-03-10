@@ -44,10 +44,12 @@ on an unsupported dyno type. Autoscaling is currently available only for Perform
    This is due to two reasons:
 
     * The resource does not delete the formation autoscaling during resource destruction as it'll render any subsequent
-      autoscaling operations an impossibility for the same dyno.
+      autoscaling operations an impossibility for the same app/dyno process type.
 
-    * Due to the first reason, the underlying API does not allow for a `POST` request when an existing formation autoscaling
-      exists in the API. Therefore, the resource must be imported first and then modified afterwards.
+    * Due to the above reason, the underlying API does not allow for a `POST` request when an existing formation autoscaling
+      exists in the API. Therefore, the resource must be imported first and then modified afterwards. If you do not first `import`
+      the resource and are using a version of the provider less than `v0.20.3`, the provider will surface a `409 Conflict` error
+      on resource creation.
 
 1. In the event you fail to adhere with the aforementioned guidances, the only solution is to delete the app and start over.
 
