@@ -92,7 +92,7 @@ resource "heroku_formation" "foobar" {
   size = var.dyno_size
 
   # Tells Terraform that this formation must be created/updated only after the app release has been created
-  depends_on = ["heroku_app_release.foobar-release"]
+  depends_on = [heroku_app_release.foobar-release]
 }
 
 resource "herokux_formation_autoscaling" "foobar" {
@@ -103,11 +103,11 @@ resource "herokux_formation_autoscaling" "foobar" {
   max_quantity = 9
   desired_p95_response_time = 1001
   dyno_size = var.dyno_size
-  set_notification_channels = ["app"]
+  notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
   # only after the app release and formation has been successfully.
-  depends_on = ["heroku_app_release.foobar"]
+  depends_on = [heroku_app_release.foobar]
 }
 ```
 
