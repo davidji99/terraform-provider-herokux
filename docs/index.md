@@ -48,9 +48,9 @@ resource "herokux_kafka_topic" "topic_foobar" {
 The HerokuX provider offers a flexible means of providing credentials for authentication.
 The following methods are supported, listed in order of precedence, and explained below:
 
-- Static credentials
-- Environment variables
-- Netrc
+* Static credentials
+* Environment variables
+* Netrc
 
 ### Static credentials
 
@@ -61,6 +61,10 @@ provider "herokux" {
   api_key = var.heroku_api_key
 }
 ```
+
+Please note that if you go with the static credentials route, the `api_key` must be defined
+or passed in as an input variable even if you did the same for the `heroku` provider.
+The two providers do not implicitly share authentication when using static credentials.
 
 ### Environment variables
 
