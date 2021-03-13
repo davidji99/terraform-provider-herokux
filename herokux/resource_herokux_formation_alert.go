@@ -118,8 +118,8 @@ func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.Resou
 	return []*schema.ResourceData{d}, nil
 }
 
-func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.AppAlertRequest {
-	opts := &metrics.AppAlertRequest{}
+func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.FormationAlertRequest {
+	opts := &metrics.FormationAlertRequest{}
 
 	opts.ActionType = metrics.FormationMonitorActionTypes.Alert
 	opts.Name = metrics.FormationMonitorName(alertName)
@@ -177,7 +177,7 @@ func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Creating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	alert, _, createErr := client.Metrics.CreateMonitorAlert(appID, processType, opts)
+	alert, _, createErr := client.Metrics.CreateFormationAlert(appID, processType, opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -257,7 +257,7 @@ func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.Resou
 	opts := constructAppAlertOpts(d, d.Get("name").(string))
 
 	log.Printf("[DEBUG] Updating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
-	isUpdated, resp, setErr := client.Metrics.UpdateMonitorAlert(appID, processType, alertID, opts)
+	isUpdated, resp, setErr := client.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -300,7 +300,7 @@ func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.Resou
 	// In order to disable the monitor (alert or autoscale), we'll need to first retrieve the current details of the monitor.
 	// Then, we create a new request to update the monitor with the current information but is_active set to `false`.
 	// This is the only way to safely, programmatically disable the monitor like how the UI does it.
-	opts := &metrics.AppAlertRequest{
+	opts := &metrics.FormationAlertRequest{
 		IsActive:             false,
 		NotificationChannels: monitor.NotificationChannels,
 		ReminderFrequency:    monitor.GetNotificationPeriod(),
@@ -313,7 +313,7 @@ func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Disabling alert for app %s, process_type %s, monitor %s", appID, processType, alertID)
 
-	isSet, resp, setErr := metricsAPI.Metrics.UpdateMonitorAlert(appID, processType, alertID, opts)
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}

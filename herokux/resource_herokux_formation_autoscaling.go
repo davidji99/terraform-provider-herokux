@@ -157,7 +157,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Creating formation autoscaling for app %s", appID)
 
-	fm, _, createErr := client.Metrics.CreateMonitorAutoscaling(appID, processType, opts)
+	fm, _, createErr := client.Metrics.CreateFormationAutoscaling(appID, processType, opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -260,7 +260,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := client.Metrics.UpdateMonitorAutoscaling(appID, processType, monitorID, opts)
+	isSet, resp, setErr := client.Metrics.UpdateFormationAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -321,7 +321,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	// This is the only way to safely, programmatically disable autoscaling like how the UI does it.
 	p95Raw, _ := monitor.GetValue().Int64()
 
-	opts := &metrics.AutoscalingRequest{
+	opts := &metrics.FormationAutoscalingRequest{
 		DynoSize:             formation.Size,
 		IsActive:             false,
 		MaxQuantity:          monitor.GetMaxQuantity(),
@@ -337,7 +337,7 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 
 	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, process_type %s, monitor %s", appID, processType, monitorID)
 
-	isSet, resp, setErr := metricsAPI.Metrics.UpdateMonitorAutoscaling(appID, processType, monitorID, opts)
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateFormationAutoscaling(appID, processType, monitorID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -353,8 +353,8 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 	return nil
 }
 
-func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingRequest {
-	opts := &metrics.AutoscalingRequest{}
+func constructAutoscalingOpts(d *schema.ResourceData) *metrics.FormationAutoscalingRequest {
+	opts := &metrics.FormationAutoscalingRequest{}
 
 	// Period is mainly used for app alerts so setting the value to be the default of 1.
 	opts.Period = 1
@@ -395,7 +395,7 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 		opts.NotificationPeriod = vs
 	}
 
-	// Define default values for certain AutoscalingRequest fields based on the fact that these request fields
+	// Define default values for certain FormationAutoscalingRequest fields based on the fact that these request fields
 	// only have a single value.
 	opts.ActionType = metrics.FormationMonitorActionTypes.Scale
 	opts.Quantity = 1

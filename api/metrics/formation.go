@@ -82,8 +82,8 @@ type FormationMonitor struct {
 	Value *json.Number `json:"value,omitempty"`
 }
 
-// AutoscalingRequest represents a request to autoscale an app dyno's formation.
-type AutoscalingRequest struct {
+// FormationAutoscalingRequest represents a request to modify autoscaling for an app formation.
+type FormationAutoscalingRequest struct {
 	IsActive             bool                       `json:"is_active"`
 	Quantity             int                        `json:"quantity"`
 	MaxQuantity          int                        `json:"max_quantity,omitempty"`
@@ -98,8 +98,8 @@ type AutoscalingRequest struct {
 	NotificationChannels []string                   `json:"notification_channels"`
 }
 
-// AppAlertRequest represents a request to modify alert thresholds.
-type AppAlertRequest struct {
+// FormationAlertRequest represents a request to modify an alert for an app formation.
+type FormationAlertRequest struct {
 	IsActive             bool                       `json:"is_active"`
 	ReminderFrequency    int                        `json:"notification_period"`
 	Sensitivity          int                        `json:"period,omitempty"`
@@ -177,10 +177,10 @@ func (m *Metrics) FindMonitorByName(appID, formationName string, name FormationM
 		name.ToString(), appID, formationName)
 }
 
-// CreateMonitorAutoscaling sets up the monitor autoscaling for an app dyno formation.
+// CreateFormationAutoscaling sets up autoscaling for an app formation.
 //
-// API response only returns the formation monitor UUID.
-func (m *Metrics) CreateMonitorAutoscaling(appID, formationName string, opts *AutoscalingRequest) (*FormationMonitor, *simpleresty.Response, error) {
+// The API response body only has the formation autoscaling UUID.
+func (m *Metrics) CreateFormationAutoscaling(appID, formationName string, opts *FormationAutoscalingRequest) (*FormationMonitor, *simpleresty.Response, error) {
 	var result *FormationMonitor
 
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
@@ -191,10 +191,10 @@ func (m *Metrics) CreateMonitorAutoscaling(appID, formationName string, opts *Au
 	return result, response, createErr
 }
 
-// UpdateMonitorAutoscaling modifies the autoscaling properties for an app dyno formation.
+// UpdateFormationAutoscaling modifies autoscaling for an app formation.
 //
 // The endpoint does not return any response. Instead, the method returns true if request is successful; false otherwise,
-func (m *Metrics) UpdateMonitorAutoscaling(appID, formationName, monitorID string, opts *AutoscalingRequest) (bool, *simpleresty.Response, error) {
+func (m *Metrics) UpdateFormationAutoscaling(appID, formationName, monitorID string, opts *FormationAutoscalingRequest) (bool, *simpleresty.Response, error) {
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, monitorID)
 
 	// Execute the request
@@ -210,8 +210,10 @@ func (m *Metrics) UpdateMonitorAutoscaling(appID, formationName, monitorID strin
 	return false, response, fmt.Errorf("did not properly update %s's %s formation autoscaling", appID, formationName)
 }
 
-// CreateMonitorAlert creates an monitor alert for an app formation.
-func (m *Metrics) CreateMonitorAlert(appID, formationName string, opts *AppAlertRequest) (*FormationMonitor, *simpleresty.Response, error) {
+// CreateFormationAlert creates an alert for an app formation.
+//
+// The API response body only has the formation alert UUID.
+func (m *Metrics) CreateFormationAlert(appID, formationName string, opts *FormationAlertRequest) (*FormationMonitor, *simpleresty.Response, error) {
 	var result *FormationMonitor
 
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors", appID, formationName)
@@ -222,8 +224,8 @@ func (m *Metrics) CreateMonitorAlert(appID, formationName string, opts *AppAlert
 	return result, response, createErr
 }
 
-// UpdateMonitorAlert updates an app alert for an app formation.
-func (m *Metrics) UpdateMonitorAlert(appID, formationName, alertID string, opts *AppAlertRequest) (bool, *simpleresty.Response, error) {
+// UpdateFormationAlert updates an existing alert for an app formation.
+func (m *Metrics) UpdateFormationAlert(appID, formationName, alertID string, opts *FormationAlertRequest) (bool, *simpleresty.Response, error) {
 	var result *FormationMonitor
 
 	urlStr := m.http.RequestURL("/apps/%s/formation/%s/monitors/%s", appID, formationName, alertID)
