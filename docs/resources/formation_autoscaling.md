@@ -41,7 +41,7 @@ on an unsupported dyno type. Autoscaling is currently available only for Perform
 1. In the event you remove an existing `herokux_formation_autoscaling.foobar` resource after it's been successfully applied to an app,
    you **MUST** `import` the resource first if the new `herokux_formation_autoscaling.foobar` resource is targeting
    the same app prior to its removal. Otherwise, the resource will error with a message indicating a resource `import` prerequisite.
-   This is due to two reasons:
+   This is due to following reasons:
 
     * The resource does not delete the formation autoscaling during resource destruction as it'll render any subsequent
       autoscaling management impossible for the same app/dyno process type.
@@ -108,7 +108,7 @@ resource "herokux_formation_autoscaling" "foobar" {
   notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
-  # only after the app release & formation has been successfully.
+  # only after the app release & formation has been successfully applied.
   depends_on = [heroku_app_release.foobar, heroku_formation.foobar]
 }
 ```
