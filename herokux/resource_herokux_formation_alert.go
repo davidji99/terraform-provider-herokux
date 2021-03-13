@@ -14,13 +14,13 @@ import (
 
 func resourceHerokuxFormationAlert() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxAppFormationAlertCreate,
-		ReadContext:   resourceHerokuxAppFormationAlertRead,
-		UpdateContext: resourceHerokuxAppFormationAlertUpdate,
-		DeleteContext: resourceHerokuxAppFormationAlertDelete,
+		CreateContext: resourceHerokuxFormationAlertCreate,
+		ReadContext:   resourceHerokuxFormationAlertRead,
+		UpdateContext: resourceHerokuxFormationAlertUpdate,
+		DeleteContext: resourceHerokuxFormationAlertDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxAppFormationAlertImport,
+			StateContext: resourceHerokuxFormationAlertImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -89,7 +89,7 @@ func resourceHerokuxFormationAlert() *schema.Resource {
 	}
 }
 
-func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
 	// Parse te import ID for the appID, processType, and name.
@@ -110,7 +110,7 @@ func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.Resou
 
 	d.SetId(fmt.Sprintf("%s:%s:%s", alert.GetAppID(), alert.GetProcessType(), alert.GetID()))
 
-	readErr := resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	readErr := resourceHerokuxFormationAlertRead(ctx, d, meta)
 	if readErr.HasError() {
 		return nil, fmt.Errorf(readErr[0].Summary)
 	}
@@ -157,7 +157,7 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Fo
 	return opts
 }
 
-func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
@@ -193,10 +193,10 @@ func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Created %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	return resourceHerokuxFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	metricsAPI := meta.(*Config).API
 
@@ -242,7 +242,7 @@ func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.Resourc
 	return diags
 }
 
-func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
@@ -269,10 +269,10 @@ func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Updated %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	return resourceHerokuxFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
 	if parseErr != nil {
