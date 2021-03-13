@@ -17,7 +17,7 @@ and remove the resource from state.
 
 ~> **WARNING:**
 Please make sure you understand all [common issues](#common-issues) prior to using this resource. Failure to understand
-them will result in potentially bricking your app dynos. This resource is VERY experimental.
+them will result in potentially bricking your app dynos.
 
 ## Regarding `heroku_formation`
 
@@ -40,18 +40,18 @@ on an unsupported dyno type. Autoscaling is currently available only for Perform
 
 1. In the event you remove an existing `herokux_formation_autoscaling.foobar` resource after it's been successfully applied to an app,
    you **MUST** `import` the resource first if the new `herokux_formation_autoscaling.foobar` resource is targeting
-   the same app prior to its removal. Otherwise, the resource will error with a message indicating an resource `import` prerequisite.
+   the same app prior to its removal. Otherwise, the resource will error with a message indicating a resource `import` prerequisite.
    This is due to two reasons:
 
     * The resource does not delete the formation autoscaling during resource destruction as it'll render any subsequent
-      autoscaling operations an impossibility for the same app/dyno process type.
+      autoscaling management impossible for the same app/dyno process type.
 
     * Due to the above reason, the underlying API does not allow for a `POST` request when an existing formation autoscaling
-      exists in the API. Therefore, the resource must be imported first and then modified afterwards. If you do not first `import`
+      exists for the app. Therefore, the resource must be imported first and then modified afterwards. If you do not first `import`
       the resource and are using a version of the provider less than `v0.20.3`, the provider will surface a `409 Conflict` error
       on resource creation.
 
-1. In the event you fail to adhere with the aforementioned guidances, the only solution is to delete the app and start over.
+1. In the event you fail to adhere with the aforementioned guidance, the only solution is to delete the app and start over.
 
 ## Example Usage
 
@@ -108,8 +108,8 @@ resource "herokux_formation_autoscaling" "foobar" {
   notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
-  # only after the app release and formation has been successfully.
-  depends_on = [heroku_app_release.foobar]
+  # only after the app release & formation has been successfully.
+  depends_on = [heroku_app_release.foobar, heroku_formation.foobar]
 }
 ```
 

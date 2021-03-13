@@ -12,15 +12,15 @@ import (
 	"log"
 )
 
-func resourceHerokuxAppAlert() *schema.Resource {
+func resourceHerokuxFormationAlert() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxAppAlertThresholdCreate,
-		ReadContext:   resourceHerokuxAppAlertThresholdRead,
-		UpdateContext: resourceHerokuxAppAlertThresholdUpdate,
-		DeleteContext: resourceHerokuxAppAlertThresholdDelete,
+		CreateContext: resourceHerokuxAppFormationAlertCreate,
+		ReadContext:   resourceHerokuxAppFormationAlertRead,
+		UpdateContext: resourceHerokuxAppFormationAlertUpdate,
+		DeleteContext: resourceHerokuxAppFormationAlertDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxAppAlertThresholdImport,
+			StateContext: resourceHerokuxAppFormationAlertImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -74,7 +74,7 @@ func resourceHerokuxAppAlert() *schema.Resource {
 				RequiredWith: []string{"notification_channels"},
 			},
 
-			"email_reminder_frequency": {
+			"notification_frequency": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      5,
@@ -89,7 +89,7 @@ func resourceHerokuxAppAlert() *schema.Resource {
 	}
 }
 
-func resourceHerokuxAppAlertThresholdImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -113,7 +113,7 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Ap
 		log.Printf("[DEBUG] %s alert sensitivity: %v", alertName, opts.Sensitivity)
 	}
 
-	if v, ok := d.GetOk("email_reminder_frequency"); ok {
+	if v, ok := d.GetOk("notification_frequency"); ok {
 		opts.ReminderFrequency = v.(int)
 		log.Printf("[DEBUG] %s alert email_reminder_frequency: %v", alertName, opts.ReminderFrequency)
 	}
@@ -132,7 +132,7 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Ap
 	return opts
 }
 
-func resourceHerokuxAppAlertThresholdCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
@@ -167,10 +167,10 @@ func resourceHerokuxAppAlertThresholdCreate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Created %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppAlertThresholdRead(ctx, d, meta)
+	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppAlertThresholdRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	metricsAPI := meta.(*Config).API
 
@@ -202,7 +202,7 @@ func resourceHerokuxAppAlertThresholdRead(ctx context.Context, d *schema.Resourc
 	d.Set("process_type", alert.GetProcessType())
 	d.Set("is_active", alert.GetIsActive())
 	d.Set("sensitivity", alert.GetPeriod())
-	d.Set("email_reminder_frequency", alert.GetNotificationPeriod())
+	d.Set("notification_frequency", alert.GetNotificationPeriod())
 	d.Set("state", alert.GetState())
 	d.Set("threshold", alert.GetValue().String())
 
@@ -215,7 +215,7 @@ func resourceHerokuxAppAlertThresholdRead(ctx context.Context, d *schema.Resourc
 	return diags
 }
 
-func resourceHerokuxAppAlertThresholdUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
@@ -242,10 +242,10 @@ func resourceHerokuxAppAlertThresholdUpdate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Updated %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppAlertThresholdRead(ctx, d, meta)
+	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppAlertThresholdDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
 	if parseErr != nil {
