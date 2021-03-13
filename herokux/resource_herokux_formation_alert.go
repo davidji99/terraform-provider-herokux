@@ -14,13 +14,13 @@ import (
 
 func resourceHerokuxFormationAlert() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxAppFormationAlertCreate,
-		ReadContext:   resourceHerokuxAppFormationAlertRead,
-		UpdateContext: resourceHerokuxAppFormationAlertUpdate,
-		DeleteContext: resourceHerokuxAppFormationAlertDelete,
+		CreateContext: resourceHerokuxFormationAlertCreate,
+		ReadContext:   resourceHerokuxFormationAlertRead,
+		UpdateContext: resourceHerokuxFormationAlertUpdate,
+		DeleteContext: resourceHerokuxFormationAlertDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxAppFormationAlertImport,
+			StateContext: resourceHerokuxFormationAlertImport,
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -89,7 +89,7 @@ func resourceHerokuxFormationAlert() *schema.Resource {
 	}
 }
 
-func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+func resourceHerokuxFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
 	// Parse te import ID for the appID, processType, and name.
@@ -110,7 +110,7 @@ func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.Resou
 
 	d.SetId(fmt.Sprintf("%s:%s:%s", alert.GetAppID(), alert.GetProcessType(), alert.GetID()))
 
-	readErr := resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	readErr := resourceHerokuxFormationAlertRead(ctx, d, meta)
 	if readErr.HasError() {
 		return nil, fmt.Errorf(readErr[0].Summary)
 	}
@@ -118,8 +118,8 @@ func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.Resou
 	return []*schema.ResourceData{d}, nil
 }
 
-func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.AppAlertRequest {
-	opts := &metrics.AppAlertRequest{}
+func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.FormationAlertRequest {
+	opts := &metrics.FormationAlertRequest{}
 
 	opts.ActionType = metrics.FormationMonitorActionTypes.Alert
 	opts.Name = metrics.FormationMonitorName(alertName)
@@ -157,7 +157,7 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Ap
 	return opts
 }
 
-func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
@@ -177,7 +177,7 @@ func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Creating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	alert, _, createErr := client.Metrics.CreateMonitorAlert(appID, processType, opts)
+	alert, _, createErr := client.Metrics.CreateFormationAlert(appID, processType, opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -193,10 +193,10 @@ func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Created %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	return resourceHerokuxFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	metricsAPI := meta.(*Config).API
 
@@ -242,7 +242,7 @@ func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.Resourc
 	return diags
 }
 
-func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
@@ -257,7 +257,7 @@ func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.Resou
 	opts := constructAppAlertOpts(d, d.Get("name").(string))
 
 	log.Printf("[DEBUG] Updating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
-	isUpdated, resp, setErr := client.Metrics.UpdateMonitorAlert(appID, processType, alertID, opts)
+	isUpdated, resp, setErr := client.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
@@ -269,10 +269,10 @@ func resourceHerokuxAppFormationAlertUpdate(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Updated %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	return resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	return resourceHerokuxFormationAlertRead(ctx, d, meta)
 }
 
-func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
 	if parseErr != nil {
@@ -300,7 +300,7 @@ func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.Resou
 	// In order to disable the monitor (alert or autoscale), we'll need to first retrieve the current details of the monitor.
 	// Then, we create a new request to update the monitor with the current information but is_active set to `false`.
 	// This is the only way to safely, programmatically disable the monitor like how the UI does it.
-	opts := &metrics.AppAlertRequest{
+	opts := &metrics.FormationAlertRequest{
 		IsActive:             false,
 		NotificationChannels: monitor.NotificationChannels,
 		ReminderFrequency:    monitor.GetNotificationPeriod(),
@@ -313,7 +313,7 @@ func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.Resou
 
 	log.Printf("[DEBUG] Disabling alert for app %s, process_type %s, monitor %s", appID, processType, alertID)
 
-	isSet, resp, setErr := metricsAPI.Metrics.UpdateMonitorAlert(appID, processType, alertID, opts)
+	isSet, resp, setErr := metricsAPI.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}

@@ -9,23 +9,23 @@ import (
 	"encoding/json"
 )
 
-// HasNotificationChannels checks if AppAlertRequest has any NotificationChannels.
-func (a *AppAlertRequest) HasNotificationChannels() bool {
-	if a == nil || a.NotificationChannels == nil {
+// HasNotificationChannels checks if FormationAlertRequest has any NotificationChannels.
+func (f *FormationAlertRequest) HasNotificationChannels() bool {
+	if f == nil || f.NotificationChannels == nil {
 		return false
 	}
-	if len(a.NotificationChannels) == 0 {
+	if len(f.NotificationChannels) == 0 {
 		return false
 	}
 	return true
 }
 
-// HasNotificationChannels checks if AutoscalingRequest has any NotificationChannels.
-func (a *AutoscalingRequest) HasNotificationChannels() bool {
-	if a == nil || a.NotificationChannels == nil {
+// HasNotificationChannels checks if FormationAutoscalingRequest has any NotificationChannels.
+func (f *FormationAutoscalingRequest) HasNotificationChannels() bool {
+	if f == nil || f.NotificationChannels == nil {
 		return false
 	}
-	if len(a.NotificationChannels) == 0 {
+	if len(f.NotificationChannels) == 0 {
 		return false
 	}
 	return true
