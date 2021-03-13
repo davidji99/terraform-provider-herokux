@@ -38,8 +38,6 @@ func TestAccHerokuxFormationAutoscaling_Basic(t *testing.T) {
 						"herokux_formation_autoscaling.foobar", "dyno_size", "Performance-L"),
 					resource.TestCheckResourceAttr(
 						"herokux_formation_autoscaling.foobar", "notification_channels.0", "app"),
-					resource.TestCheckResourceAttr(
-						"herokux_formation_autoscaling.foobar", "period", "1"),
 				),
 			},
 			{
