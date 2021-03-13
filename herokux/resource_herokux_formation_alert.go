@@ -90,6 +90,31 @@ func resourceHerokuxFormationAlert() *schema.Resource {
 }
 
 func resourceHerokuxAppFormationAlertImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+	client := meta.(*Config).API
+
+	// Parse te import ID for the appID, processType, and name.
+	importID, parseErr := parseCompositeID(d.Id(), 3)
+	if parseErr != nil {
+		return nil, parseErr
+	}
+
+	appID := importID[0]
+	processType := importID[1]
+	alertName := importID[2]
+
+	alert, _, findErr := client.Metrics.FindMonitorByName(appID, processType,
+		metrics.FormationMonitorName(alertName))
+	if findErr != nil {
+		return nil, findErr
+	}
+
+	d.SetId(fmt.Sprintf("%s:%s:%s", alert.GetAppID(), alert.GetProcessType(), alert.GetID()))
+
+	readErr := resourceHerokuxAppFormationAlertRead(ctx, d, meta)
+	if readErr.HasError() {
+		return nil, fmt.Errorf(readErr[0].Summary)
+	}
+
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -142,7 +167,8 @@ func resourceHerokuxAppFormationAlertCreate(ctx context.Context, d *schema.Resou
 	alertName := getName(d)
 
 	// Check for existing alert.
-	existingAlertCheckErr := checkForExistingAppAlert(client, appID, processType, alertName)
+	existingAlertCheckErr := checkForExistingMonitor(client, appID, processType,
+		metrics.FormationMonitorActionTypes.Alert.ToString(), alertName)
 	if existingAlertCheckErr != nil {
 		return existingAlertCheckErr
 	}
@@ -178,7 +204,7 @@ func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.Resourc
 	if parseErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to parse resource ID into three parts"),
+			Summary:  "Unable to parse resource ID into three parts",
 			Detail:   parseErr.Error(),
 		})
 		return diags
@@ -192,12 +218,13 @@ func resourceHerokuxAppFormationAlertRead(ctx context.Context, d *schema.Resourc
 	if getErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to refresh state"),
+			Summary:  "Unable to refresh state",
 			Detail:   getErr.Error(),
 		})
 		return diags
 	}
 
+	d.Set("name", alert.GetName().ToString())
 	d.Set("app_id", alert.GetAppID())
 	d.Set("process_type", alert.GetProcessType())
 	d.Set("is_active", alert.GetIsActive())
@@ -302,27 +329,28 @@ func resourceHerokuxAppFormationAlertDelete(ctx context.Context, d *schema.Resou
 	return nil
 }
 
-func checkForExistingAppAlert(client *api.Client, appID, processType, alertName string) diag.Diagnostics {
+func checkForExistingMonitor(client *api.Client, appID, processType, actionType, monitorName string) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	// Check first if threshold alert already exists on the app/dyno.
-	// If so, error out and tell user to import first.
 	monitors, _, listErr := client.Metrics.ListMonitors(appID, processType)
 	if listErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to fetch app alerts in order to check if one already exists prior to initial creation",
-			Detail:   listErr.Error(),
+			Summary: fmt.Sprintf("Unable to fetch formation monitors in order to check if %s %s already exists",
+				actionType, monitorName),
+			Detail: listErr.Error(),
 		})
 		return diags
 	}
 
 	for _, m := range monitors {
-		if m.GetName() == alertName {
+		if m.GetName().ToString() == monitorName {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Cannot create %s alert for app [%s] process type [%s]", alertName, appID, processType),
-				Detail:   fmt.Sprintf("An existing %s alert already exists. Please import it first.", alertName),
+				Summary: fmt.Sprintf("Cannot create %s %s for app [%s] process type [%s]", actionType,
+					monitorName, appID, processType),
+				Detail: fmt.Sprintf("An existing %s %s already exists. Please import it first.",
+					actionType, monitorName),
 			})
 			return diags
 		}

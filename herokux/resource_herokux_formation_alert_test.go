@@ -17,7 +17,7 @@ func TestAccHerokuxFormationAlertLatency_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxFormationAlertLatency_basic(appID, processType, "LATENCY",
+				Config: testAccCheckHerokuxFormationAlert_basic(appID, processType, "LATENCY",
 					"1202", 10, 1440),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -37,7 +37,7 @@ func TestAccHerokuxFormationAlertLatency_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckHerokuxFormationAlertLatency_basic(appID, processType, "LATENCY",
+				Config: testAccCheckHerokuxFormationAlert_basic(appID, processType, "LATENCY",
 					"89", 10, 5),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -69,7 +69,7 @@ func TestAccHerokuxFormationAlertErrorRate_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxFormationAlertLatency_basic(appID, processType, "ERROR_RATE",
+				Config: testAccCheckHerokuxFormationAlert_basic(appID, processType, "ERROR_RATE",
 					"0.042", 5, 60),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -89,7 +89,7 @@ func TestAccHerokuxFormationAlertErrorRate_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckHerokuxFormationAlertLatency_basic(appID, processType, "ERROR_RATE",
+				Config: testAccCheckHerokuxFormationAlert_basic(appID, processType, "ERROR_RATE",
 					"0.42", 10, 5),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
@@ -112,7 +112,7 @@ func TestAccHerokuxFormationAlertErrorRate_Basic(t *testing.T) {
 	})
 }
 
-func testAccCheckHerokuxFormationAlertLatency_basic(appID, processType, alertName, threshold string, sensitivity, emailReminderFrequency int) string {
+func testAccCheckHerokuxFormationAlert_basic(appID, processType, alertName, threshold string, sensitivity, emailReminderFrequency int) string {
 	return fmt.Sprintf(`
 resource "herokux_formation_alert" "foobar" {
 	app_id = "%s"

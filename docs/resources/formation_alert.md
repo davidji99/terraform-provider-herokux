@@ -13,6 +13,8 @@ This resource manages an alert for a Heroku formation. In the Heroku documentati
 running on Professional, Private, and Shield dynos. It allows you to specify limits on web dyno 95th percentile response
 time and the percentage of failed requests (requests that return a 5XX status code) above which an alert will be triggered.
 
+For those using Heroku Enterprise Teams, the `operate` permission is required to use this resource.
+
 -> **IMPORTANT!**
 When an existing `herokux_formation_alert` is deleted, the provider will disable the alert remotely
 and remove the resource from state.
@@ -88,7 +90,7 @@ resource "heroku_formation" "foobar" {
   depends_on = [heroku_app_release.foobar-release]
 }
 
-resource "herokux_app_alert" "foobar" {
+resource "herokux_formation_alert" "foobar" {
   app_id = heroku_app.foobar.uuid
   process_type = heroku_formation.foobar.type
   name = "LATENCY"

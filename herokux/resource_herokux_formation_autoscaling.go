@@ -110,7 +110,7 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 	appID := importID[0]
 	processType := importID[1]
 
-	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, processType, metrics.FormationMonitorActionTypes.Scale)
+	monitor, _, findErr := client.Metrics.FindMonitorByName(appID, processType, metrics.FormationMonitorNames.LatencyScale)
 	if findErr != nil {
 		return nil, findErr
 	}
@@ -133,32 +133,16 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 	appID := getAppID(d)
 	processType := getProcessType(d)
 
-	// Check first if autoscaling already exists on the app/dyno.
-	// If so, error out and tell user to import first.
-	monitors, _, listErr := client.Metrics.ListMonitors(appID, processType)
-	if listErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to fetch autoscaling in order to check if one already exists prior to initial creation",
-			Detail:   listErr.Error(),
-		})
-		return diags
-	}
-
-	for _, m := range monitors {
-		if *m.ActionType == metrics.FormationMonitorActionTypes.Scale {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Cannot create autoscaling for app [%s] process type [%s]", appID, processType),
-				Detail:   "An existing autoscaling formation already exists. Please import first.",
-			})
-			return diags
-		}
+	// Check for existing autoscaling.
+	existingAlertCheckErr := checkForExistingMonitor(client, appID, processType,
+		metrics.FormationMonitorActionTypes.Scale.ToString(), metrics.FormationMonitorNames.LatencyScale.ToString())
+	if existingAlertCheckErr != nil {
+		return existingAlertCheckErr
 	}
 
 	opts := constructAutoscalingOpts(d)
 
-	opts.Name = metrics.FormationMonitorNames.LatencyScale.ToString()
+	opts.Name = metrics.FormationMonitorNames.LatencyScale
 
 	notificationChannels := make([]string, 0)
 	if v, ok := d.GetOk("notification_channels"); ok {
@@ -346,9 +330,9 @@ func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.Re
 		NotificationPeriod:   monitor.GetNotificationPeriod(),
 		DesiredP95RespTime:   int(p95Raw),
 		Period:               monitor.GetPeriod(),
-		ActionType:           metrics.FormationMonitorActionTypes.Scale.ToString(),
+		ActionType:           metrics.FormationMonitorActionTypes.Scale,
 		Operation:            metrics.DefaultOperationAttrVal,
-		Name:                 monitor.GetName(),
+		Name:                 *monitor.GetName(),
 	}
 
 	log.Printf("[DEBUG] Disabling formation autoscaling for app %s, process_type %s, monitor %s", appID, processType, monitorID)
@@ -413,7 +397,7 @@ func constructAutoscalingOpts(d *schema.ResourceData) *metrics.AutoscalingReques
 
 	// Define default values for certain AutoscalingRequest fields based on the fact that these request fields
 	// only have a single value.
-	opts.ActionType = metrics.FormationMonitorActionTypes.Scale.ToString()
+	opts.ActionType = metrics.FormationMonitorActionTypes.Scale
 	opts.Quantity = 1
 	opts.Operation = metrics.DefaultOperationAttrVal
 

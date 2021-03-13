@@ -38,7 +38,7 @@ type FormationMonitor struct {
 
 	// Name represents the name of the monitor.
 	// Possible values are "LATENCY", "LATENCY_SCALE", and "ERROR_RATE"
-	Name *string `json:"name,omitempty"`
+	Name *FormationMonitorName `json:"name,omitempty"`
 
 	// Operation. The only currently supported value is "GREATER_OR_EQUAL".
 	Operation *string `json:"op,omitempty"`
@@ -84,18 +84,18 @@ type FormationMonitor struct {
 
 // AutoscalingRequest represents a request to autoscale an app dyno's formation.
 type AutoscalingRequest struct {
-	IsActive             bool     `json:"is_active"`
-	Quantity             int      `json:"quantity"`
-	MaxQuantity          int      `json:"max_quantity,omitempty"`
-	MinQuantity          int      `json:"min_quantity,omitempty"`
-	NotificationPeriod   int      `json:"notification_period"`
-	DesiredP95RespTime   int      `json:"value,omitempty"`
-	Period               int      `json:"period,omitempty"`
-	DynoSize             string   `json:"dyno_size,omitempty"`
-	ActionType           string   `json:"action_type,omitempty"`
-	Operation            string   `json:"op,omitempty"`
-	Name                 string   `json:"name,omitempty"`
-	NotificationChannels []string `json:"notification_channels"`
+	IsActive             bool                       `json:"is_active"`
+	Quantity             int                        `json:"quantity"`
+	MaxQuantity          int                        `json:"max_quantity,omitempty"`
+	MinQuantity          int                        `json:"min_quantity,omitempty"`
+	NotificationPeriod   int                        `json:"notification_period"`
+	DesiredP95RespTime   int                        `json:"value,omitempty"`
+	Period               int                        `json:"period,omitempty"`
+	DynoSize             string                     `json:"dyno_size,omitempty"`
+	ActionType           FormationMonitorActionType `json:"action_type,omitempty"`
+	Operation            string                     `json:"op,omitempty"`
+	Name                 FormationMonitorName       `json:"name,omitempty"`
+	NotificationChannels []string                   `json:"notification_channels"`
 }
 
 // AppAlertRequest represents a request to modify alert thresholds.
@@ -160,20 +160,21 @@ func (m *Metrics) DeleteMonitor(appID, formationName, monitorID string) (*simple
 	return response, deleteErr
 }
 
-// FindMonitorByName gets a single monitor for a formation by its associated app ID and formation name/process type.
-func (m *Metrics) FindMonitorByName(appID, formationName string, actionType FormationMonitorActionType) (*FormationMonitor, *simpleresty.Response, error) {
+// FindMonitorByName gets a single monitor for a formation by its name.
+func (m *Metrics) FindMonitorByName(appID, formationName string, name FormationMonitorName) (*FormationMonitor, *simpleresty.Response, error) {
 	monitors, response, listErr := m.ListMonitors(appID, formationName)
 	if listErr != nil {
 		return nil, response, listErr
 	}
 
 	for _, m := range monitors {
-		if m.GetAppID() == appID && m.GetProcessType() == formationName && *m.GetActionType() == actionType {
+		if m.GetAppID() == appID && m.GetProcessType() == formationName && *m.GetName() == name {
 			return m, nil, nil
 		}
 	}
 
-	return nil, nil, fmt.Errorf("did not find a monitor for app %s's formation %s", appID, formationName)
+	return nil, nil, fmt.Errorf("did not find a %s monitor for app %s's formation %s",
+		name.ToString(), appID, formationName)
 }
 
 // CreateMonitorAutoscaling sets up the monitor autoscaling for an app dyno formation.

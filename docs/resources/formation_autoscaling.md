@@ -130,7 +130,7 @@ The following arguments are supported:
 * `desired_p95_response_time` - (Required) `<integer>` Desired P95 Response Time in milliseconds. Must be at least 1ms.
 
 * `dyno_size` - (Required) `<string>` The size of dyno. (Example: “performance-l”). Capitalization does not matter.
-Only specify dyno sizes that can be autoscaled.
+Only specify dyno sizes that can be autoscaled. You can only modify dynos of the same type.
 
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
 for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.

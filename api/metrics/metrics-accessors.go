@@ -9,6 +9,17 @@ import (
 	"encoding/json"
 )
 
+// HasNotificationChannels checks if AppAlertRequest has any NotificationChannels.
+func (a *AppAlertRequest) HasNotificationChannels() bool {
+	if a == nil || a.NotificationChannels == nil {
+		return false
+	}
+	if len(a.NotificationChannels) == 0 {
+		return false
+	}
+	return true
+}
+
 // HasNotificationChannels checks if AutoscalingRequest has any NotificationChannels.
 func (a *AutoscalingRequest) HasNotificationChannels() bool {
 	if a == nil || a.NotificationChannels == nil {
@@ -84,12 +95,12 @@ func (f *FormationMonitor) GetMinQuantity() int {
 	return *f.MinQuantity
 }
 
-// GetName returns the Name field if it's non-nil, zero value otherwise.
-func (f *FormationMonitor) GetName() string {
-	if f == nil || f.Name == nil {
-		return ""
+// GetName returns the Name field.
+func (f *FormationMonitor) GetName() *FormationMonitorName {
+	if f == nil {
+		return nil
 	}
-	return *f.Name
+	return f.Name
 }
 
 // HasNotificationChannels checks if FormationMonitor has any NotificationChannels.
@@ -149,15 +160,4 @@ func (f *FormationMonitor) GetValue() json.Number {
 		return ""
 	}
 	return *f.Value
-}
-
-// HasNotificationChannels checks if AppAlertRequest has any NotificationChannels.
-func (t *AppAlertRequest) HasNotificationChannels() bool {
-	if t == nil || t.NotificationChannels == nil {
-		return false
-	}
-	if len(t.NotificationChannels) == 0 {
-		return false
-	}
-	return true
 }
