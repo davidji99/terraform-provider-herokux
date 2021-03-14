@@ -97,8 +97,8 @@ resource "herokux_formation_alert" "foobar" {
   notification_channels = ["app"]
 
   # Tells Terraform that this formation alert resource must be created/updated
-  # only after the app release & formation has been successfully applied.
-  depends_on = [heroku_formation, heroku_app_release.foobar]
+  # only after the app release has been successfully applied.
+  depends_on = [heroku_app_release.foobar]
 }
 ```
 

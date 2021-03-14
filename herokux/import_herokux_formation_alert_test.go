@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestAccHerokuxFormationAlertLatency_importBasic(t *testing.T) {
+func TestAccHerokuxImportFormationAlertLatency_Basic(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
 	processType := "web"
 
@@ -30,7 +30,7 @@ func TestAccHerokuxFormationAlertLatency_importBasic(t *testing.T) {
 	})
 }
 
-func TestAccHerokuxFormationAlertErrorRate_importBasic(t *testing.T) {
+func TestAccHerokuxImportFormationAlertErrorRate_Basic(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
 	processType := "web"
 
