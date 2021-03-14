@@ -101,6 +101,7 @@ type FormationAutoscalingRequest struct {
 // FormationAlertRequest represents a request to modify an alert for an app formation.
 type FormationAlertRequest struct {
 	IsActive             bool                       `json:"is_active"`
+	Quantity             int                        `json:"quantity"`
 	ReminderFrequency    int                        `json:"notification_period"`
 	Sensitivity          int                        `json:"period,omitempty"`
 	Threshold            json.Number                `json:"value,omitempty"`

@@ -108,8 +108,8 @@ resource "herokux_formation_autoscaling" "foobar" {
   notification_channels = ["app"]
 
   # Tells Terraform that this formation autoscaling resource must be created/updated
-  # only after the app release & formation has been successfully applied.
-  depends_on = [heroku_app_release.foobar, heroku_formation.foobar]
+  # only after the app release has been successfully applied.
+  depends_on = [heroku_app_release.foobar]
 }
 ```
 

@@ -159,7 +159,8 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Fo
 
 func resourceHerokuxFormationAlertCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	client := meta.(*Config).API
+	metricsAPI := meta.(*Config).API
+	platformAPI := meta.(*Config).PlatformAPI
 
 	// Get app id and formation name
 	appID := getAppID(d)
@@ -167,17 +168,31 @@ func resourceHerokuxFormationAlertCreate(ctx context.Context, d *schema.Resource
 	alertName := getName(d)
 
 	// Check for existing alert.
-	existingAlertCheckErr := checkForExistingMonitor(client, appID, processType,
+	existingAlertCheckErr := checkForExistingMonitor(metricsAPI, appID, processType,
 		metrics.FormationMonitorActionTypes.Alert.ToString(), alertName)
 	if existingAlertCheckErr != nil {
 		return existingAlertCheckErr
 	}
 
+	// Get information about the formation as that's needed for the formation alert POST request.
+	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, processType)
+	if formationGetErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary: fmt.Sprintf("Unable to retrieve formation info alert for app [%s] process type [%s]",
+				appID, processType),
+			Detail: formationGetErr.Error(),
+		})
+		return diags
+	}
+
 	opts := constructAppAlertOpts(d, alertName)
+	opts.DynoSize = formation.Size
+	opts.Quantity = formation.Quantity
 
 	log.Printf("[DEBUG] Creating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
 
-	alert, _, createErr := client.Metrics.CreateFormationAlert(appID, processType, opts)
+	alert, _, createErr := metricsAPI.Metrics.CreateFormationAlert(appID, processType, opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -243,7 +258,10 @@ func resourceHerokuxFormationAlertRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	client := meta.(*Config).API
+	var diags diag.Diagnostics
+
+	metricsAPI := meta.(*Config).API
+	platformAPI := meta.(*Config).PlatformAPI
 
 	resourceID, parseErr := parseCompositeID(d.Id(), 3)
 	if parseErr != nil {
@@ -254,10 +272,24 @@ func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.Resource
 	processType := resourceID[1]
 	alertID := resourceID[2]
 
-	opts := constructAppAlertOpts(d, d.Get("name").(string))
+	// Get information about the formation as that's needed for the formation alert POST request.
+	formation, formationGetErr := platformAPI.FormationInfo(context.TODO(), appID, processType)
+	if formationGetErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary: fmt.Sprintf("Unable to retrieve formation info alert for app [%s] process type [%s]",
+				appID, processType),
+			Detail: formationGetErr.Error(),
+		})
+		return diags
+	}
+
+	opts := constructAppAlertOpts(d, getName(d))
+	opts.DynoSize = formation.Size
+	opts.Quantity = formation.Quantity
 
 	log.Printf("[DEBUG] Updating %s alert for app [%s] process type [%s]", opts.Name, appID, processType)
-	isUpdated, resp, setErr := client.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
+	isUpdated, resp, setErr := metricsAPI.Metrics.UpdateFormationAlert(appID, processType, alertID, opts)
 	if setErr != nil {
 		return diag.FromErr(setErr)
 	}
