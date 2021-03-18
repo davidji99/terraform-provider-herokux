@@ -16,8 +16,6 @@ Almost all resources in this provider use the same API endpoints used by Heroku 
 Almost all resources in this provider require official Heroku provider resources as a prerequisite.
 Essentially, this provider is designed to supplement, not supplant, the official Heroku provider.
 
-**This provider has no relationship with Heroku.**
-
 -> **IMPORTANT!**
 This provider should be used with caution when Terraforming resources in environments that receive customer traffic.
 Additionally, resources may change in behavior or be removed at any given time to match any API changes.
