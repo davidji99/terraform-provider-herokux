@@ -6,8 +6,6 @@
 The HerokuX provider interacts with Heroku's undocumented APIs and Platform API variants to provide additional resources
 not available in the official [Heroku Terraform provider](https://github.com/heroku/terraform-provider-heroku).
 
-Please be advised that this provider has no relationship with the official Heroku provider.
-
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) `v0.12+`
