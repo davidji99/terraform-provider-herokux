@@ -9,7 +9,7 @@ require (
 	github.com/davidji99/simpleresty v0.2.3
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/google/uuid v1.1.2 // indirect
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.4
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.5.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/stretchr/testify v1.7.0
