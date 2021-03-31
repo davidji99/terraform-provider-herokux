@@ -140,7 +140,7 @@ func resourceHerokuxPostgresMTLSRead(ctx context.Context, d *schema.ResourceData
 	d.Set("database_name", mtls.GetAddon())
 	d.Set("app_name", mtls.GetApp())
 	d.Set("status", mtls.GetStatus().ToString())
-	d.Set("enabled_by", mtls.GetAddon())
+	d.Set("enabled_by", mtls.GetEnabledBy())
 	d.Set("certificate_authority_chain", mtls.GetCertificateAuthorityChain())
 
 	return nil
