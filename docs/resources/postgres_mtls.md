@@ -12,10 +12,13 @@ This resource manages the MTLS configuration of an existing Private or Shield He
 Essentially, this resource provisions and deprovisions MTLS for a target database.
 
 ### Initial Certificate
-Upon successful MTLS provisioning, Heroku provisions a certificate ready for use by clients. This initial certificate ID is exposed through the `initial_certificate_id` attribute. Users could then do either of the following:
+Upon successful MTLS provisioning, Heroku provisions a certificate ready for use by clients.
+This initial certificate ID is exposed through the `initial_certificate_id` attribute.
+Users could then do either of the following:
 
 1. Use the data source `herokux_postgres_mtls_certificate` to retrieve the details of this certificate.
-1. Import this certificate using the resource `herokux_postgres_mtls_certificate`. Once resource import is done, this certificate can now be managed via Terraform.
+1. Import this certificate using the resource `herokux_postgres_mtls_certificate`. Once resource import is done,
+   this certificate can now be managed via Terraform.
 
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
@@ -62,7 +65,7 @@ logs or regular output.
 
 * `initial_certificate_id` - The ID of the first certificate automatically created when MTLS is provisioned for a database.
 Users will need to use the data source `herokux_postgres_mtls_certificate` to retrieve the certificate and private key.
-The provider sets this attribute on initial resource creation only.
+The provider only sets this attribute on initial resource creation.
 
 ## Import
 
