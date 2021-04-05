@@ -67,6 +67,12 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_REGISTRY_API_URL", api.DefaultRegistryBaseURL),
 			},
 
+			"kolkrabbi_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_KOLKRABBI_API_URL", api.DefaultKolkrabbiAPIBaseURL),
+			},
+
 			"platform_api_url": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -270,6 +276,7 @@ func New() *schema.Provider {
 			"herokux_kafka_consumer_group":        resourceHerokuxKafkaConsumerGroup(),
 			"herokux_kafka_topic":                 resourceHerokuxKafkaTopic(),
 			"herokux_oauth_authorization":         resourceHerokuxOauthAuthorization(),
+			"herokux_pipeline_github_integration": resourceHerokuxPipelineGithubIntegration(),
 			"herokux_postgres_backup_schedule":    resourceHerokuxPostgresBackupSchedule(),
 			"herokux_postgres_credential":         resourceHerokuxPostgresCredential(),
 			"herokux_postgres_data_link":          resourceHerokuxPostgresDataLink(),

@@ -40,6 +40,10 @@ The following parameters are available for running the test. The absence of some
 * **HEROKUX_KAFKA_ID** (`string`) - The UUID of an existing Kafka addon.
 * **HEROKUX_REDIS_ID** (`string`) - The UUID of an existing Redis addon.
 * **HEROKUX_POSTGRES_ID** (`string`) - The UUID of an existing Postgres addon.
+* **HEROKUX_CONNECT_ID** (`string`) - The UUID of an existing Heroku Connect integration.
+* **HEROKUX_IMAGE_ID** (`string`) - The UUID of an existing docker image in Heroku.
+* **HEROKUX_PIPELINE_ID** (`string`) - The UUID of an existing pipeline.
+* **HEROKUX_GITHUB_ORG_REPO** (`string`) - The org/repo of an existing Github repository.
 
 **For example:**
 ```bash

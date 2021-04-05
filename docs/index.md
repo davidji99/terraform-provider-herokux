@@ -128,6 +128,9 @@ The following arguments are supported:
 * `registry_api_url` - (Optional) Custom Registry API url.
   Can also be sourced from the `HEROKUX_REGISTRY_API_URL` environment variable.
 
+* `kolkrabbi_api_url` - (Optional) Custom Kolkrabbi API url.
+  Can also be sourced from the `HEROKUX_KOLKRABBI_API_URL` environment variable.
+
 * `headers` - (Optional) Additional API headers.
 
 * `delays` - (Optional) Delays define a given amount of time to wait before or after a resource takes an action.

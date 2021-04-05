@@ -60,6 +60,7 @@ type Config struct {
 	redisURL          string
 	connectCentralURL string
 	registryURL       string
+	kolkrabbiURL      string
 
 	// Custom Timeouts
 	MTLSProvisionTimeout                    int64
@@ -128,6 +129,7 @@ func (c *Config) initializeAPI() error {
 		config.RedisBaseURL(c.redisURL),
 		config.ConnectCentralBaseURL(c.connectCentralURL),
 		config.RegistryBaseURL(c.registryURL),
+		config.KolkrabbiBaseURL(c.kolkrabbiURL),
 	)
 	if clientInitErr != nil {
 		return clientInitErr
@@ -190,6 +192,11 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("registry_api_url"); ok {
 		vs := v.(string)
 		c.registryURL = vs
+	}
+
+	if v, ok := d.GetOk("kolkrabbi_api_url"); ok {
+		vs := v.(string)
+		c.kolkrabbiURL = vs
 	}
 
 	if v, ok := d.GetOk("platform_api_url"); ok {

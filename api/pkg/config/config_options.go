@@ -116,6 +116,18 @@ func RegistryBaseURL(url string) Option {
 	}
 }
 
+// KolkrabbiBaseURL allows for a custom Kolkrabbi API URL.
+func KolkrabbiBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.KolkrabbiURL = url
+		return nil
+	}
+}
+
 // UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {
