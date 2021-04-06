@@ -4,6 +4,7 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api/connect"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
+	"github.com/davidji99/terraform-provider-herokux/api/kolkrabbi"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
@@ -36,8 +37,11 @@ const (
 	// Reference: https://devcenter.heroku.com/articles/heroku-connect-api#endpoints
 	DefaultConnectAPIBaseURL = "https://connect-3-virginia.heroku.com/api/v3"
 
-	// DefaultRegistryBaseURL is the default base URL for Heroku's Registry.
+	// DefaultRegistryBaseURL is the default base URL for the Heroku Registry.
 	DefaultRegistryBaseURL = "https://registry.heroku.com"
+
+	// DefaultKolkrabbiAPIBaseURL is the default base URL for Kolkrabbi API.
+	DefaultKolkrabbiAPIBaseURL = "https://kolkrabbi.heroku.com"
 
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
@@ -55,14 +59,15 @@ type Client struct {
 	config *config2.Config
 
 	// API endpoints
-	Data     *data.Data
-	Kafka    *kafka.Kafka
-	Metrics  *metrics.Metrics
-	Platform *platform.Platform
-	Postgres *postgres.Postgres
-	Redis    *redis.Redis
-	Connect  *connect.Connect
-	Registry *registry.Registry
+	Data      *data.Data
+	Kafka     *kafka.Kafka
+	Metrics   *metrics.Metrics
+	Platform  *platform.Platform
+	Postgres  *postgres.Postgres
+	Redis     *redis.Redis
+	Connect   *connect.Connect
+	Registry  *registry.Registry
+	Kolkrabbi *kolkrabbi.Kolkrabbi
 }
 
 // New constructs a new client to interact with Heroku APIs.
@@ -78,6 +83,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		ConnectBaseURL:        DefaultConnectAPIBaseURL,
 		ConnectCentralBaseURL: DefaultConnectCentralBaseURL,
 		RegistryBaseURL:       DefaultRegistryBaseURL,
+		KolkrabbiURL:          DefaultKolkrabbiAPIBaseURL,
 		UserAgent:             DefaultUserAgent,
 		APIToken:              "",
 		BasicAuth:             "",
@@ -92,15 +98,16 @@ func New(opts ...config2.Option) (*Client, error) {
 
 	// Construct new Client
 	client := &Client{
-		config:   config,
-		Data:     data.New(config),
-		Kafka:    kafka.New(config),
-		Metrics:  metrics.New(config),
-		Platform: platform.New(config),
-		Postgres: postgres.New(config),
-		Redis:    redis.New(config),
-		Connect:  connect.New(config),
-		Registry: registry.New(config),
+		config:    config,
+		Data:      data.New(config),
+		Kafka:     kafka.New(config),
+		Metrics:   metrics.New(config),
+		Platform:  platform.New(config),
+		Postgres:  postgres.New(config),
+		Redis:     redis.New(config),
+		Connect:   connect.New(config),
+		Registry:  registry.New(config),
+		Kolkrabbi: kolkrabbi.New(config),
 	}
 
 	return client, nil

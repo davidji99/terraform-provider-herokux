@@ -22,6 +22,8 @@ const (
 	TestConfigPostgresID
 	TestConfigConnectID
 	TestConfigImageID
+	TestConfigPipelineID
+	TestConfigGithubOrgRepo
 	TestConfigAcceptanceTestKey
 )
 
@@ -37,6 +39,8 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigPostgresID:          "HEROKUX_POSTGRES_ID",
 	TestConfigConnectID:           "HEROKUX_CONNECT_ID",
 	TestConfigImageID:             "HEROKUX_IMAGE_ID",
+	TestConfigPipelineID:          "HEROKUX_PIPELINE_ID",
+	TestConfigGithubOrgRepo:       "HEROKUX_GITHUB_ORG_REPO",
 	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
@@ -126,4 +130,12 @@ func (t *TestConfig) GetConnectIDorSkip(testing *testing.T) (val string) {
 
 func (t *TestConfig) GetImageIDorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigImageID)
+}
+
+func (t *TestConfig) GetPipelineIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigPipelineID)
+}
+
+func (t *TestConfig) GetGithubOrgRepoorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigGithubOrgRepo)
 }
