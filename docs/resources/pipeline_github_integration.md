@@ -12,8 +12,7 @@ This resource manages the [integration](https://devcenter.heroku.com/articles/gi
 between a Heroku pipeline and Github repository.
 
 -> **IMPORTANT!**
-In order to use this resource, please first make sure you have authorized Github to use your Heroku account.
-This authorization can be done via the Pipeline settings page.
+In order to use this resource, please first make sure you have [authorized Github](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration) to use your Heroku account. This authorization can be done via the Pipeline settings page.
 
 ## Example Usage
 
