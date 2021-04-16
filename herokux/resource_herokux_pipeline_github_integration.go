@@ -32,7 +32,7 @@ func resourceHerokuxPipelineGithubIntegration() *schema.Resource {
 				ValidateFunc: validation.IsUUID,
 			},
 
-			"github_org_repo": {
+			"org_repo": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -79,7 +79,7 @@ func resourceHerokuxPipelineGithubIntegrationCreate(ctx context.Context, d *sche
 		pipelineID = vs
 	}
 
-	if orgRepoRaw, ok := d.GetOk("github_org_repo"); ok {
+	if orgRepoRaw, ok := d.GetOk("org_repo"); ok {
 		orgRepo := strings.Split(orgRepoRaw.(string), "/")
 		log.Printf("[DEBUG] org_repo: %v", orgRepo)
 
@@ -156,7 +156,7 @@ func resourceHerokuxPipelineGithubIntegrationRead(ctx context.Context, d *schema
 	}
 
 	d.Set("pipeline_id", iData.GetPipeline().GetID())
-	d.Set("github_org_repo", iData.GetRepository().GetName())
+	d.Set("org_repo", iData.GetRepository().GetName())
 	d.Set("github_repository_id", iData.GetRepository().GetID())
 	d.Set("creator_id", iData.GetCreator().GetID())
 	d.Set("owner_id", iData.GetOwner().GetID())
