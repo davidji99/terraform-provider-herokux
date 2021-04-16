@@ -21,7 +21,7 @@ func TestAccHerokuxPipelineGithubIntegration_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_pipeline_github_integration.foobar", "pipeline_id", pipelineID),
 					resource.TestCheckResourceAttr(
-						"herokux_pipeline_github_integration.foobar", "github_org_repo", orgRepo),
+						"herokux_pipeline_github_integration.foobar", "org_repo", orgRepo),
 					resource.TestCheckResourceAttrSet(
 						"herokux_pipeline_github_integration.foobar", "github_repository_id"),
 					resource.TestCheckResourceAttrSet(
@@ -56,7 +56,7 @@ func testAccCheckHerokuxPipelineGithubIntegration_basic(pipelineID, orgRepo stri
 	return fmt.Sprintf(`
 resource "herokux_pipeline_github_integration" "foobar" {
 	pipeline_id = "%s"
-	github_org_repo = "%s"
+	org_repo = "%s"
 }
 `, pipelineID, orgRepo)
 }

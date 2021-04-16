@@ -12,18 +12,38 @@ This resource manages the [integration](https://devcenter.heroku.com/articles/gi
 between a Heroku pipeline and Github repository.
 
 -> **IMPORTANT!**
-In order to use this resource, please first make sure you have [authorized Github](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration) to use your Heroku account. This authorization can be done via the Pipeline settings page.
+In order to use this resource, please first make sure you have [authorized Github](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration)
+to use your Heroku account. This authorization can be done via the Pipeline settings page.
 
 ## Example Usage
 
 ```hcl-terraform
+// First, create a pipeline.
 resource "heroku_pipeline" "foobar" {
   name = "foobar-pipeline"
 }
 
+// Then, add the Github repository integration with the pipeline.
 resource "herokux_pipeline_github_integration" "foobar" {
   pipeline_id = heroku_pipeline.foobar.id
-  github_org_repo = "myorg/myrepo"
+  org_repo = "myorg/myrepo"
+}
+
+// (Optional) Enable review apps for the pipeline.
+resource "heroku_review_app_config" "foobar" {
+  pipeline_id = heroku_pipeline.foobar.id
+  org_repo = herokux_pipeline_github_integration.foobar.org_repo
+  automatic_review_apps = true
+  base_name = "servicex"
+
+  deploy_target {
+    id = "us"
+    type = "region"
+  }
+
+  destroy_stale_apps = true
+  stale_days = 5
+  wait_for_ci = true
 }
 ```
 
@@ -33,7 +53,7 @@ The following arguments are supported:
 
 * `pipeline_id` - (Required) `<string>` The UUID for a Heroku pipeline.
 
-* `github_org_repo` - (Required) `<string>` The name of the Github repository. For example, `myorg/myrepo`.
+* `org_repo` - (Required) `<string>` The full name of the Github repository. For example, `myorg/myrepo`.
 
 ## Attributes Reference
 
