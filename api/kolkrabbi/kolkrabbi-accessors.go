@@ -73,6 +73,110 @@ func (a *AccountInfoHeroku) GetUserID() string {
 	return *a.UserID
 }
 
+// GetAppID returns the AppID field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetAppID() string {
+	if a == nil || a.AppID == nil {
+		return ""
+	}
+	return *a.AppID
+}
+
+// GetAutoDeploy returns the AutoDeploy field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetAutoDeploy() bool {
+	if a == nil || a.AutoDeploy == nil {
+		return false
+	}
+	return *a.AutoDeploy
+}
+
+// GetBranch returns the Branch field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetBranch() string {
+	if a == nil || a.Branch == nil {
+		return ""
+	}
+	return *a.Branch
+}
+
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetCreatedAt() time.Time {
+	if a == nil || a.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *a.CreatedAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetID() string {
+	if a == nil || a.ID == nil {
+		return ""
+	}
+	return *a.ID
+}
+
+// GetOwner returns the Owner field.
+func (a *AppGHIntegration) GetOwner() *PipelineGHIntegrationUser {
+	if a == nil {
+		return nil
+	}
+	return a.Owner
+}
+
+// GetRepo returns the Repo field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetRepo() string {
+	if a == nil || a.Repo == nil {
+		return ""
+	}
+	return *a.Repo
+}
+
+// GetRepoID returns the RepoID field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetRepoID() int {
+	if a == nil || a.RepoID == nil {
+		return 0
+	}
+	return *a.RepoID
+}
+
+// GetStaleDays returns the StaleDays field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetStaleDays() int {
+	if a == nil || a.StaleDays == nil {
+		return 0
+	}
+	return *a.StaleDays
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetUpdatedAt() time.Time {
+	if a == nil || a.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *a.UpdatedAt
+}
+
+// GetWaitForCI returns the WaitForCI field if it's non-nil, zero value otherwise.
+func (a *AppGHIntegration) GetWaitForCI() bool {
+	if a == nil || a.WaitForCI == nil {
+		return false
+	}
+	return *a.WaitForCI
+}
+
+// GetAutoDeploy returns the AutoDeploy field if it's non-nil, zero value otherwise.
+func (a *AppGhIntegrationRequest) GetAutoDeploy() bool {
+	if a == nil || a.AutoDeploy == nil {
+		return false
+	}
+	return *a.AutoDeploy
+}
+
+// GetWaitForCI returns the WaitForCI field if it's non-nil, zero value otherwise.
+func (a *AppGhIntegrationRequest) GetWaitForCI() bool {
+	if a == nil || a.WaitForCI == nil {
+		return false
+	}
+	return *a.WaitForCI
+}
+
 // GetID returns the ID field if it's non-nil, zero value otherwise.
 func (p *Pipeline) GetID() string {
 	if p == nil || p.ID == nil {
