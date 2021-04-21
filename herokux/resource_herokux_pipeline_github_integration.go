@@ -20,6 +20,16 @@ func resourceHerokuxPipelineGithubIntegration() *schema.Resource {
 		ReadContext:   resourceHerokuxPipelineGithubIntegrationRead,
 		DeleteContext: resourceHerokuxPipelineGithubIntegrationDelete,
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceHerokuxPipelineGithubIntegrationResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceHerokuxPipelineGithubIntegrationStateUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
