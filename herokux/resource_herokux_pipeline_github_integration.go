@@ -20,6 +20,16 @@ func resourceHerokuxPipelineGithubIntegration() *schema.Resource {
 		ReadContext:   resourceHerokuxPipelineGithubIntegrationRead,
 		DeleteContext: resourceHerokuxPipelineGithubIntegrationDelete,
 
+		SchemaVersion: 1,
+
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceHerokuxPipelineGithubIntegrationResourceV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceHerokuxPipelineGithubIntegrationStateUpgradeV0,
+				Version: 0,
+			},
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
@@ -40,7 +50,7 @@ func resourceHerokuxPipelineGithubIntegration() *schema.Resource {
 					"Invalid attribute value. Value must be org/repo."),
 			},
 
-			"github_repository_id": {
+			"repository_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -157,7 +167,7 @@ func resourceHerokuxPipelineGithubIntegrationRead(ctx context.Context, d *schema
 
 	d.Set("pipeline_id", iData.GetPipeline().GetID())
 	d.Set("org_repo", iData.GetRepository().GetName())
-	d.Set("github_repository_id", iData.GetRepository().GetID())
+	d.Set("repository_id", iData.GetRepository().GetID())
 	d.Set("creator_id", iData.GetCreator().GetID())
 	d.Set("owner_id", iData.GetOwner().GetID())
 	d.Set("integration_id", iData.GetID())

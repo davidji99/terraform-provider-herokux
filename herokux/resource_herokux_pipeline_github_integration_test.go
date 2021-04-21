@@ -23,7 +23,7 @@ func TestAccHerokuxPipelineGithubIntegration_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_pipeline_github_integration.foobar", "org_repo", orgRepo),
 					resource.TestCheckResourceAttrSet(
-						"herokux_pipeline_github_integration.foobar", "github_repository_id"),
+						"herokux_pipeline_github_integration.foobar", "repository_id"),
 					resource.TestCheckResourceAttrSet(
 						"herokux_pipeline_github_integration.foobar", "creator_id"),
 					resource.TestCheckResourceAttrSet(
