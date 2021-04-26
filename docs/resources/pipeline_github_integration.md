@@ -11,9 +11,12 @@ Provides a resource to manage the integration between a Heroku pipeline and GitH
 This resource manages the [integration](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration)
 between a Heroku pipeline and GitHub repository.
 
--> **IMPORTANT!**
+### Prerequisites
+
 In order to use this resource, please first make sure you have [authorized GitHub](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration)
-to use your Heroku account. This authorization can be done via the Pipeline settings page.
+to use your Heroku account. This authorization can be done via the Pipeline settings page, or the 'Deploy' tab for
+a Heroku app. Please note that revoking this authorization after you have used this resource may result in a broken
+Terraform configuration.
 
 ## Example Usage
 
