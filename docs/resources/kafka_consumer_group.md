@@ -40,7 +40,6 @@ resource "herokux_kafka_consumer_group" "foobar" {
 The following arguments are supported:
 
 * `kafka_id` - (Required) `<string>` The UUID of an existing Kafka instance.
-
 * `name` - (Required) `<string>` The name of the consumer group.
 
 ## Attributes Reference

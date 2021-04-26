@@ -57,10 +57,8 @@ resource "heroku_formation" "foobar-web" {
 The following arguments are supported:
 
 * `app_id` - (Required) `<string>` The UUID of the app to subscribe to.
-
 * `image_id` - (Required) `<string>` The `algorithm:hex` value of an already pushed docker image.
 For more information regarding how to retrieve this value, visit [this article](https://devcenter.heroku.com/articles/container-registry-and-runtime#getting-a-docker-image-id).
-
 * `process_type` - (Required) `<string>` Type of process such as "web".
 
 ## Attributes Reference

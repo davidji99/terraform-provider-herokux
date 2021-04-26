@@ -32,7 +32,6 @@ resource "herokux_redis_maintenance_window" "foobar" {
 The following arguments are supported:
 
 * `redis_id` - (Required) `<string>` The UUID of a Heroku redis instance.
-
 * `window` - (Required) `<string>` The day-of-week and time (UTC) at which the window begins.
 For example: `Sundays 10:30`. Note: the `s` attached to the word `Sunday` is required.
 

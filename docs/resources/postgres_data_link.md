@@ -50,17 +50,12 @@ resource "herokux_postgres_data_link" "foobar" {
 The following arguments are supported:
 
 * `local_db_id` - (Required) `<string>` The UUID of a Heroku Postgres database that’s accepting the data link connection.
-
 * `remote_db_name` - (Required) `<string>` The Postgres database name that is being connected to a Heroku Postgres database.
-
 * `name` - (Optional) `<string>` The name of connection between the remote and local databases. If a custom `name`
 is not defined, it will be the same value as the `remote_db_name` with underscores in place of hyphens.
 A custom name must be respect the following restrictions:
-
     * Between 3-63 alphanumeric characters
-
     * Start with a letter & end with an alphanumeric character
-
     * No symbols/spaces besides an underscore
 
 -> **IMPORTANT!**
@@ -71,7 +66,6 @@ Any changes to the attributes listed above will result in a resource destruction
 The following attributes are exported:
 
 * `link_id` - The UUID of the data link.
-
 * `remote_attachment_name` - The remote database attachment name. For example, `HEROKU_POSTGRESQL_COPPER_URL`.
 
 ## Import

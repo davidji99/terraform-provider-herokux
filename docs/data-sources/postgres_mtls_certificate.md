@@ -27,7 +27,6 @@ data "herokux_postgres_mtls_certificate" "foobar" {
 The following arguments are supported:
 
 * `database_name` - (Required) The database name
-
 * `cert_id` - (Required) The certificate ID
 
 ## Attributes Reference
@@ -35,11 +34,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `name` - The name of certificate. It in the format of a hostname URL.
-
 * `status` - The status of certificate.
-
 * `expiration_date` - When the certificate expires in RFC822Z format.
-
 * `private_key` - The client private key. This attribute value does not get displayed in logs or regular output.
-
 * `certificate_with_chain` - The client certificate with chain. This attribute value does not get displayed in logs or regular output.

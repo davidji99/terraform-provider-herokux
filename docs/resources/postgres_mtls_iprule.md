@@ -53,14 +53,11 @@ resource "herokux_postgres_mtls_iprule" "foobar" {
 The following arguments are supported:
 
 * `database_name` - (Required) `<string>` The name of the database. Please note the following:
-
     * DO NOT use the database UUID.
     * It is **highly recommended** setting this attribute's value to reference an existing `herokux_postgres_mtls` resource.
-    This way, Terraform will handle the dependency chain between the two resources as you cannot create an IP rule for
-    a database that is not MTLS enabled.
-
+      This way, Terraform will handle the dependency chain between the two resources as you cannot create an IP rule for
+      a database that is not MTLS enabled.
 * `cidr` - (Required) `<string>` Valid IPv4 CIDR value. Example: `1.2.3.4/32`.
-
 * `description` - (Optional) `<string>` A description of the IP rule.
 
 ## Attributes Reference
@@ -68,7 +65,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `rule_id` - The UUID of the rule. This is a separate attribute as the resource ID is a composite value.
-
 * `status` - The status of IP rule configuration.
 
 ## Import

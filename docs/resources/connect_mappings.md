@@ -170,9 +170,7 @@ The following arguments are supported:
 * `app_id` - (Required) `<string>` The UUID of the app. It is recommended to reference the UUID via
 `heroku_app.foobar.uuid` if the app was created via Terraform. This allows the configuration to create
 resource dependencies.
-
 * `connect_id` - (Required) `<string>` The UUID of the Heroku Connect instance/addon.
-
 * `mappings` - (Required) `<string>` Properly formatted JSON string representing Connect mappings
 between Heroku and Salesforce.
 
@@ -181,9 +179,7 @@ between Heroku and Salesforce.
 The following attributes are exported:
 
 * `mapping_ids` - List of all Connect mapping IDs currently managed by this resource.
-
 * `mapping_object_names` - List of all Connect mapping object names currently managed by this resource.
-
 * `mapping_data` - Map of the mappings where the key is the mapping object name, and the value is the map UUID.
 
 ## Import

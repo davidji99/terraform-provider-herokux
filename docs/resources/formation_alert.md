@@ -107,45 +107,32 @@ resource "herokux_formation_alert" "foobar" {
 The following arguments are supported:
 
 * `app_id` - (Required) `<string>` An existing app's UUID. The app name is not valid for this argument.
-
 * `process_type` - (Required) `<string>` The type of the dyno formation process, such as `web`.
-
 * `name` - (Required) `<string>` The name of the alert aka the alert 'type'.
   Valid options are `LATENCY` & `ERROR_RATE` (case-sensitive):
-
     * `LATENCY` corresponds to the 'Monitor Response Times' alert in the UI.
     * `ERROR_RATE` corresponds to the 'Monitor Failed Requests' alert in the UI.
-
 * `threshold` - (Required) `<string>` When to trigger an alert. This attribute value is dependent on
   the `name` attribute's value:
-  
     * If `name` is `LATENCY`, `threshold` represents the 95th percentile response time in milliseconds. Minimum `"50"`.
     * If `name` is `ERROR_RATE`, `threshold` represents the percentage (%) of failed web requests exceeding the threshold.
     An acceptable value would be `"0.42"`(42%). Minimum `"0.005"` (0.5%). Maximum `"1.0"` (100%).
-
 * `sensitivity` - (Required) `<integer>` How many minutes the underlying formation alert metric must be at or above
   the threshold to trigger the alert. Acceptable values are as follows:
-
     * `1` - 'High'
     * `5` - 'Medium'
     * `10` - 'Low'
-
 * `is_active` - (Required) `<boolean>` Whether to enable or disable the alert. Defaults to `true`.
-
 * `notification_channels` - (Optional) `<list(string)>` Set to `['app']` if you wish to send email notifications
 to all app members. Defaults to `[]`, which means no email notifications. Please also note the following:
-
     * It is strongly recommended not to define email addresses here due to Heroku requiring email verification.
       The API does not return unconfirmed email addresses when fetching for the formation alert. This means users
       may be faced with an infinite `plan` delta ('dirty plan') until the inputted email addresses are confirmed.
       Furthermore, this infinite `plan` delta may also occur if users manually enter email addresses via the UI.
-
     * Should users wish to use email addresses as notification channels, please do so via the UI and not set
     this attribute at all in their configurations.
-
 * `notification_frequency` - (Optional) `<integer>` The frequency (in minutes) of email reminders for the formation alert
   that remains above the `threshold`. Acceptable values are as follows:
-
     * `5` - 'At most every 5 minutes'
     * `60` - 'At most every hour'
     * `1440` - 'At most every day'

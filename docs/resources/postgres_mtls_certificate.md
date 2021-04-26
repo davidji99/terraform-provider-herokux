@@ -55,23 +55,18 @@ The following arguments are supported:
 * `database_name` - (Required) `<string>` The name of the database. Please note the following:
     * DO NOT use the database UUID.
     * It is **highly recommended** setting this attribute's value to reference an existing `herokux_postgres_mtls` resource.
-    This way, Terraform will handle the dependency chain between the two resources as you cannot create a certificate for
-    a database that is not MTLS enabled.
+      This way, Terraform will handle the dependency chain between the two resources as you cannot create a certificate for
+      a database that is not MTLS enabled.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
 * `cert_id` - The UUID of the certificate. This is a separate attribute as the resource ID is a composite value.
-
 * `name` - The name of certificate. It in the format of a hostname URL.
-
 * `status` - The status of certificate.
-
 * `expiration_date` - When the certificate expires in RFC822Z format.
-
 * `private_key` - The client private key. This attribute value does not get displayed in logs or regular output.
-
 * `certificate_with_chain` - The client certificate with chain. This attribute value does not get displayed in logs
 or regular output.
 
