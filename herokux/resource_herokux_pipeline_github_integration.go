@@ -73,10 +73,6 @@ func resourceHerokuxPipelineGithubIntegration() *schema.Resource {
 	}
 }
 
-func resourceHerokuxPipelineGithubIntegrationImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	return []*schema.ResourceData{d}, nil
-}
-
 func resourceHerokuxPipelineGithubIntegrationCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	var pipelineID string
@@ -188,6 +184,8 @@ func resourceHerokuxPipelineGithubIntegrationDelete(ctx context.Context, d *sche
 		})
 		return diags
 	}
+
+	d.SetId("")
 
 	return diags
 }
