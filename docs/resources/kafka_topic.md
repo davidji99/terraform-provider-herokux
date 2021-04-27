@@ -59,17 +59,13 @@ resource "herokux_kafka_topic" "foobar" {
 The following arguments are supported:
 
 * `kafka_id` - (Required) `<string>` The UUID of an existing Kafka instance.
-
 * `name` - (Required) `<string>` The name of the topic. Alphanumeric characters, periods, underscores, and hyphens.
 Immutable after creation.
-
 * `partitions` - (Required) `<integer>` Number of partitions. Partitions are discrete subsets of a topic used to
 balance the concerns of parallelism and ordering. Increased numbers of partitions can increase the number
 of producers and consumers that can work on a given topic, increasing parallelism and throughput.
-
 * `replication_factor` - (Optional) `<integer>` The replication factor for the topic. The default & minimum value is 3.
 The upper limit is the number of brokers available for your Kafka plan.
-
 * `retention_time` - (Optional) `<string>` How long to keep messages before they are cleaned up and removed.
 Please note the following:
     * Default and minimum value is "1d" or equivalent in other units of duration. Each Heroku Kafka plan has different maximum retention times.
@@ -81,7 +77,6 @@ Please note the following:
     For example, you must use "2w" over "14d".
     * Depending on the Kafka plan, to disable retention time, specify "disable' as this attribute's value.
     * `retention_time` is required when `compaction` is disabled. Retention time must be set for multi-tenanted plans.
-
 * `compaction` - (Optional) `<boolean>` Enable log compaction. This configuration changes the semantics of a topic such
 that it keeps only the most recent message for a given key, tombstoning any predecessor.
 This allows for the creation of a value-stream, or table-like view of data,
@@ -92,7 +87,6 @@ and is a very powerful construct in modeling your data and systems. Defaults is 
 The following attributes are exported:
 
 * `status` - (Optional) `<string>` Status of the topic.
-
 * `cleanup_policy` - (Optional) `<string>` The current cleanup policy for the topic.
 
 ## Import

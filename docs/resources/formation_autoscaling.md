@@ -118,32 +118,24 @@ resource "herokux_formation_autoscaling" "foobar" {
 The following arguments are supported:
 
 * `app_id` - (Required) `<string>` An existing app's UUID. The app name is not valid for this argument.
-
 * `process_type` - (Required) `<string>` The type of the dyno formation process, such as `web`.
-
 * `is_active` - (Required) `<boolean>` Whether to enable or disable the autoscaling.
-
 * `min_quantity` - (Required) `<integer>` Minimum dyno unit count. Must be at least 1.
-
 * `max_quantity` - (Required) `<integer>` Max dyno unit count. Must be at least one number greater than `min_quantity`.
-
 * `desired_p95_response_time` - (Required) `<integer>` Desired P95 Response Time in milliseconds. Must be at least 1ms.
-
 * `dyno_size` - (Required) `<string>` The size of dyno. (Example: “performance-l”). Capitalization does not matter.
 Only specify dyno sizes that can be autoscaled. You can only modify dynos of the same type.
-
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
 for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.
-
 * `notification_period` - (Optional) `<integer>` Not sure what this does at the moment. Default value is `0`.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `action_type`
-* `operation`
-* `quantity`
+* `action_type` - Type of formation autoscaling.
+* `operation` - Operation of the formation autoscaling.
+* `quantity` - Number of dynos
 
 ## Import
 

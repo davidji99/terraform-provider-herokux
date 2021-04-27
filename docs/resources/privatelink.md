@@ -52,7 +52,6 @@ resource "herokux_privatelink" "foobar" {
 The following arguments are supported:
 
 * `addon_id` - (Required) `<string>` The UUID of a Heroku postgres, redis or kafka addon.
-
 * `allowed_accounts` - (Required) `<list(string)>` Unordered list of AWS account IDs.
 
 ## Attributes Reference
@@ -60,7 +59,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `status` - The status of privatelink configuration.
-
 * `service_name` - The privatelink endpoint service name.
 
 ## Import

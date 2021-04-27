@@ -24,7 +24,6 @@ data "herokux_addons" "foobar" {
 The following arguments are supported:
 
 * `app_id` - (Required) The UUID of the app.
-
 * `addon_service_name` - (Optional) Filter add-ons by service name (or include all add-ons if omitted).
   E.g. `heroku-postgresql`
 

@@ -50,30 +50,23 @@ resource "herokux_postgres_credential" "foobar" {
 The following arguments are supported:
 
 * `postgres_id` - (Required) `<string>` The UUID of a Heroku postgres addon.
-
 * `name` - (Required) `<string>` Name of the credential. Credential names are restricted to alphanumeric characters
-(`-` and `_` are supported) and cannot be longer than 50 characters. Names are not an updatable attribute and will
-force and destroy and create flow if changed.
+  (`-` and `_` are supported) and cannot be longer than 50 characters. Names are not an updatable attribute and will
+  force and destroy and create flow if changed.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
 * `state` - The state of credential.
-
 * `database` - The name of the database that the credential belongs to.
-
 * `host` - The database host URL. This attribute value does not get displayed in logs or regular output.
-
 * `port` - The database port number. This attribute value does not get displayed in logs or regular output.
-
 * `secrets` - List of maps of usernames and passwords for the credential. By default, there will be always be at least
 one set of a username and password. This attribute value does not get displayed in logs or regular output.
-
     * `username` - The username. This attribute value does not get displayed in logs or regular output.
     * `password` - The password. This attribute value does not get displayed in logs or regular output.
     * `state` - The state of the secret.
-
 * `uuid` - The UUID for the credential.
 
 ## Import

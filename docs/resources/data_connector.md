@@ -65,26 +65,18 @@ The following arguments are supported:
 
 * `source_id` - (Required) `<string>` The UUID of the database instance whose change data you want to store.
 This is an existing Heroku Postgres addon.
-
 * `store_id` - (Required) `<string>` The UUID of the database instance that will store the change data.
 This is an existing Heroku Kafka addon.
-
 * `tables` - (Required) `<list(string)>` Tables to connect.
-
 * `name` - `<string>` Name of the connector. If no name is supplied, Heroku generates one automatically for you.
-
 * `state` - `<string>` Controls whether to pause or resume the data connector. Valid options are: `available` or `paused`.
 By default, the data connector is `available` on initial creation. Please also note the following:
-
     * No action is taken if `state` is set to `available` on initial resource creation.
     * No action is taken if this attribute is removed from a configuration.
     * This attribute value will generally mirror the exported `status` attribute.
-
 * `excluded_columns` - `<list(string)>` List of columns to exclude.
-
 * `settings` - `<map>` Properties of the connector. Please visit [this article](https://devcenter.heroku.com/articles/heroku-data-connectors#update-configuration)
 for a list of valid properties that can be set for this attribute. Please also note the following:
-
     * Due to API limitations, settings that are removed do not get unset remotely. Therefore, if you wish to remove a settings,
       please set its value to the default value as mentioned in the article above and keep the setting in your configuration.
 
@@ -97,11 +89,8 @@ in destruction and recreation.
 The following attributes are exported:
 
 * `status` - The status of data connector.
-
 * `lag` - The lag of the data connector.
-
 * `source_app_name` - The source's app name.
-
 * `store_app_name` - The store's app name.
 
 ## Import
