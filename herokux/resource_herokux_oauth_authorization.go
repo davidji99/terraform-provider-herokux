@@ -226,7 +226,6 @@ func resourceHerokuxOauthAuthorizationCreate(ctx context.Context, d *schema.Reso
 			Summary:  "Unable to create new OAuth authorization",
 			Detail:   createErr.Error(),
 		})
-
 		return diags
 	}
 

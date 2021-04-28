@@ -108,6 +108,18 @@ func getRedisID(d *schema.ResourceData) string {
 	return redisID
 }
 
+// getPipelineID extracts the pipeline ID attribute generically from a HerokuX resource.
+func getPipelineID(d *schema.ResourceData) string {
+	var pipelineID string
+	if v, ok := d.GetOk("pipeline_id"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] pipeline_id: %s", vs)
+		pipelineID = vs
+	}
+
+	return pipelineID
+}
+
 // getConnectID extracts the connect ID attribute generically from a HerokuX resource.
 func getConnectID(d *schema.ResourceData) string {
 	var connectID string
