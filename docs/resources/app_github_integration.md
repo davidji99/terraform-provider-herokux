@@ -13,12 +13,10 @@ This resource manages the integration between a Heroku app and GitHub repository
 Currently, this resource is only able to set up [automatic deploys](https://devcenter.heroku.com/articles/github-integration#automatic-deploys)
 for a GitHub branch on a Heroku app.
 
-### Prerequisites
-
-In order to use this resource, please first make sure you have [authorized GitHub](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration)
-to use your Heroku account. This authorization can be done via the Pipeline settings page, or the 'Deploy' tab for
-a Heroku app. Please note that revoking this authorization after you have used this resource may result in a broken
-Terraform configuration.
+-> **IMPORTANT!**
+In order to use this resource, the user authenticated to the provider must have had already [authorized GitHub](https://devcenter.heroku.com/articles/github-integration#enabling-github-integration)
+with their Heroku account. This authorization can be done via the 'Deploy' tab for a Heroku app.
+Please note that revoking this authorization after you have used this resource may result in a broken Terraform configuration.
 
 ## Example Usage
 
