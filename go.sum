@@ -81,8 +81,10 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davidji99/go-querystring v1.0.2 h1:zZUgCkhdFEsb0b1tS1zhn7FwjoRyp33J3be1av5sBi0=
 github.com/davidji99/go-querystring v1.0.2/go.mod h1:67KzURpYgsT0d/eszawoSvtpI+34vczasEK3xgrxrqA=
-github.com/davidji99/heroku-go/v5 v5.3.1-0.20210428082921-fe67fc7cc845 h1:C9nE18nPg17NAuqnS3z6/c9kr1m2m2FmcuB3+GRy4bY=
-github.com/davidji99/heroku-go/v5 v5.3.1-0.20210428082921-fe67fc7cc845/go.mod h1:QpnoxJoa1ZHOUPIrxvrQrUYgk7zRCHVvcdvZeKK36LA=
+github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513055513-a836429b7589 h1:6Xtd3dajv37OhgG4xbD5925Nm9hTbhj3W0gB6xU1nhQ=
+github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513055513-a836429b7589/go.mod h1:QpnoxJoa1ZHOUPIrxvrQrUYgk7zRCHVvcdvZeKK36LA=
+github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6 h1:ndEaO0pQpo6H8LhHAGVxVuvOg3OdcXGHhl9h25D8yH4=
+github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6/go.mod h1:QpnoxJoa1ZHOUPIrxvrQrUYgk7zRCHVvcdvZeKK36LA=
 github.com/davidji99/simpleresty v0.3.0 h1:LXOav6OJwF+25M3yrFec6kqwWLVrrTp2TRZWBCuFeUc=
 github.com/davidji99/simpleresty v0.3.0/go.mod h1:swW46D95huJNFeXlswYqwgvLk7D/GeagbPzL/MdEKek=
 github.com/elliotchance/orderedmap v1.4.0 h1:wZtfeEONCbx6in1CZyE6bELEt/vFayMvsxqI5SgsR+A=
