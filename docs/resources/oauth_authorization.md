@@ -70,7 +70,7 @@ The following arguments are supported:
 * `description` - `<string>` Set a custom authorization description.
 
 -> **IMPORTANT!**
-Modifying any of the attributes above sans `description` will result in a recreation.
+Modifying any of the attributes above sans `description` will result in a resource recreation.
 
 ## Attributes Reference
 

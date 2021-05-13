@@ -217,20 +217,22 @@ func resourceHerokuxOauthAuthorizationCreate(ctx context.Context, d *schema.Reso
 		opts.Description = &vs
 	}
 
-	log.Printf("[DEBUG] Creating new Oauth Authorization")
+	log.Printf("[DEBUG] Creating new OAuth authorization")
 
-	newToken, createErr := client.OAuthAuthorizationCreate(context.TODO(), opts)
+	newAuth, createErr := client.OAuthAuthorizationCreate(context.TODO(), opts)
 	if createErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to create new OAuth Authorization",
+			Summary:  "Unable to create new OAuth authorization",
 			Detail:   createErr.Error(),
 		})
 
 		return diags
 	}
 
-	d.SetId(newToken.ID)
+	log.Printf("[DEBUG] Created new OAuth authorization")
+
+	d.SetId(newAuth.ID)
 
 	return resourceHerokuxOauthAuthorizationRead(ctx, d, meta)
 }
@@ -317,16 +319,39 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 	d.Set("description", t.Description)
 	d.Set("token_id", t.AccessToken.ID)
 
-	//if _, ok := d.GetOk("client"); ok {
-	//	d.Set("client", t.Client.ID)
-	//}
-
 	return diags
 }
 
 func resourceHerokuxOauthAuthorizationUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Printf("[DEBUG] oauth authorization resource has no update functionality and therefore will result in a `noop`")
-	return nil
+	var diags diag.Diagnostics
+	opts := heroku.OAuthAuthorizationUpdateOpts{}
+
+	client, clientDiags := constructPlatformAPIClient(d, meta)
+	if clientDiags.HasError() {
+		return clientDiags
+	}
+
+	if d.HasChange("description") {
+		vs := d.Get("description").(string)
+		opts.Description = &vs
+	}
+
+	log.Printf("[DEBUG] Updating OAuth authorization %s", d.Id())
+
+	_, updateErr := client.OAuthAuthorizationUpdate(context.TODO(), d.Id(), opts)
+	if updateErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  fmt.Sprintf("Unable to update OAuth authorization %s", d.Id()),
+			Detail:   updateErr.Error(),
+		})
+
+		return diags
+	}
+
+	log.Printf("[DEBUG] Updated OAuth authorization %s", d.Id())
+
+	return resourceHerokuxOauthAuthorizationRead(ctx, d, meta)
 }
 
 func resourceHerokuxOauthAuthorizationDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
