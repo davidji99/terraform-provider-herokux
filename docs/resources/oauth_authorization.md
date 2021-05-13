@@ -9,6 +9,8 @@ description: |-
 # herokux\_oauth\_authorization
 
 This resource manages an [OAuth authorization](https://devcenter.heroku.com/articles/oauth#direct-authorization) in Heroku.
+Currently, this resource only supports managing an OAuth direction authorization.
+
 You can use the access token created from this resource to grant access for your own scripts on your machine
 or to other applications. These access tokens can be varied in scope and non-expiring or short-lived.
 
@@ -55,14 +57,14 @@ The following arguments are supported:
     * `read-protected` & `write-protected` - Read and write access to all of your apps and resources, excluding account information.
       This scope lets you request access to an account including access to runtime secrets such as database connection strings.
 * `auth_api_key_name` - `<string>` A name representing an existing API key for a Heroku user account.
-  Setting this attribute allows an OAuth authorization to be created in a user account that's different from the account used
-  initially to authenticate with the provider. To define the associated environment variable name,
-  replace the `%s` in `HEROKUX_%s_API_KEY` with this attribute's value. For example, if the attribute value is `myBotUser_X`,
-  the environment variable should be `HEROKUX_MYBOTUSER_X_API_KEY`. Please also note the following:
-    * If this attribute is not set, the resource will create the oauth authorization in the same account
+  Setting this attribute allows an OAuth authorization to be created in a user account that's different from the account
+  used to authenticate with the provider. To define the equivalent environment variable name, replace the `%s` in
+  `HEROKUX_%s_API_KEY` with the attribute's value. For example if the attribute value is `myBotUser_X`,
+  the environment variable should be `HEROKUX_MYBOTUSER_X_API_KEY` in all upper case. Please also note the following:
+    * If this attribute is not set, the resource **will create** the OAuth authorization in the same account
       used to authenticate with the provider.
-    * If this attribute is set and the associated environment variable is not, the resource will surface an error indicating
-      the missing environment variable.
+    * The resource will surface an error indicating the missing environment variable if this attribute is set and the
+      equivalent variable is not set in the environment.
     * A value may only include words, letters, or underscore with a max length of 32 characters. Case-insensitive.
     * Each `herokux_oauth_authorization` resource can define a unique value for this attribute. However, this translates
       to an equal number of equivalent environment variables.
