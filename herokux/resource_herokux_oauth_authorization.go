@@ -37,27 +37,20 @@ func resourceHerokuxOauthAuthorization() *schema.Resource {
 				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
+					ValidateFunc: validation.StringInSlice([]string{"global", "read",
+						"write", "read-protected", "write-protected", "identity"}, false),
 				},
-				//ValidateFunc: validation.StringInSlice([]string{"global", "read",
-				//	"write", "read-protected", "write-protected", "identity"}, false),
 				Description: "Set custom OAuth scopes",
 			},
 
 			"auth_api_key_name": {
 				Type:     schema.TypeString,
 				Optional: true,
+				ForceNew: true,
 				Description: "Any word character (letter, number, underscore) string " +
 					"representing the API key used to create the new authorization",
 				ValidateFunc: validateAuthAPIKeyName,
 			},
-
-			//"client": {
-			//	Type:         schema.TypeString,
-			//	Optional:     true,
-			//	ForceNew:     true,
-			//	Computed:     true,
-			//	ValidateFunc: validation.IsUUID,
-			//},
 
 			"time_to_live": {
 				Type:         schema.TypeInt,
@@ -71,7 +64,7 @@ func resourceHerokuxOauthAuthorization() *schema.Resource {
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
+				Computed:    true,
 				Description: "Set a custom authorization description",
 			},
 

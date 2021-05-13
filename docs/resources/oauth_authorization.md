@@ -22,13 +22,14 @@ If you wish to rotate an existing `access_token` created by this resource, the r
 and then execute `terraform apply` ONLY if the token is still valid and has not expired.
 This will generate a new authorization and access token.
 
-**DO NOT USE** `heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
+~> **WARNING:**
+Do not use`heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
 as the new access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL. This out-of-band
-TTL change does not reflect an existing resource configuration TTL and will likely lead to configuration drift.
+TTL change will not reflect an existing resource configuration TTL and will lead to configuration drift.
 
 ### Expired authorizations
-Heroku deletes an expired authorization completely from their systems, making it unavailable via the Platform API.
-In this scenario, the resource will remove itself from state and will be recreated on the next `terraform apply`.
+Heroku automatically deletes an expired authorization completely from their systems, making it unavailable during state refresh.
+In this scenario, the resource will remove itself from state and be created again on the next `terraform apply`.
 
 ## Example Usage
 
@@ -54,17 +55,22 @@ The following arguments are supported:
     * `read-protected` & `write-protected` - Read and write access to all of your apps and resources, excluding account information.
       This scope lets you request access to an account including access to runtime secrets such as database connection strings.
 * `auth_api_key_name` - `<string>` A name representing an existing API key for a Heroku user account.
-Setting this attribute allows an oauth authorization to be created in a user account that's different from the account used
-initially to authenticate with the provider. This attribute's value will then replace the `%s` in `HEROKUX_%s_API_KEY`.
-For example, if the attribute value is `myBotUser_X`, you will need to have `HEROKUX_MYBOTUSER_X_API_KEY` defined in the environment.
-Please also note the following:
+  Setting this attribute allows an OAuth authorization to be created in a user account that's different from the account used
+  initially to authenticate with the provider. To define the associated environment variable name,
+  replace the `%s` in `HEROKUX_%s_API_KEY` with this attribute's value. For example, if the attribute value is `myBotUser_X`,
+  the environment variable should be `HEROKUX_MYBOTUSER_X_API_KEY`. Please also note the following:
     * If this attribute is not set, the resource will create the oauth authorization in the same account
       used to authenticate with the provider.
+    * If this attribute is set and the associated environment variable is not, the resource will surface an error indicating
+      the missing environment variable.
     * A value may only include words, letters, or underscore with a max length of 32 characters. Case-insensitive.
     * Each `herokux_oauth_authorization` resource can define a unique value for this attribute. However, this translates
-      to an equal number of equivalent variables define in the environment.
+      to an equal number of equivalent environment variables.
 * `time_to_live` - `<integer>` Set expiration in seconds. No expiration if attribute is not set in the configuration.
 * `description` - `<string>` Set a custom authorization description.
+
+-> **IMPORTANT!**
+Modifying any of the attributes above sans `description` will result in a recreation.
 
 ## Attributes Reference
 
