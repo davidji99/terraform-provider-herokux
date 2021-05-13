@@ -19,7 +19,8 @@ Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Rotating an existing authorization access token
 If you wish to rotate an existing `access_token` created by this resource, the recommended way is to `taint` the resource
-and then execute `terraform apply`. This will generate a new authorization and access token.
+and then execute `terraform apply` ONLY if the token is still valid and has not expired.
+This will generate a new authorization and access token.
 
 **DO NOT USE** `heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
 as the new access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL. This out-of-band
@@ -27,9 +28,7 @@ TTL change does not reflect an existing resource configuration TTL and will like
 
 ### Expired authorizations
 Heroku deletes an expired authorization completely from their systems, making it unavailable via the Platform API.
-In this scenario, this resource will cause the `terraform apply` command to exit with an error
-indicating an expired authorization. Users will then need to execute `terraform taint [options] <address>` on the resource
-and `apply` again.
+In this scenario, the resource will remove itself from state and will be recreated on the next `terraform apply`.
 
 ## Example Usage
 
