@@ -259,14 +259,9 @@ func resourceHerokuxOauthAuthorizationRead(ctx context.Context, d *schema.Resour
 	t, getErr := client.OAuthAuthorizationInfo(context.TODO(), d.Id())
 	if getErr != nil {
 		// Handle when an existing oauth authorization has expired and is no longer available remotely.
-		// In this scenario, provide a specific error to diagnostics.
+		// In this scenario, remove the resource from state so it can be recreated without a `terraform state rm`.
 		if strings.Contains(getErr.Error(), "Couldn't find that OAuth") && hasCustomTTL {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("Unable to retrieve info about OAuth authorization %s", d.Id()),
-				Detail: "This authorization has likely expired as it had an custom TTL set in configuration. " +
-					"If you wish to 'regenerate' the authorization, `taint` the resource and then `apply`.",
-			})
+			d.SetId("")
 			return diags
 		}
 
