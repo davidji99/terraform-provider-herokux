@@ -8,24 +8,24 @@ description: |-
 
 # herokux\_oauth\_authorization
 
-This resource manages an [oauth authorization](https://devcenter.heroku.com/articles/oauth#direct-authorization) in Heroku.
-You can use these access tokens obtained with OAuth authorization to grant access for your own scripts on your machine
-or to other applications. Generated access tokens can be non-expiring or short-lived with varied scopes.
+This resource manages an [OAuth authorization](https://devcenter.heroku.com/articles/oauth#direct-authorization) in Heroku.
+You can use the access token created from this resource to grant access for your own scripts on your machine
+or to other applications. These access tokens can be varied in scope and non-expiring or short-lived.
 
 -> **IMPORTANT!**
-Please be very careful when deleting this resource as any deleted authorizations are NOT recoverable and invalidated immediately.
+Please be very careful when deleting this resource as the deleted authorization is NOT recoverable and invalidated immediately.
 Furthermore, this resource renders the `access_token` attribute in plain-text in your state file.
 Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Rotating an existing authorization access token
 If you wish to rotate an existing `access_token` created by this resource, the recommended way is to `taint` the resource
-and then execute `terraform apply` ONLY if the token is still valid and has not expired.
+and then execute `terraform apply` **ONLY** if the authorization is still valid and has not expired.
 This will generate a new authorization and access token.
 
 ~> **WARNING:**
 Do not use`heroku authorizations:rotate <ID>` or its underlying [API](https://devcenter.heroku.com/articles/platform-api-reference#oauth-authorization-regenerate)
-as the new access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL. This out-of-band
-TTL change will not reflect an existing resource configuration TTL and will lead to configuration drift.
+as the new authorization access token's time to live is set to 28880 seconds (~8 hours) regardless of the original TTL.
+This out-of-band time to live change will not be reflected in an existing resource configuration and will lead to configuration drift.
 
 ### Expired authorizations
 Heroku automatically deletes an expired authorization completely from their systems, making it unavailable during state refresh.
