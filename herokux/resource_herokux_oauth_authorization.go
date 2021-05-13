@@ -146,14 +146,14 @@ func resourceHerokuxOauthAuthorizationImport(ctx context.Context, d *schema.Reso
 }
 
 func constructPlatformAPIClient(d *schema.ResourceData, meta interface{}) (*heroku.Service, diag.Diagnostics) {
-	// Check if an env variable is set representing the API key of the user account the new token
-	// will be created in Heroku. This env variable name is constructed using the value of `env_var_suffix` attribute
-	// inserted into `HEROKUX_${VALUE}_API_KEY` in all capital letters.
-	// If no variable is set, then use the default PlatformAPI client created using the HEROKU_API_KEY env variable.
 	var diags diag.Diagnostics
 	client := meta.(*Config).PlatformAPI
 
 	if v, ok := d.GetOk("auth_api_key_name"); ok {
+		// Check if the associated env variable is set representing the API key of the user account the new token
+		// will be created in Heroku. If no variable is set, then use the default PlatformAPI client created using
+		// the token sourced from the HEROKU_API_KEY env variable.
+
 		vs := v.(string)
 
 		// Construct the env variable name
@@ -166,11 +166,11 @@ func constructPlatformAPIClient(d *schema.ResourceData, meta interface{}) (*hero
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("%s not found in the environment", enVarName),
-				Detail:   fmt.Sprintf("Please define a %s env variable with an API key authorized to create additional oauth authorizations.", enVarName),
+				Detail:   fmt.Sprintf("Please define %s env variable with an API key authorized to create additional OAuth authorizations.", enVarName),
 			})
 		}
 
-		// Otherwise, initialize a new PlatformAPI client with the new API key.
+		// Otherwise, initialize a PlatformAPI client with the new API key.
 		client = heroku.NewService(&http.Client{
 			Transport: &heroku.Transport{
 				Username:  "", // Email is not required
