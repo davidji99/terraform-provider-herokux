@@ -9,7 +9,8 @@ Provides a resource to manage the Ephemeral Apps permissions for Heroku pipeline
 # herokux_pipeline_ephemeral_apps_permission
 
 This resource manages the [Ephemeral Apps permissions](https://devcenter.heroku.com/articles/pipelines#ephemeral-app-permissions),
-specifically the auto-join functionality, for a Heroku Pipeline.
+specifically the auto-join functionality, for a Heroku Pipeline. Please visit [this article](https://devcenter.heroku.com/articles/pipelines#permissions-and-capabilities)
+for more information regarding each permission's capabilities.
 
 Deleting this resource from an existing configuration will turn off the auto-join functionality.
 

@@ -279,6 +279,7 @@ func New() *schema.Provider {
 			"herokux_oauth_authorization":                resourceHerokuxOauthAuthorization(),
 			"herokux_pipeline_ephemeral_apps_permission": resourceHerokuxPipelineEphemeralAppsPermission(),
 			"herokux_pipeline_github_integration":        resourceHerokuxPipelineGithubIntegration(),
+			"herokux_pipeline_member":                    resourceHerokuxPipelineMember(),
 			"herokux_postgres_backup_schedule":           resourceHerokuxPostgresBackupSchedule(),
 			"herokux_postgres_credential":                resourceHerokuxPostgresCredential(),
 			"herokux_postgres_data_link":                 resourceHerokuxPostgresDataLink(),

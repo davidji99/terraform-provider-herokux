@@ -27,7 +27,7 @@ func TestAccHerokuxPipelineEphemeralAppsPermission_Basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccCheckHerokuxPipelineEphemeralAppsPermission_basic(pipelineID, "\"view\", \"deploy\", \"operate\", \"view\", \"manage\""),
+				Config: testAccCheckHerokuxPipelineEphemeralAppsPermission_basic(pipelineID, "\"view\", \"deploy\", \"operate\", \"manage\""),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"herokux_pipeline_ephemeral_apps_permission.foobar", "pipeline_id", pipelineID),
