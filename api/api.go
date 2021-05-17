@@ -54,6 +54,12 @@ const (
 	DefaultContentTypeHeader = "application/json"
 )
 
+var (
+	// DefaultMemberPermissions is a list of the default permissions for members/collaborators
+	// on various Heroku resources.
+	DefaultMemberPermissions = []string{"view", "deploy", "operate", "manage"}
+)
+
 // Client manages communication with various Heroku APIs.
 type Client struct {
 	config *config2.Config

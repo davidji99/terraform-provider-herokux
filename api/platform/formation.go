@@ -60,7 +60,7 @@ func (p *Platform) FormationContainerBatchUpdate(appIdOrName string, opts *Forma
 	return result, response, updateErr
 }
 
-// FormationContainerBatchUpdate updates the specified process type with their target container image.
+// FormationContainerUpdate updates the specified process type with their target container image.
 //
 // To destroy an existing process type's container, pass in `nil` for the `docker_image` field in the request body.
 func (p *Platform) FormationContainerUpdate(appIdOrName string, processType string, opts *FormationDockerUpdateOpts) (

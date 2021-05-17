@@ -233,3 +233,57 @@ func (l *LogDrain) GetURL() string {
 	}
 	return *l.URL
 }
+
+// GetEphemeralApps returns the EphemeralApps field.
+func (p *Pipeline) GetEphemeralApps() *PipelinePermissionConfiguration {
+	if p == nil {
+		return nil
+	}
+	return p.EphemeralApps
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (p *PipelinePermission) GetName() string {
+	if p == nil || p.Name == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+// HasPermissions checks if PipelinePermissionConfigUpdateOpts has any Permissions.
+func (p *PipelinePermissionConfigUpdateOpts) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetEnabled returns the Enabled field if it's non-nil, zero value otherwise.
+func (p *PipelinePermissionConfiguration) GetEnabled() bool {
+	if p == nil || p.Enabled == nil {
+		return false
+	}
+	return *p.Enabled
+}
+
+// HasPermissions checks if PipelinePermissionConfiguration has any Permissions.
+func (p *PipelinePermissionConfiguration) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetSynchronization returns the Synchronization field if it's non-nil, zero value otherwise.
+func (p *PipelinePermissionConfiguration) GetSynchronization() bool {
+	if p == nil || p.Synchronization == nil {
+		return false
+	}
+	return *p.Synchronization
+}

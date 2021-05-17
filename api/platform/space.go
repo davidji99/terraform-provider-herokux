@@ -18,7 +18,7 @@ func (p *Platform) GetSpaceLogDrain(spaceID string) (*LogDrain, *simpleresty.Res
 	return result, response, getErr
 }
 
-// GetSpaceLogDrain sets a space's log drain.
+// SetSpaceLogDrain sets a space's log drain.
 //
 // To remove a log drain, pass in an empty string.
 func (p *Platform) SetSpaceLogDrain(spaceID string, url string) (*LogDrain, *simpleresty.Response, error) {
