@@ -3,6 +3,7 @@ package herokux
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"log"
 	"math/rand"
 	"regexp"
@@ -120,6 +121,30 @@ func getPipelineID(d *schema.ResourceData) string {
 	return pipelineID
 }
 
+// getEmail extracts the email attribute generically from a HerokuX resource.
+func getEmail(d *schema.ResourceData) string {
+	var email string
+	if v, ok := d.GetOk("email"); ok {
+		vs := v.(string)
+		log.Printf("[DEBUG] email: %s", vs)
+		email = vs
+	}
+
+	return email
+}
+
+func getPermissions(d *schema.ResourceData) []string {
+	permissions := make([]string, 0)
+	if v, ok := d.GetOk("permissions"); ok {
+		vl := v.(*schema.Set).List()
+		for _, l := range vl {
+			permissions = append(permissions, l.(string))
+		}
+		log.Printf("[DEBUG] permissions: %s", permissions)
+	}
+	return permissions
+}
+
 // getConnectID extracts the connect ID attribute generically from a HerokuX resource.
 func getConnectID(d *schema.ResourceData) string {
 	var connectID string
@@ -200,4 +225,12 @@ func validateMaintenanceWindow(v interface{}, k string) (ws []string, errors []e
 
 func convertIntToJSONNumber(i int) json.Number {
 	return json.Number(strconv.Itoa(i))
+}
+
+func setPermissionsInState(d *schema.ResourceData, permissions []*platform.Permission) {
+	p := make([]string, 0)
+	for _, perm := range permissions {
+		p = append(p, perm.GetName())
+	}
+	d.Set("permissions", p)
 }

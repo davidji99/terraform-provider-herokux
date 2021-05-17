@@ -234,6 +234,14 @@ func (l *LogDrain) GetURL() string {
 	return *l.URL
 }
 
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (p *Permission) GetName() string {
+	if p == nil || p.Name == nil {
+		return ""
+	}
+	return *p.Name
+}
+
 // GetEphemeralApps returns the EphemeralApps field.
 func (p *Pipeline) GetEphemeralApps() *PipelinePermissionConfiguration {
 	if p == nil {
@@ -242,12 +250,66 @@ func (p *Pipeline) GetEphemeralApps() *PipelinePermissionConfiguration {
 	return p.EphemeralApps
 }
 
-// GetName returns the Name field if it's non-nil, zero value otherwise.
-func (p *PipelinePermission) GetName() string {
-	if p == nil || p.Name == nil {
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (p *PipelineMembership) GetCreatedAt() time.Time {
+	if p == nil || p.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *p.CreatedAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (p *PipelineMembership) GetID() string {
+	if p == nil || p.ID == nil {
 		return ""
 	}
-	return *p.Name
+	return *p.ID
+}
+
+// HasPermissions checks if PipelineMembership has any Permissions.
+func (p *PipelineMembership) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetPipeline returns the Pipeline field.
+func (p *PipelineMembership) GetPipeline() *Pipeline {
+	if p == nil {
+		return nil
+	}
+	return p.Pipeline
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (p *PipelineMembership) GetUpdatedAt() time.Time {
+	if p == nil || p.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *p.UpdatedAt
+}
+
+// GetUser returns the User field.
+func (p *PipelineMembership) GetUser() *User {
+	if p == nil {
+		return nil
+	}
+	return p.User
+}
+
+// HasPermissions checks if PipelineMembershipRequestOpts has any Permissions.
+func (p *PipelineMembershipRequestOpts) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
 }
 
 // HasPermissions checks if PipelinePermissionConfigUpdateOpts has any Permissions.
@@ -286,4 +348,20 @@ func (p *PipelinePermissionConfiguration) GetSynchronization() bool {
 		return false
 	}
 	return *p.Synchronization
+}
+
+// GetEmail returns the Email field if it's non-nil, zero value otherwise.
+func (u *User) GetEmail() string {
+	if u == nil || u.Email == nil {
+		return ""
+	}
+	return *u.Email
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (u *User) GetID() string {
+	if u == nil || u.ID == nil {
+		return ""
+	}
+	return *u.ID
 }

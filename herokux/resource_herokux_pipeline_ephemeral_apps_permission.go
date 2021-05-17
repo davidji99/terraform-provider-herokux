@@ -58,29 +58,20 @@ func updatePipelineEphemeralAppsPermission(d *schema.ResourceData, meta interfac
 	opts := &platform.PipelinePermissionConfigUpdateOpts{}
 
 	pipelineID := getPipelineID(d)
+	opts.Permissions = getPermissions(d)
 
-	if v, ok := d.GetOk("permissions"); ok {
-		vl := v.(*schema.Set).List()
-		perms := make([]string, 0)
-		for _, l := range vl {
-			perms = append(perms, l.(string))
-		}
-		log.Printf("[DEBUG] permissions: %s", perms)
-		opts.Permissions = perms
+	// Set the other fields on opts to `true`.
+	opts.Enabled = true
+	opts.Synchronization = true
 
-		// Set the other fields on opts to `true`.
-		opts.Enabled = true
-		opts.Synchronization = true
-	}
-
-	log.Printf("[DEBUG] Setting ephemeral apps permission for pipeline %s", pipelineID)
+	log.Printf("[DEBUG] Setting ephemeral apps permissions for pipeline %s", pipelineID)
 
 	p, _, setErr := client.Platform.UpdatePipelinePermissionConfig(pipelineID, opts)
 	if setErr != nil {
 		return nil, setErr
 	}
 
-	log.Printf("[DEBUG] Set ephemeral apps permission for pipeline %s", pipelineID)
+	log.Printf("[DEBUG] Set ephemeral apps permissions for pipeline %s", pipelineID)
 
 	return p, nil
 }
@@ -136,13 +127,7 @@ func resourceHerokuxPipelineEphemeralAppsPermissionRead(ctx context.Context, d *
 	d.Set("pipeline_id", p.ID)
 	d.Set("pipeline_name", p.Name)
 	d.Set("owner_id", p.Owner.ID)
-
-	permissions := make([]string, 0)
-	permRaw := p.GetEphemeralApps().Permissions
-	for _, perm := range permRaw {
-		permissions = append(permissions, perm.GetName())
-	}
-	d.Set("permissions", permissions)
+	setPermissionsInState(d, p.GetEphemeralApps().Permissions)
 
 	return diags
 }
@@ -155,6 +140,8 @@ func resourceHerokuxPipelineEphemeralAppsPermissionDelete(ctx context.Context, d
 		Synchronization: false,
 	}
 
+	log.Printf("[DEBUG] Unsetting ephemeral apps permissions for pipeline %s", d.Id())
+
 	// Delete the resource by disabling the permission(s).
 	_, _, deleteErr := client.Platform.UpdatePipelinePermissionConfig(d.Id(), opts)
 	if deleteErr != nil {
@@ -165,6 +152,8 @@ func resourceHerokuxPipelineEphemeralAppsPermissionDelete(ctx context.Context, d
 		})
 		return diags
 	}
+
+	log.Printf("[DEBUG] Unset ephemeral apps permissions for pipeline %s", d.Id())
 
 	d.SetId("")
 

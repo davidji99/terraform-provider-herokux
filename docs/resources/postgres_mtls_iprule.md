@@ -69,7 +69,8 @@ The following attributes are exported:
 
 ## Import
 
-An existing database MTLS IP rule can be imported using a composite value of the database name and IP CIDR separated by a colon.
+An existing database MTLS IP rule can be imported using a composite value of the database name and IP CIDR separated
+by a colon.
 
 For example:
 

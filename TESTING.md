@@ -44,6 +44,7 @@ The following parameters are available for running the test. The absence of some
 * **HEROKUX_IMAGE_ID** (`string`) - The UUID of an existing docker image in Heroku.
 * **HEROKUX_PIPELINE_ID** (`string`) - The UUID of an existing pipeline.
 * **HEROKUX_GITHUB_ORG_REPO** (`string`) - The org/repo of an existing Github repository.
+* **HEROKUX_USER_EMAIL** (`string`) - Email address of an existing Heroku user.
 
 **For example:**
 ```bash

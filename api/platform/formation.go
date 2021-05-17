@@ -12,11 +12,11 @@ type Formation struct {
 		Name *string `json:"name" url:"name,key"` // unique name of app
 	} `json:"app" url:"app,key"` // app formation belongs to
 	Command     *string          `json:"command" url:"command,key"`       // command to use to launch this process
-	CreatedAt   *time.Time       `json:"created_at" url:"created_at,key"` // when process type was created
 	ID          *string          `json:"id" url:"id,key"`                 // unique identifier of this process type
-	Quantity    int              `json:"quantity" url:"quantity,key"`     // number of processes to maintain
 	Size        *string          `json:"size" url:"size,key"`             // dyno size (default: "standard-1X")
 	Type        *string          `json:"type" url:"type,key"`             // type of process to maintain
+	Quantity    int              `json:"quantity" url:"quantity,key"`     // number of processes to maintain
+	CreatedAt   *time.Time       `json:"created_at" url:"created_at,key"` // when process type was created
 	UpdatedAt   *time.Time       `json:"updated_at" url:"updated_at,key"` // when dyno type was updated
 	DockerImage *FormationDocker `json:"docker_image,omitempty" url:"docker_image,key"`
 }

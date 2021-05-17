@@ -15,14 +15,9 @@ type Pipeline struct {
 
 // PipelinePermissionConfiguration represents the permission configuration for review and CI apps on a pipeline.
 type PipelinePermissionConfiguration struct {
-	Enabled         *bool                 `json:"collaborators_enabled,omitempty"`
-	Synchronization *bool                 `json:"collaborator_synchronization,omitempty"`
-	Permissions     []*PipelinePermission `json:"collaborator_permissions,omitempty"`
-}
-
-// PipelinePermission represents the pipeline permission.
-type PipelinePermission struct {
-	Name *string `json:"name,omitempty"`
+	Enabled         *bool         `json:"collaborators_enabled,omitempty"`
+	Synchronization *bool         `json:"collaborator_synchronization,omitempty"`
+	Permissions     []*Permission `json:"collaborator_permissions,omitempty"`
 }
 
 // PipelinePermissionConfigUpdateOpts represents a request to modify a pipeline's permissions.
