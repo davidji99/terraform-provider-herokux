@@ -41,6 +41,8 @@ func (p *Platform) ListPipelineMembers(pipelineID string) ([]*PipelineMembership
 }
 
 // FindPipelineMembersByEmail retrieves a membership to a pipeline by email.
+//
+// Returns a PermissionNotFoundError if specified user has not been added to the pipeline.
 func (p *Platform) FindPipelineMembersByEmail(pipelineID, email string) (*PipelineMembership, *simpleresty.Response, error) {
 	members, listResponse, listErr := p.ListPipelineMembers(pipelineID)
 	if listErr != nil {
@@ -53,7 +55,7 @@ func (p *Platform) FindPipelineMembersByEmail(pipelineID, email string) (*Pipeli
 		}
 	}
 
-	return nil, nil, fmt.Errorf("did not find %s on pipeline %s", email, pipelineID)
+	return nil, nil, PermissionNotFoundError{error: fmt.Errorf("did not find %s on pipeline %s", email, pipelineID)}
 }
 
 // AddPipelineMember adds a member to a pipeline.
