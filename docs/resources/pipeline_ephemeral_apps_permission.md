@@ -39,8 +39,8 @@ The following arguments are supported:
 * `permissions` - (Required) `<list(string)>` What permissions all users with “member” role in the Enterprise Teams and Heroku Teams
   should be automatically granted for the pipeline's ephemeral apps. Acceptable permissions are `view`, `operate`,
   `deploy`, and `manage`. At least one permission is required.
-  * Please note that the `view` is always set even if not explicitly defined for this attribute. Therefore, it is
-    recommended to define the `view` permission in your configuration to match what permissions will be set remotely.
+    * Please note that the `view` is always set even if not explicitly defined for this attribute. Therefore, it is
+      recommended to define the `view` permission in your configuration to match what permissions will be set remotely.
 
 ## Attributes Reference
 
