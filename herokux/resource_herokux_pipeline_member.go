@@ -137,6 +137,14 @@ func resourceHerokuxPipelineMemberRead(ctx context.Context, d *schema.ResourceDa
 
 	membership, _, readErr := client.Platform.FindPipelineMembersByEmail(pipelineID, email)
 	if readErr != nil {
+		_, notFound := readErr.(platform.PermissionNotFoundError)
+		if notFound {
+			// Remove resource from state if by chance the user was removed from the pipeline manually.
+			log.Printf("[DEBUG] No permissions found for %s on pipeline %s", email, pipelineID)
+			d.SetId("")
+			return nil
+		}
+
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  fmt.Sprintf("Unable to retrieve %s's membership on pipeline %s", email, pipelineID),
