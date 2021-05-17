@@ -1,21 +1,21 @@
 ---
 layout: "herokux"
-page_title: "HerokuX: herokux_pipeline_ephemeral_apps_permission"
-sidebar_current: "docs-herokux-resource-pipeline-ephemeral-apps-permission"
+page_title: "HerokuX: herokux_pipeline_ephemeral_apps_config"
+sidebar_current: "docs-herokux-resource-pipeline-ephemeral-apps-config"
 description: |-
-Provides a resource to manage the Ephemeral Apps permissions for Heroku pipeline.
+Provides a resource to manage the Ephemeral Apps configuration for Heroku pipeline.
 ---
 
-# herokux_pipeline_ephemeral_apps_permission
+# herokux_pipeline_ephemeral_apps_config
 
-This resource manages the [Ephemeral Apps permissions](https://devcenter.heroku.com/articles/pipelines#ephemeral-app-permissions),
+This resource manages the [Ephemeral Apps configuration](https://devcenter.heroku.com/articles/pipelines#ephemeral-app-permissions),
 specifically the auto-join functionality, for a Heroku Pipeline. Please visit [this article](https://devcenter.heroku.com/articles/pipelines#permissions-and-capabilities)
 for more information regarding each permission's capabilities.
 
-Deleting this resource from an existing configuration will turn off the auto-join functionality.
+Deleting this resource from an existing configuration will essentially turn off the auto-join functionality.
 
 -> **IMPORTANT!**
-Any changes to permissions will only be applied to new apps from the time you make those changes.
+Any changes to the auto-join permissions will only be applied to new apps from the time you make those changes.
 The changes do not apply existing apps.
 
 ## Example Usage
@@ -26,7 +26,7 @@ resource "heroku_pipeline" "foobar" {
   name = "foobar-pipeline"
 }
 
-resource "herokux_pipeline_ephemeral_apps_permission" "foobar" {
+resource "herokux_pipeline_ephemeral_apps_config" "foobar" {
   pipeline_id = heroku_pipeline.foobar.id
   permissions = ["view", "operate", "manage"]
 }
@@ -37,7 +37,7 @@ resource "herokux_pipeline_ephemeral_apps_permission" "foobar" {
 The following arguments are supported:
 
 * `pipeline_id` - (Required) `<string>` The UUID for a Heroku pipeline.
-* `permissions` - (Required) `<list(string)>` What permissions all users with “member” role in the Enterprise Teams and Heroku Teams
+* `permissions` - (Required) `<list(string)>` What auto-join permissions all users with “member” role in the Enterprise Teams and Heroku Teams
   should be automatically granted for the pipeline's ephemeral apps. Acceptable permissions are `view`, `operate`,
   `deploy`, and `manage`. At least one permission is required.
     * Please note that the `view` is always set even if not explicitly defined for this attribute. Therefore, it is
@@ -58,5 +58,5 @@ An existing pipeline Ephemeral Apps permission can be imported using the pipelin
 For example:
 
 ```shell script
-$ terraform import herokux_pipeline_ephemeral_apps_permission.foobar "2508ebbd-74bb-4e81-a63c-d193d2bd5716"
+$ terraform import herokux_pipeline_ephemeral_apps_config.foobar "2508ebbd-74bb-4e81-a63c-d193d2bd5716"
 ```

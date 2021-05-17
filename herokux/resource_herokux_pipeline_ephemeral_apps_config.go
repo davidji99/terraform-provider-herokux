@@ -11,12 +11,12 @@ import (
 	"log"
 )
 
-func resourceHerokuxPipelineEphemeralAppsPermission() *schema.Resource {
+func resourceHerokuxPipelineEphemeralAppsConfig() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxPipelineEphemeralAppsPermissionCreate,
-		ReadContext:   resourceHerokuxPipelineEphemeralAppsPermissionRead,
-		UpdateContext: resourceHerokuxPipelineEphemeralAppsPermissionUpdate,
-		DeleteContext: resourceHerokuxPipelineEphemeralAppsPermissionDelete,
+		CreateContext: resourceHerokuxPipelineEphemeralAppsConfigCreate,
+		ReadContext:   resourceHerokuxPipelineEphemeralAppsConfigRead,
+		UpdateContext: resourceHerokuxPipelineEphemeralAppsConfigUpdate,
+		DeleteContext: resourceHerokuxPipelineEphemeralAppsConfigDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -55,7 +55,7 @@ func resourceHerokuxPipelineEphemeralAppsPermission() *schema.Resource {
 
 func updatePipelineEphemeralAppsPermission(d *schema.ResourceData, meta interface{}) (*platform.Pipeline, error) {
 	client := meta.(*Config).API
-	opts := &platform.PipelinePermissionConfigUpdateOpts{}
+	opts := &platform.PipelineEphemeralAppsConfigUpdateOpts{}
 
 	pipelineID := getPipelineID(d)
 	opts.Permissions = getPermissions(d)
@@ -66,7 +66,7 @@ func updatePipelineEphemeralAppsPermission(d *schema.ResourceData, meta interfac
 
 	log.Printf("[DEBUG] Setting ephemeral apps permissions for pipeline %s", pipelineID)
 
-	p, _, setErr := client.Platform.UpdatePipelinePermissionConfig(pipelineID, opts)
+	p, _, setErr := client.Platform.UpdatePipelineEphemeralAppsConfig(pipelineID, opts)
 	if setErr != nil {
 		return nil, setErr
 	}
@@ -76,7 +76,7 @@ func updatePipelineEphemeralAppsPermission(d *schema.ResourceData, meta interfac
 	return p, nil
 }
 
-func resourceHerokuxPipelineEphemeralAppsPermissionCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPipelineEphemeralAppsConfigCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	p, setErr := updatePipelineEphemeralAppsPermission(d, meta)
@@ -91,10 +91,10 @@ func resourceHerokuxPipelineEphemeralAppsPermissionCreate(ctx context.Context, d
 
 	d.SetId(p.ID)
 
-	return resourceHerokuxPipelineEphemeralAppsPermissionRead(ctx, d, meta)
+	return resourceHerokuxPipelineEphemeralAppsConfigRead(ctx, d, meta)
 }
 
-func resourceHerokuxPipelineEphemeralAppsPermissionUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPipelineEphemeralAppsConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	_, setErr := updatePipelineEphemeralAppsPermission(d, meta)
@@ -107,14 +107,14 @@ func resourceHerokuxPipelineEphemeralAppsPermissionUpdate(ctx context.Context, d
 		return diags
 	}
 
-	return resourceHerokuxPipelineEphemeralAppsPermissionRead(ctx, d, meta)
+	return resourceHerokuxPipelineEphemeralAppsConfigRead(ctx, d, meta)
 }
 
-func resourceHerokuxPipelineEphemeralAppsPermissionRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPipelineEphemeralAppsConfigRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
-	p, _, readErr := client.Platform.GetPipelinePermissionConfig(d.Id())
+	p, _, readErr := client.Platform.GetPipelineEphemeralAppsConfig(d.Id())
 	if readErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -132,10 +132,10 @@ func resourceHerokuxPipelineEphemeralAppsPermissionRead(ctx context.Context, d *
 	return diags
 }
 
-func resourceHerokuxPipelineEphemeralAppsPermissionDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceHerokuxPipelineEphemeralAppsConfigDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
-	opts := &platform.PipelinePermissionConfigUpdateOpts{
+	opts := &platform.PipelineEphemeralAppsConfigUpdateOpts{
 		Enabled:         true,
 		Synchronization: false,
 	}
@@ -143,7 +143,7 @@ func resourceHerokuxPipelineEphemeralAppsPermissionDelete(ctx context.Context, d
 	log.Printf("[DEBUG] Unsetting ephemeral apps permissions for pipeline %s", d.Id())
 
 	// Delete the resource by disabling the permission(s).
-	_, _, deleteErr := client.Platform.UpdatePipelinePermissionConfig(d.Id(), opts)
+	_, _, deleteErr := client.Platform.UpdatePipelineEphemeralAppsConfig(d.Id(), opts)
 	if deleteErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

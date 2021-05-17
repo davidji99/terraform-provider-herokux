@@ -13,7 +13,7 @@ pipeline's ephemeral apps such as review and CI apps. Please visit [this article
 for more information regarding each permission's capabilities.
 
 If you find yourself needing to constantly add users with “member” role in the Enterprise Teams and Heroku Teams,
-consider using the `herokux_pipeline_ephemeral_apps_permission` resource.
+consider using the `herokux_pipeline_ephemeral_apps_config` resource.
 
 ## Example Usage
 
