@@ -243,11 +243,49 @@ func (p *Permission) GetName() string {
 }
 
 // GetEphemeralApps returns the EphemeralApps field.
-func (p *Pipeline) GetEphemeralApps() *PipelinePermissionConfiguration {
+func (p *Pipeline) GetEphemeralApps() *PipelineEphemeralAppsConfig {
 	if p == nil {
 		return nil
 	}
 	return p.EphemeralApps
+}
+
+// GetEnabled returns the Enabled field if it's non-nil, zero value otherwise.
+func (p *PipelineEphemeralAppsConfig) GetEnabled() bool {
+	if p == nil || p.Enabled == nil {
+		return false
+	}
+	return *p.Enabled
+}
+
+// HasPermissions checks if PipelineEphemeralAppsConfig has any Permissions.
+func (p *PipelineEphemeralAppsConfig) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
+}
+
+// GetSynchronization returns the Synchronization field if it's non-nil, zero value otherwise.
+func (p *PipelineEphemeralAppsConfig) GetSynchronization() bool {
+	if p == nil || p.Synchronization == nil {
+		return false
+	}
+	return *p.Synchronization
+}
+
+// HasPermissions checks if PipelineEphemeralAppsConfigUpdateOpts has any Permissions.
+func (p *PipelineEphemeralAppsConfigUpdateOpts) HasPermissions() bool {
+	if p == nil || p.Permissions == nil {
+		return false
+	}
+	if len(p.Permissions) == 0 {
+		return false
+	}
+	return true
 }
 
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
@@ -310,44 +348,6 @@ func (p *PipelineMembershipRequestOpts) HasPermissions() bool {
 		return false
 	}
 	return true
-}
-
-// HasPermissions checks if PipelinePermissionConfigUpdateOpts has any Permissions.
-func (p *PipelinePermissionConfigUpdateOpts) HasPermissions() bool {
-	if p == nil || p.Permissions == nil {
-		return false
-	}
-	if len(p.Permissions) == 0 {
-		return false
-	}
-	return true
-}
-
-// GetEnabled returns the Enabled field if it's non-nil, zero value otherwise.
-func (p *PipelinePermissionConfiguration) GetEnabled() bool {
-	if p == nil || p.Enabled == nil {
-		return false
-	}
-	return *p.Enabled
-}
-
-// HasPermissions checks if PipelinePermissionConfiguration has any Permissions.
-func (p *PipelinePermissionConfiguration) HasPermissions() bool {
-	if p == nil || p.Permissions == nil {
-		return false
-	}
-	if len(p.Permissions) == 0 {
-		return false
-	}
-	return true
-}
-
-// GetSynchronization returns the Synchronization field if it's non-nil, zero value otherwise.
-func (p *PipelinePermissionConfiguration) GetSynchronization() bool {
-	if p == nil || p.Synchronization == nil {
-		return false
-	}
-	return *p.Synchronization
 }
 
 // GetEmail returns the Email field if it's non-nil, zero value otherwise.

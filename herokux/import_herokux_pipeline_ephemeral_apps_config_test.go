@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAccHerokuxPipelineEphemeralAppsPermission_importBasic(t *testing.T) {
+func TestAccHerokuxPipelineEphemeralAppsConfig_importBasic(t *testing.T) {
 	pipelineID := testAccConfig.GetPipelineIDorSkip(t)
 
 	resource.Test(t, resource.TestCase{
@@ -15,11 +15,11 @@ func TestAccHerokuxPipelineEphemeralAppsPermission_importBasic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxPipelineEphemeralAppsPermission_basic(pipelineID,
+				Config: testAccCheckHerokuxPipelineEphemeralAppsConfig_basic(pipelineID,
 					"\"view\", \"deploy\", \"operate\""),
 			},
 			{
-				ResourceName:      "herokux_pipeline_ephemeral_apps_permission.foobar",
+				ResourceName:      "herokux_pipeline_ephemeral_apps_config.foobar",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

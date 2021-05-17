@@ -10,17 +10,17 @@ type Pipeline struct {
 	// Embed the heroku-go Pipeline struct
 	*heroku.Pipeline
 
-	EphemeralApps *PipelinePermissionConfiguration `json:"ephemeral_apps,omitempty"`
+	EphemeralApps *PipelineEphemeralAppsConfig `json:"ephemeral_apps,omitempty"`
 }
 
-// PipelinePermissionConfiguration represents the permission configuration for review and CI apps on a pipeline.
-type PipelinePermissionConfiguration struct {
+// PipelineEphemeralAppsConfig represents the permission configuration for review and CI apps on a pipeline.
+type PipelineEphemeralAppsConfig struct {
 	Enabled         *bool         `json:"collaborators_enabled,omitempty"`
 	Synchronization *bool         `json:"collaborator_synchronization,omitempty"`
 	Permissions     []*Permission `json:"collaborator_permissions,omitempty"`
 }
 
-// PipelinePermissionConfigUpdateOpts represents a request to modify a pipeline's permissions.
+// PipelineEphemeralAppsConfigUpdateOpts represents a request to modify a pipeline's permissions.
 //
 // Notes about the update request:
 // - The value of the Enabled field doesn't matter.
@@ -29,16 +29,16 @@ type PipelinePermissionConfiguration struct {
 // - Keep Enabled to `true` at all times.
 // - By default, 'view' permission is always set even if it is not present in the request.
 // - If you only define 'deploy' for a permission, 'view' is automatically added.
-type PipelinePermissionConfigUpdateOpts struct {
+type PipelineEphemeralAppsConfigUpdateOpts struct {
 	Enabled         bool     `json:"collaborators_enabled"`
 	Synchronization bool     `json:"collaborator_synchronization"`
 	Permissions     []string `json:"collaborator_permissions,omitempty"`
 }
 
-// GetPipelinePermissionConfig returns information about a pipeline's permission configuration.
+// GetPipelineEphemeralAppsConfig returns information about a pipeline's ephemeral apps configuration.
 //
 // This method also returns basic information about the pipeline itself.
-func (p *Platform) GetPipelinePermissionConfig(pipelineID string) (*Pipeline, *simpleresty.Response, error) {
+func (p *Platform) GetPipelineEphemeralAppsConfig(pipelineID string) (*Pipeline, *simpleresty.Response, error) {
 	defer p.resetAcceptHeader()
 
 	var result Pipeline
@@ -54,8 +54,8 @@ func (p *Platform) GetPipelinePermissionConfig(pipelineID string) (*Pipeline, *s
 	return &result, response, updateErr
 }
 
-// UpdatePipelinePermissionConfig updates an existing pipeline permission configuration.
-func (p *Platform) UpdatePipelinePermissionConfig(pipelineID string, opts *PipelinePermissionConfigUpdateOpts) (*Pipeline, *simpleresty.Response, error) {
+// UpdatePipelineEphemeralAppsConfig updates an existing pipeline permission configuration.
+func (p *Platform) UpdatePipelineEphemeralAppsConfig(pipelineID string, opts *PipelineEphemeralAppsConfigUpdateOpts) (*Pipeline, *simpleresty.Response, error) {
 	defer p.resetAcceptHeader()
 
 	var result Pipeline
@@ -67,7 +67,7 @@ func (p *Platform) UpdatePipelinePermissionConfig(pipelineID string, opts *Pipel
 
 	// Construct request body
 	o := struct {
-		EphemeralApps *PipelinePermissionConfigUpdateOpts `json:"ephemeral_apps"`
+		EphemeralApps *PipelineEphemeralAppsConfigUpdateOpts `json:"ephemeral_apps"`
 	}{
 		EphemeralApps: opts,
 	}
