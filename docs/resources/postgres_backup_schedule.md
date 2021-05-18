@@ -24,8 +24,22 @@ are likely to fail.
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_postgres_backup_schedule" "foobar" {
-  postgres_id = "2508ebbd-74bb-4e81-a63c-d193d2bd5716"
+  postgres_id = heroku_addon.database.id
   hour        = 3
   timezone    = "Australia/Perth"
 }

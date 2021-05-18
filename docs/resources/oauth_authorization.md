@@ -37,10 +37,10 @@ In this scenario, the resource will remove itself from state and be created agai
 
 ```hcl-terraform
 resource "herokux_oauth_authorization" "foobar" {
-	scope = ["read"]
-	auth_api_key_name = "MYBOTUSER"
-	time_to_live = 100000
-	description = "This is an oauth authorization test from Terraform"
+  scope = ["read"]
+  auth_api_key_name = "MYBOTUSER"
+  time_to_live = 100000
+  description = "This is an oauth authorization test from Terraform"
 }
 ```
 

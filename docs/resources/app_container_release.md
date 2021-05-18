@@ -35,9 +35,9 @@ data "herokux_registry_image" "foobar" {
 }
 
 resource "herokux_app_container_release" "foobar" {
-	app_id = heroku_app.foobar.uuid
-	image_id = data.herokux_registry_image.foobar.digest
-	process_type = "web"
+  app_id = heroku_app.foobar.uuid
+  image_id = data.herokux_registry_image.foobar.digest
+  process_type = "web"
 }
 
 # Update the web formation for the foobar application's web process type

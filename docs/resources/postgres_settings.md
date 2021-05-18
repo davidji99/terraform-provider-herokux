@@ -36,12 +36,26 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_postgres_settings" "foobar" {
-	postgres_id = "867f0740-82f9-4b9d-9994-cfbae2011abc"
-	log_lock_waits = true
-	log_connections = false
-	log_min_duration_statement = 123
-	log_statement = "none"
+  postgres_id = heroku_addon.database.id
+  log_lock_waits = true
+  log_connections = false
+  log_min_duration_statement = 123
+  log_statement = "none"
 }
 ```
 

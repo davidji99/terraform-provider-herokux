@@ -41,9 +41,23 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_privatelink" "foobar" {
-	addon_id = "6e00025a-306c-406a-9f95-cda26bee2a86"
-	allowed_accounts = ["123456789123", "123456789124"]
+  addon_id = heroku_addon.database.id
+  allowed_accounts = ["123456789123", "123456789124"]
 }
 ```
 

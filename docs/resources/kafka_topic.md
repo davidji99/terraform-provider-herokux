@@ -44,13 +44,27 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "kafka" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-kafka:standard-0"
+}
+
 resource "herokux_kafka_topic" "foobar" {
-	kafka_id = "11db7126-0cb7-4b42-a64a-d4ae70110216"
-	name = "my-cool-topic"
-	partitions = 8
-	replication_factor = 3
-	retention_time = "2d"
-	compaction = true
+  kafka_id = heroku_addon.kafka.id
+  name = "my-cool-topic"
+  partitions = 8
+  replication_factor = 3
+  retention_time = "2d"
+  compaction = true
 }
 ```
 

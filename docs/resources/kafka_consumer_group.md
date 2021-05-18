@@ -29,9 +29,23 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "kafka" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-kafka:standard-0"
+}
+
 resource "herokux_kafka_consumer_group" "foobar" {
-	kafka_id = "2bccd770-e7aa-4865-98d2-6e222f2d2582"
-	name = "my new group"
+ kafka_id = heroku_addon.kafka.id
+ name = "my new group"
 }
 ```
 

@@ -37,14 +37,28 @@ to add, please utilize Terraform's `count` or `for_each` expression to keep your
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_postgres_mtls" "foobar" {
-	database_name = "my_database_name"
+  database_name = heroku_addon.database.name
 }
 
 resource "herokux_postgres_mtls_iprule" "foobar" {
-	database_name = herokux_postgres_mtls.foobar.database_name
-	cidr = "1.2.3.4/32"
-	description = "this is a test IP rule"
+  database_name = herokux_postgres_mtls.foobar.database_name
+  cidr = "1.2.3.4/32"
+  description = "this is a test IP rule"
 }
 ```
 

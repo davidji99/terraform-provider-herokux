@@ -31,7 +31,7 @@ test: fmtcheck
 		xargs -t -n4 go test -v $(TESTARGS) -timeout=30s -parallel=4
 
 testacc: fmtcheck
-	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 120m -ldflags="-X=github.com/davidji99/terraform-provider-${PKG_NAME}/version.ProviderVersion=test"
+	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/davidji99/terraform-provider-${PKG_NAME}/version.ProviderVersion=test"
 
 vet:
 	@echo "go vet ."

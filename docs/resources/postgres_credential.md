@@ -21,8 +21,11 @@ Furthermore, this resource renders the `secrets.username` & `secrets.password` a
 Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Resource Timeouts
-During creation and deletion, this resource checks the status of the credential. All the aforementioned timeouts
-can be customized via the `timeouts.postgres_credential_create_timeout` and
+During creation and deletion, this resource checks the status of the credential. Additionally, for Premium, Private,
+and Shield databases, the provider verifies the database's Fork/Follow status prior to creating the credential.
+Credentials cannot be created on these databases if the Fork/Follow status is not set to 'Available'.
+
+All the aforementioned timeouts can be customized via the `timeouts.postgres_credential_create_timeout` and
 `timeouts.postgres_credential_delete_timeout` attributes in your `provider` block.
 
 For example:
@@ -32,6 +35,7 @@ provider "herokux" {
   timeouts {
     postgres_credential_create_timeout = 20
     postgres_credential_delete_timeout = 20
+    postgres_credential_pre_create_verify_timeout = 30
   }
 }
 ```
@@ -39,9 +43,23 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
-resource "herokux_postgres_credential" "foobar" {
-	postgres_id = "2508ebbd-74bb-4e81-a63c-d193d2bd5716"
-	name = "read-only-credential"
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
+resource "herokux_postgres_credential" "read-only" {
+  postgres_id = heroku_addon.database.id
+  name = "read-only-credential"
 }
 ```
 

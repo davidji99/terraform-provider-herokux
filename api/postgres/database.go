@@ -1,8 +1,11 @@
 package postgres
 
-import "github.com/davidji99/simpleresty"
+import (
+	"fmt"
+	"github.com/davidji99/simpleresty"
+)
 
-// Database represents a Heroku postgres database
+// Database represents a Heroku postgres database.
 type Database struct {
 	Following           *string         `json:"following,omitempty"`
 	HotStandby          *bool           `json:"hot_standby,omitempty"`
@@ -18,7 +21,7 @@ type Database struct {
 	Info                []*DatabaseInfo `json:"info,omitempty"`
 }
 
-// DatabaseLeader represents a database's leader
+// DatabaseLeader represents a database's leader.
 type DatabaseLeader struct {
 	AddonID *string `json:"addon_id,omitempty"`
 	Name    *string `json:"name,omitempty"`
@@ -31,7 +34,16 @@ type DatabaseInfo struct {
 	ResolveDBName *bool         `json:"resolve_db_name,omitempty"`
 }
 
-// DatabaseWaitStatus rerepresents the status of a database.
+func (d *Database) RetrieveSpecificInfo(name string) (*DatabaseInfo, error) {
+	for _, info := range d.Info {
+		if info.GetName() == name {
+			return info, nil
+		}
+	}
+	return nil, fmt.Errorf("specific DB info not found")
+}
+
+// DatabaseWaitStatus represents the status of a database.
 type DatabaseWaitStatus struct {
 	Status    *string `json:"message,omitempty"`
 	IsWaiting *string `json:"waiting?,omitempty"`
@@ -59,7 +71,7 @@ func (p *Postgres) GetDBWaitStatus(dbID string) (*DatabaseWaitStatus, *simpleres
 	return result, response, getErr
 }
 
-// UnfollowDatabase tells a follower DB to unfollow the leader DB.
+// UnfollowDB tells a follower DB to unfollow the leader DB.
 func (p *Postgres) UnfollowDB(dbID string) (*GenericResponse, *simpleresty.Response, error) {
 	var result *GenericResponse
 	urlStr := p.http.RequestURL("/client/v11/databases/%s/unfollow", dbID)
