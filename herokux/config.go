@@ -17,26 +17,27 @@ import (
 )
 
 const (
-	DefaultMTLSProvisionTimeout                    = int64(10)
-	DefaultMTLSMTLSDeprovisionTimeout              = int64(10)
-	DefaultMTLSIPRuleCreateTimeout                 = int64(10)
-	DefaultMTLSCertificateCreateTimeout            = int64(10)
-	DefaultMTLSCertificateDeleteTimeout            = int64(10)
-	DefaultKafkaCGCreateTimeout                    = int64(10)
-	DefaultKafkaCGDeleteTimeout                    = int64(10)
-	DefaultKafkaTopicCreateTimeout                 = int64(10)
-	DefaultKafkaTopicUpdateTimeout                 = int64(10)
-	DefaultPrivatelinkCreateTimeoutt               = int64(15)
-	DefaultPrivatelinkDeleteTimeout                = int64(15)
-	DefaultPrivatelinkAllowedAccountsAddTimeout    = int64(10)
-	DefaultPrivatelinkAllowedAccountsRemoveTimeout = int64(10)
-	DefaultDataConnectorCreateTimeout              = int64(20)
-	DefaultDataConnectorSettingsUpdateTimeout      = int64(10)
-	DefaultDataConnectorDeleteTimeout              = int64(10)
-	DefaultDataConnectorStatusUpdateTimeout        = int64(10)
-	DefaultPostgresCredentialCreateTimeout         = int64(10)
-	DefaultPostgresCredentialDeleteTimeout         = int64(10)
-	DefaultPrivateSpaceCreateTimeout               = int64(20)
+	DefaultMTLSProvisionTimeout                     = int64(10)
+	DefaultMTLSMTLSDeprovisionTimeout               = int64(10)
+	DefaultMTLSIPRuleCreateTimeout                  = int64(10)
+	DefaultMTLSCertificateCreateTimeout             = int64(10)
+	DefaultMTLSCertificateDeleteTimeout             = int64(10)
+	DefaultKafkaCGCreateTimeout                     = int64(10)
+	DefaultKafkaCGDeleteTimeout                     = int64(10)
+	DefaultKafkaTopicCreateTimeout                  = int64(10)
+	DefaultKafkaTopicUpdateTimeout                  = int64(10)
+	DefaultPrivatelinkCreateTimeout                 = int64(15)
+	DefaultPrivatelinkDeleteTimeout                 = int64(15)
+	DefaultPrivatelinkAllowedAccountsAddTimeout     = int64(10)
+	DefaultPrivatelinkAllowedAccountsRemoveTimeout  = int64(10)
+	DefaultDataConnectorCreateTimeout               = int64(20)
+	DefaultDataConnectorSettingsUpdateTimeout       = int64(10)
+	DefaultDataConnectorDeleteTimeout               = int64(10)
+	DefaultDataConnectorStatusUpdateTimeout         = int64(10)
+	DefaultPostgresCredentialPreCreateVerifyTimeout = int64(30)
+	DefaultPostgresCredentialCreateTimeout          = int64(10)
+	DefaultPostgresCredentialDeleteTimeout          = int64(10)
+	DefaultPrivateSpaceCreateTimeout                = int64(20)
 
 	DefaultPostgresSettingsModifyDelay = int64(2)
 	DefaultConnectMappingModifyDelay   = int64(15)
@@ -63,26 +64,27 @@ type Config struct {
 	kolkrabbiURL      string
 
 	// Custom Timeouts
-	MTLSProvisionTimeout                    int64
-	MTLSDeprovisionTimeout                  int64
-	MTLSIPRuleCreateTimeout                 int64
-	MTLSCertificateCreateTimeout            int64
-	MTLSCertificateDeleteTimeout            int64
-	KafkaCGCreateTimeout                    int64
-	KafkaCGDeleteTimeout                    int64
-	KafkaTopicCreateTimeout                 int64
-	KafkaTopicUpdateTimeout                 int64
-	PrivatelinkCreateTimeout                int64
-	PrivatelinkDeleteTimeout                int64
-	PrivatelinkAllowedAccountsAddTimeout    int64
-	PrivatelinkAllowedAccountsRemoveTimeout int64
-	DataConnectorCreateTimeout              int64
-	DataConnectorSettingsUpdateTimeout      int64
-	DataConnectorDeleteTimeout              int64
-	DataConnectorStatusUpdateTimeout        int64
-	PostgresCredentialCreateTimeout         int64
-	PostgresCredentialDeleteTimeout         int64
-	PrivateSpaceCreateTimeout               int64
+	MTLSProvisionTimeout                     int64
+	MTLSDeprovisionTimeout                   int64
+	MTLSIPRuleCreateTimeout                  int64
+	MTLSCertificateCreateTimeout             int64
+	MTLSCertificateDeleteTimeout             int64
+	KafkaCGCreateTimeout                     int64
+	KafkaCGDeleteTimeout                     int64
+	KafkaTopicCreateTimeout                  int64
+	KafkaTopicUpdateTimeout                  int64
+	PrivatelinkCreateTimeout                 int64
+	PrivatelinkDeleteTimeout                 int64
+	PrivatelinkAllowedAccountsAddTimeout     int64
+	PrivatelinkAllowedAccountsRemoveTimeout  int64
+	DataConnectorCreateTimeout               int64
+	DataConnectorSettingsUpdateTimeout       int64
+	DataConnectorDeleteTimeout               int64
+	DataConnectorStatusUpdateTimeout         int64
+	PostgresCredentialCreateTimeout          int64
+	PostgresCredentialPreCreateVerifyTimeout int64
+	PostgresCredentialDeleteTimeout          int64
+	PrivateSpaceCreateTimeout                int64
 
 	// Custom Delays
 	PostgresSettingsModifyDelay int64
@@ -91,26 +93,27 @@ type Config struct {
 
 func NewConfig() *Config {
 	c := &Config{
-		MTLSProvisionTimeout:                    DefaultMTLSProvisionTimeout,
-		MTLSDeprovisionTimeout:                  DefaultMTLSMTLSDeprovisionTimeout,
-		MTLSIPRuleCreateTimeout:                 DefaultMTLSIPRuleCreateTimeout,
-		MTLSCertificateCreateTimeout:            DefaultMTLSCertificateCreateTimeout,
-		MTLSCertificateDeleteTimeout:            DefaultMTLSCertificateDeleteTimeout,
-		KafkaCGCreateTimeout:                    DefaultKafkaCGCreateTimeout,
-		KafkaCGDeleteTimeout:                    DefaultKafkaCGDeleteTimeout,
-		KafkaTopicCreateTimeout:                 DefaultKafkaTopicCreateTimeout,
-		KafkaTopicUpdateTimeout:                 DefaultKafkaTopicUpdateTimeout,
-		PrivatelinkCreateTimeout:                DefaultPrivatelinkCreateTimeoutt,
-		PrivatelinkDeleteTimeout:                DefaultPrivatelinkDeleteTimeout,
-		PrivatelinkAllowedAccountsAddTimeout:    DefaultPrivatelinkAllowedAccountsAddTimeout,
-		PrivatelinkAllowedAccountsRemoveTimeout: DefaultPrivatelinkAllowedAccountsRemoveTimeout,
-		DataConnectorCreateTimeout:              DefaultDataConnectorCreateTimeout,
-		DataConnectorSettingsUpdateTimeout:      DefaultDataConnectorSettingsUpdateTimeout,
-		DataConnectorDeleteTimeout:              DefaultDataConnectorDeleteTimeout,
-		DataConnectorStatusUpdateTimeout:        DefaultDataConnectorStatusUpdateTimeout,
-		PostgresCredentialCreateTimeout:         DefaultPostgresCredentialCreateTimeout,
-		PostgresCredentialDeleteTimeout:         DefaultPostgresCredentialDeleteTimeout,
-		PrivateSpaceCreateTimeout:               DefaultPrivateSpaceCreateTimeout,
+		MTLSProvisionTimeout:                     DefaultMTLSProvisionTimeout,
+		MTLSDeprovisionTimeout:                   DefaultMTLSMTLSDeprovisionTimeout,
+		MTLSIPRuleCreateTimeout:                  DefaultMTLSIPRuleCreateTimeout,
+		MTLSCertificateCreateTimeout:             DefaultMTLSCertificateCreateTimeout,
+		MTLSCertificateDeleteTimeout:             DefaultMTLSCertificateDeleteTimeout,
+		KafkaCGCreateTimeout:                     DefaultKafkaCGCreateTimeout,
+		KafkaCGDeleteTimeout:                     DefaultKafkaCGDeleteTimeout,
+		KafkaTopicCreateTimeout:                  DefaultKafkaTopicCreateTimeout,
+		KafkaTopicUpdateTimeout:                  DefaultKafkaTopicUpdateTimeout,
+		PrivatelinkCreateTimeout:                 DefaultPrivatelinkCreateTimeout,
+		PrivatelinkDeleteTimeout:                 DefaultPrivatelinkDeleteTimeout,
+		PrivatelinkAllowedAccountsAddTimeout:     DefaultPrivatelinkAllowedAccountsAddTimeout,
+		PrivatelinkAllowedAccountsRemoveTimeout:  DefaultPrivatelinkAllowedAccountsRemoveTimeout,
+		DataConnectorCreateTimeout:               DefaultDataConnectorCreateTimeout,
+		DataConnectorSettingsUpdateTimeout:       DefaultDataConnectorSettingsUpdateTimeout,
+		DataConnectorDeleteTimeout:               DefaultDataConnectorDeleteTimeout,
+		DataConnectorStatusUpdateTimeout:         DefaultDataConnectorStatusUpdateTimeout,
+		PostgresCredentialPreCreateVerifyTimeout: DefaultPostgresCredentialPreCreateVerifyTimeout,
+		PostgresCredentialCreateTimeout:          DefaultPostgresCredentialCreateTimeout,
+		PostgresCredentialDeleteTimeout:          DefaultPostgresCredentialDeleteTimeout,
+		PrivateSpaceCreateTimeout:                DefaultPrivateSpaceCreateTimeout,
 
 		PostgresSettingsModifyDelay: DefaultPostgresSettingsModifyDelay,
 		ConnectMappingModifyDelay:   DefaultConnectMappingModifyDelay,
@@ -293,6 +296,10 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := timeoutsConfig["data_connector_status_update_timeout"].(int); ok {
 				c.DataConnectorStatusUpdateTimeout = int64(v)
+			}
+
+			if v, ok := timeoutsConfig["postgres_credential_pre_create_verify_timeout"].(int); ok {
+				c.PostgresCredentialPreCreateVerifyTimeout = int64(v)
 			}
 
 			if v, ok := timeoutsConfig["postgres_credential_create_timeout"].(int); ok {

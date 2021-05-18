@@ -25,6 +25,7 @@ const (
 	TestConfigPipelineID
 	TestConfigGithubOrgRepo
 	TestConfigUserEmail
+	TestConfigOrganization
 	TestConfigAcceptanceTestKey
 )
 
@@ -43,6 +44,7 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigPipelineID:          "HEROKUX_PIPELINE_ID",
 	TestConfigGithubOrgRepo:       "HEROKUX_GITHUB_ORG_REPO",
 	TestConfigUserEmail:           "HEROKUX_USER_EMAIL",
+	TestConfigOrganization:        "HEROKUX_ORGANIZATION",
 	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
@@ -144,4 +146,8 @@ func (t *TestConfig) GetGithubOrgRepoorSkip(testing *testing.T) (val string) {
 
 func (t *TestConfig) GetUserEmailorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigUserEmail)
+}
+
+func (t *TestConfig) GetAnyOrganizationOrSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigOrganization)
 }
