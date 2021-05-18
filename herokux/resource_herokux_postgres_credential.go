@@ -149,16 +149,9 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 	}
 
 	// Check the state of the postgres DB to make sure it is in a state to accept credential creation requests.
-	// However, only check for postgres plans types that are either premium#, private0, or shield#.
-	/**
-	when pg is provisioning:
-	{
-	    "message": "preparing",
-	    "waiting?": true
-	}
-	*/
-
+	// BUT, only do this verification if the postgres plans type is either premium-#, private-#, or shield-#.
 	log.Printf("[DEBUG] Checking if postgres %s is available for credential creation", name)
+
 	db, _, getErr := client.Postgres.GetDB(postgresID)
 	if getErr != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -179,13 +172,6 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		return diags
 	}
 
-	// Essentially we are looking to extract the zero-index value from this JSON response:
-	//         {
-	//            "name": "Plan",
-	//            "values": [
-	//                "Premium 0"
-	//            ]
-	//        }
 	var dbPlan string
 	for _, i := range dbPlanInfo.Values {
 		dbPlan = strings.ToLower(strings.Split(i.(string), " ")[0]) // returns "premium"
@@ -204,9 +190,10 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 				return nil, "Unknown", getErr
 			}
 
-			forkFollowInfo, forkFollowInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.HASTATUS.ToString())
+			forkFollowInfo, forkFollowInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.FORKFOLLOW.ToString())
 			if forkFollowInfoErr != nil {
-				return nil, "Unknown", fmt.Errorf("unable to get HA Status info postgres %s to determine if it is available for credential creation", postgresID)
+				return nil, "Unknown", fmt.Errorf("unable to get HA Status info postgres %s to determine if it is available for credential creation",
+					postgresID)
 			}
 
 			var forkFollowStatus string
@@ -214,7 +201,7 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 				forkFollowStatus = i.(string)
 			}
 
-			if forkFollowStatus == "Temporarily Unavailable" {
+			if forkFollowStatus == postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString() {
 				log.Printf("[DEBUG] postgres %s Fork/Follow status is still %s", postgresID, forkFollowStatus)
 				return db, forkFollowStatus, nil
 			}
@@ -223,8 +210,8 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		}
 
 		stateConf := &resource.StateChangeConf{
-			Pending:      []string{"Temporarily Unavailable"},
-			Target:       []string{"Available"},
+			Pending:      []string{postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString()},
+			Target:       []string{postgres.DatabaseInfoStatuses.AVAILABLE.ToString()},
 			Refresh:      forkFollowStatusChecker,
 			Timeout:      time.Duration(config.PostgresCredentialPreCreateVerifyTimeout) * time.Minute,
 			PollInterval: StateRefreshPollInterval,

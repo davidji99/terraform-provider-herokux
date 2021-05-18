@@ -70,7 +70,7 @@ func (s MTLSCertStatus) ToString() string {
 // DatabaseInfoName represents a database info name.
 type DatabaseInfoName string
 
-// DatabaseInfoNames represents database infor names.
+// DatabaseInfoNames represents database info names.
 var DatabaseInfoNames = struct {
 	PLAN       DatabaseInfoName
 	STATUS     DatabaseInfoName
@@ -95,6 +95,23 @@ var DatabaseInfoNames = struct {
 
 // ToString is a helper method to return the string of a DatabaseInfoName.
 func (s DatabaseInfoName) ToString() string {
+	return string(s)
+}
+
+// DatabaseInfoStatus represents a status for a database info status, such as High Availability (HA) or Fork/Follow status.
+type DatabaseInfoStatus string
+
+// DatabaseInfoStatuses represents database info statuses.
+var DatabaseInfoStatuses = struct {
+	TEMP_UNAVAILABLE DatabaseInfoStatus
+	AVAILABLE        DatabaseInfoStatus
+}{
+	TEMP_UNAVAILABLE: "Temporarily Unavailable",
+	AVAILABLE:        "Available",
+}
+
+// ToString is a helper method to return the string of a DatabaseInfoStatus.
+func (s DatabaseInfoStatus) ToString() string {
 	return string(s)
 }
 
