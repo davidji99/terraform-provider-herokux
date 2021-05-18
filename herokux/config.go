@@ -34,7 +34,7 @@ const (
 	DefaultDataConnectorSettingsUpdateTimeout       = int64(10)
 	DefaultDataConnectorDeleteTimeout               = int64(10)
 	DefaultDataConnectorStatusUpdateTimeout         = int64(10)
-	DefaultPostgresCredentialPreCreateVerifyTimeout = int64(30)
+	DefaultPostgresCredentialPreCreateVerifyTimeout = int64(45)
 	DefaultPostgresCredentialCreateTimeout          = int64(10)
 	DefaultPostgresCredentialDeleteTimeout          = int64(10)
 	DefaultPrivateSpaceCreateTimeout                = int64(20)

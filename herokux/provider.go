@@ -214,7 +214,7 @@ func New() *schema.Provider {
 						"postgres_credential_pre_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      30,
+							Default:      45,
 							ValidateFunc: validation.IntAtLeast(20),
 						},
 

@@ -199,7 +199,7 @@ Only a single `delays` block may be specified, and it supports the following arg
     * `postgres_credential_pre_create_verify_timeout` - (Optional) The number of minutes to wait for a postgres database
       to be available for credential creation. This is to address an edge scenario where one cannot create credentials immediately
       after a Premium, Private, or Shield postgres database is provisioned.
-      Defaults to 30 minutes. Minimum required is 20 minutes.
+      Defaults to 45 minutes. Minimum required is 20 minutes.
 
     * `postgres_credential_create_timeout` - (Optional) The number of minutes to wait for a postgres credential to be created.
       Defaults to 10 minutes. Minimum required is 5 minutes.

@@ -29,6 +29,11 @@ func resourceHerokuxPostgresCredential() *schema.Resource {
 			StateContext: resourceHerokuxPostgresCredentialImport,
 		},
 
+		// https://www.terraform.io/docs/extend/resources/retries-and-customizable-timeouts.html
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
 				Type:         schema.TypeString,
@@ -202,7 +207,7 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 			}
 
 			if forkFollowStatus == postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString() {
-				log.Printf("[DEBUG] postgres %s Fork/Follow status is still %s", postgresID, forkFollowStatus)
+				log.Printf("[DEBUG] Postgres %s Fork/Follow status is still '%s'", postgresID, forkFollowStatus)
 				return db, forkFollowStatus, nil
 			}
 
