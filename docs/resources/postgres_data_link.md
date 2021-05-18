@@ -38,10 +38,29 @@ this data link setup.
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "local_db" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
+resource "heroku_addon" "remote_db" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_postgres_data_link" "foobar" {
-	local_db_id = "6fae1ee0-c034-4775-a798-890bc64f98eb"
-	remote_db_name = "postgresql-spherical-123456"
-	name = "my_custom_data_l1nk_name"
+  local_db_id = heroku_addon.local_db.id
+  remote_db_name = heroku_addon.local_db.name
+  name = "my_custom_data_l1nk_name"
 }
 ```
 

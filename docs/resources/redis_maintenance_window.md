@@ -21,9 +21,23 @@ It is not possible to delete a maintenance window, so the resource will just be 
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "redis" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-redis:premium-0"
+}
+
 resource "herokux_redis_maintenance_window" "foobar" {
-	redis_id = "717e9e8f-c4ad-4f45-9ac3-069ecb0fcd60"
-	window = "Mondays 10:30"
+  redis_id = heroku_addon.redis.id
+  window = "Mondays 10:30"
 }
 ```
 

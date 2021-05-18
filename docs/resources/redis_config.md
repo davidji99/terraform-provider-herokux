@@ -18,11 +18,25 @@ will remain the same until they are changed by `terraform` or `heroku redis:***`
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "redis" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-redis:premium-0"
+}
+
 resource "herokux_redis_config" "foobar" {
-	redis_id = "57d660e0-3d20-40b7-8d20-e77b95189e5a"
-	maxmemory_policy = "allkeys-lfu"
-	notify_keyspace_events = "K"
-	timeout = 500
+  redis_id = heroku_addon.redis.id
+  maxmemory_policy = "allkeys-lfu"
+  notify_keyspace_events = "K"
+  timeout = 500
 }
 ```
 

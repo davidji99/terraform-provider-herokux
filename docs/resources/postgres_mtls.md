@@ -39,8 +39,22 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
 resource "herokux_postgres_mtls" "foobar" {
-	database_name = "my_database_name"
+  database_name = heroku_addon.database.name
 }
 ```
 
@@ -48,7 +62,8 @@ resource "herokux_postgres_mtls" "foobar" {
 
 The following arguments are supported:
 
-* `database_name` - (Required) `<string>` The name of the database. DO NOT use the database UUID.
+* `database_name` - (Required) `<string>` The name of the Postgres database name. DO NOT use the database UUID.
+For example, 'postgresql-slippery-18242'.
 
 ## Attributes Reference
 

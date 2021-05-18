@@ -27,7 +27,7 @@ resource "heroku_app" "staging" {
   region = "us"
 
   organization {
-    name = "my-cool-team"
+    name = "my_org"
   }
 }
 

@@ -15,12 +15,21 @@ for a wide variety of events.
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
 resource "herokux_app_webhook" "foobar" {
-	app_id = "6fae1ee0-c034-4775-a798-890bc64f98eb"
-	level = "notify"
-	url = "https://example.com/hooks"
-	event_types = ["api:addon-attachment"]
-	name = "my-custom-webhook-name"
+  app_id = heroku_app.foobar.uuid
+  level = "notify"
+  url = "https://example.com/hooks"
+  event_types = ["api:addon-attachment"]
+  name = "my-custom-webhook-name"
 }
 ```
 

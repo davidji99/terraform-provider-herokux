@@ -97,9 +97,23 @@ provider "herokux" {
 Using shell-style "here doc" syntax:
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "connect" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-shield:free"
+}
+
 resource "herokux_connect_mappings" "foobar" {
-  app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
-  connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
+  app_id = heroku_app.foobar.uuid
+  connect_id = heroku_addon.connect.id
   mappings = <<-EOF
 {
     "mappings": [
@@ -136,9 +150,23 @@ EOF
 Using Terraform's `file` function:
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "connect" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-shield:free"
+}
+
 resource "herokux_connect_mappings" "foobar" {
-  app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
-  connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
+  app_id = heroku_app.foobar.uuid
+  connect_id = heroku_addon.connect.id
   mappings = file("test-fixtures/path_to_mappings.json")
 }
 ```
@@ -151,9 +179,23 @@ data "local_file" "mapping_json_file" {
   filename = "${path.module}/foo.bar"
 }
 
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "connect" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-shield:free"
+}
+
 resource "herokux_connect_mappings" "foobar" {
-  app_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
-  connect_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
+  app_id = heroku_app.foobar.uuid
+  connect_id = heroku_addon.connect.id
   mappings = data.local_file.mapping_json_file.content
 }
 ```

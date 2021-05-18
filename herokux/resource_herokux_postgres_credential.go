@@ -195,7 +195,7 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 
 	shouldVerifyDBCredAvail := ContainsString([]string{"premium", "private", "shield"}, dbPlan)
 
-	log.Printf("[DEBUG] Should verify postgre's %s Fork/Follow status prior to creating credential: %v", postgresID, shouldVerifyDBCredAvail)
+	log.Printf("[DEBUG] Should verify postgres's %s Fork/Follow status prior to creating credential: %v", postgresID, shouldVerifyDBCredAvail)
 
 	if shouldVerifyDBCredAvail {
 		forkFollowStatusChecker := func() (interface{}, string, error) {
@@ -211,11 +211,11 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 
 			var forkFollowStatus string
 			for _, i := range forkFollowInfo.Values {
-				forkFollowStatus = strings.ToLower(strings.Split(i.(string), " ")[0])
+				forkFollowStatus = i.(string)
 			}
 
-			if forkFollowStatus != "Available" {
-				log.Printf("[DEBUG] postgres %s HA status is still %s", postgresID, forkFollowStatus)
+			if forkFollowStatus == "Temporarily Unavailable" {
+				log.Printf("[DEBUG] postgres %s Fork/Follow status is still %s", postgresID, forkFollowStatus)
 				return db, forkFollowStatus, nil
 			}
 

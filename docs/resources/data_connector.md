@@ -51,11 +51,30 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_app" "foobar" {
+  name   = "my_foobar_app"
+  region = "us"
+
+  organization {
+    name = "my_org"
+  }
+}
+
+resource "heroku_addon" "database" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-postgresql:premium-0"
+}
+
+resource "heroku_addon" "kafka" {
+  app  = heroku_app.foobar.name
+  plan = "heroku-kafka:standard-0"
+}
+
 resource "herokux_data_connector" "foobar" {
-	source_id = "33d4631b-2c77-4b99-b657-752ad8f68322"
-	store_id = "7f1f2784-2c35-4efa-b0cd-544c9784fe9b"
-	name = "my-custom-connector-name"
-	tables = ["public.users"]
+  source_id = heroku_addon.database.id
+  store_id = heroku_addon.kafka.id
+  name = "my-custom-connector-name"
+  tables = ["public.users"]
 }
 ```
 
