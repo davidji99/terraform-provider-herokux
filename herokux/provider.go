@@ -95,147 +95,147 @@ func New() *schema.Provider {
 						"mtls_provision_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultMTLSProvisionVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"mtls_deprovision_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultMTLSMTLSDeprovisionVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"mtls_iprule_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultMTLSIPRuleCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"mtls_certificate_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultMTLSCertificateCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"mtls_certificate_delete_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultMTLSCertificateDeleteVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"kafka_cg_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultKafkaCGCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"kafka_cg_delete_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultKafkaCGDeleteVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"kafka_topic_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultKafkaTopicCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 
 						"kafka_topic_update_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultKafkaTopicUpdateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 
 						"privatelink_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      15,
+							Default:      DefaultPrivatelinkCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"privatelink_delete_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      15,
+							Default:      DefaultPrivatelinkDeleteVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"privatelink_allowed_acccounts_add_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultPrivatelinkAllowedAccountsAddVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(2),
 						},
 
 						"privatelink_allowed_acccounts_remove_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultPrivatelinkAllowedAccountsRemoveVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(2),
 						},
 
 						"data_connector_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      20,
+							Default:      DefaultDataConnectorCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(10),
 						},
 
 						"data_connector_settings_update_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      20,
+							Default:      DefaultDataConnectorSettingsUpdateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(10),
 						},
 
 						"data_connector_delete_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultDataConnectorDeleteVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(3),
 						},
 
 						"data_connector_status_update_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultDataConnectorStatusUpdateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"postgres_credential_pre_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      45,
+							Default:      DefaultPostgresCredentialPreCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(20),
 						},
 
 						"postgres_credential_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultPostgresCredentialCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"postgres_credential_delete_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultPostgresCredentialDeleteVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 
 						"shield_private_space_create_verify_timeout": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      10,
+							Default:      DefaultPrivateSpaceCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(10),
 						},
 					},
@@ -251,14 +251,14 @@ func New() *schema.Provider {
 						"postgres_settings_modify_delay": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      2,
+							Default:      DefaultPostgresSettingsModifyDelay,
 							ValidateFunc: validation.IntAtLeast(1),
 						},
 
 						"connect_mapping_modify_delay": {
 							Type:         schema.TypeInt,
 							Optional:     true,
-							Default:      15,
+							Default:      DefaultConnectMappingModifyDelay,
 							ValidateFunc: validation.IntAtLeast(5),
 						},
 					},
