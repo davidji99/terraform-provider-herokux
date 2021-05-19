@@ -100,13 +100,13 @@ machine api.heroku.com
 ```
 
 ## Timeouts
-Many of the resources in this provider verify the result of an action, such as making sure a Postgres MTLs
+Many of the resources in this provider verify the result of an action, such as making sure Postgres MTLS
 has been successfully provisioned or unprovisioned. Furthermore, some resources may also verify that a parent resource
-is in an appropriate state before allowing the creation of the child resource. Users can configure how long these
+is in an appropriate state before allowing the creation of the target resource. Users can configure how long these
 verifications may take before timing out via the appropriate attributes listed in
 [the Argument Reference](#argument-reference) section.
 
-Additionally, there are timeouts, in minutes, set for each resource, not data source, that control how long the resource can take
+Additionally, there are timeouts set for each resource, not data source, that control how long the resource can take
 to execute an action. These timeout values are standardized for all resources and can be configured via the
 following environment variables:
 
@@ -115,7 +115,7 @@ following environment variables:
 * `HEROKUX_RESOURCE_GLOBAL_UPDATE_TIMEOUT` (Default is 60 minutes)
 * `HEROKUX_RESOURCE_GLOBAL_DELETE_TIMEOUT` (Default is 30 minutes)
 
-It is not possible to define the aforementioned timeouts for a specific resource. The timeouts apply to all resources.
+Please note that it is not possible to define the aforementioned timeouts for a specific resource. These timeouts apply to all resources.
 
 -> **IMPORTANT!**
 Be careful with setting a custom global action timeout and a resource specific verification timeout.
