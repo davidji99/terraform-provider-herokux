@@ -29,10 +29,7 @@ func resourceHerokuxPostgresCredential() *schema.Resource {
 			StateContext: resourceHerokuxPostgresCredentialImport,
 		},
 
-		// https://www.terraform.io/docs/extend/resources/retries-and-customizable-timeouts.html
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(60 * time.Minute),
-		},
+		Timeouts: resourceTimeouts(),
 
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
@@ -153,83 +150,9 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		log.Printf("[DEBUG] credential postgres_id is : %v", postgresID)
 	}
 
-	// Check the state of the postgres DB to make sure it is in a state to accept credential creation requests.
-	// BUT, only do this verification if the postgres plans type is either premium-#, private-#, or shield-#.
-	log.Printf("[DEBUG] Checking if postgres %s is available for credential creation", name)
-
-	db, _, getErr := client.Postgres.GetDB(postgresID)
-	if getErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to fetch info for postgres %s to determine if it is available for credential creation", postgresID),
-			Detail:   getErr.Error(),
-		})
-		return diags
-	}
-
-	dbPlanInfo, dbPlanInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.PLAN.ToString())
-	if dbPlanInfoErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to get plan info postgres %s to determine if it is available for credential creation", postgresID),
-			Detail:   dbPlanInfoErr.Error(),
-		})
-		return diags
-	}
-
-	var dbPlan string
-	for _, i := range dbPlanInfo.Values {
-		dbPlan = strings.ToLower(strings.Split(i.(string), " ")[0]) // returns "premium"
-	}
-
-	log.Printf("[DEBUG] Postgres %s's plan is %s", postgresID, dbPlan)
-
-	shouldVerifyDBCredAvail := ContainsString([]string{"premium", "private", "shield"}, dbPlan)
-
-	log.Printf("[DEBUG] Should verify postgres's %s Fork/Follow status prior to creating credential: %v", postgresID, shouldVerifyDBCredAvail)
-
-	if shouldVerifyDBCredAvail {
-		forkFollowStatusChecker := func() (interface{}, string, error) {
-			db, _, getErr := client.Postgres.GetDB(postgresID)
-			if getErr != nil {
-				return nil, "Unknown", getErr
-			}
-
-			forkFollowInfo, forkFollowInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.FORKFOLLOW.ToString())
-			if forkFollowInfoErr != nil {
-				return nil, "Unknown", fmt.Errorf("unable to get HA Status info postgres %s to determine if it is available for credential creation",
-					postgresID)
-			}
-
-			var forkFollowStatus string
-			for _, i := range forkFollowInfo.Values {
-				forkFollowStatus = i.(string)
-			}
-
-			if forkFollowStatus == postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString() {
-				log.Printf("[DEBUG] Postgres %s Fork/Follow status is still '%s'", postgresID, forkFollowStatus)
-				return db, forkFollowStatus, nil
-			}
-
-			return db, forkFollowStatus, nil
-		}
-
-		stateConf := &resource.StateChangeConf{
-			Pending:      []string{postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString()},
-			Target:       []string{postgres.DatabaseInfoStatuses.AVAILABLE.ToString()},
-			Refresh:      forkFollowStatusChecker,
-			Timeout:      time.Duration(config.PostgresCredentialPreCreateVerifyTimeout) * time.Minute,
-			PollInterval: StateRefreshPollInterval,
-		}
-
-		if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("unable to create credential on postgres %s", postgresID),
-				Detail:   fmt.Sprintf("postgres %s's Fork/Follow status must be set to 'Available' before creating a credential", postgresID),
-			})
-			return diags
-		}
+	checkErr := checkDBForkFollowStatus(client, config, postgresID)
+	if checkErr != nil {
+		return checkErr
 	}
 
 	log.Printf("[DEBUG] Creating postgres credential %s on postgres %s", name, postgresID)
@@ -376,4 +299,92 @@ func postgresCredentialDeletionStateRefreshFunc(client *api.Client, postgresID, 
 
 		return cred, postgres.CredentialStates.UNKNOWN.ToString(), fmt.Errorf("credential not properly deleted")
 	}
+}
+
+// Check the state of the postgres DB to make sure it is in a state to accept credential creation requests.
+// BUT, only do this verification if the postgres plans type is either premium-#, private-#, or shield-#.
+func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID string) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	log.Printf("[DEBUG] Checking if postgres %s is available for credential creation", postgresID)
+
+	db, _, getErr := client.Postgres.GetDB(postgresID)
+	if getErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary: fmt.Sprintf("unable to fetch postgres %s info to determine if it is available for credential creation",
+				postgresID),
+			Detail: getErr.Error(),
+		})
+		return diags
+	}
+
+	dbPlanInfo, dbPlanInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.PLAN.ToString())
+	if dbPlanInfoErr != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary: fmt.Sprintf("unable to get plan info postgres %s to determine if it is available for credential creation",
+				postgresID),
+			Detail: dbPlanInfoErr.Error(),
+		})
+		return diags
+	}
+
+	var dbPlan string
+	for _, i := range dbPlanInfo.Values {
+		dbPlan = strings.ToLower(strings.Split(i.(string), " ")[0]) // returns "premium" from "Premium 0"
+	}
+
+	log.Printf("[DEBUG] Postgres %s's plan is %s", postgresID, dbPlan)
+
+	shouldVerifyDBCredAvail := ContainsString([]string{"premium", "private", "shield"}, dbPlan)
+
+	log.Printf("[DEBUG] Should verify postgres's %s Fork/Follow status prior to creating credential: %v",
+		postgresID, shouldVerifyDBCredAvail)
+
+	if shouldVerifyDBCredAvail {
+		forkFollowStatusChecker := func() (interface{}, string, error) {
+			db, _, getErr := client.Postgres.GetDB(postgresID)
+			if getErr != nil {
+				return nil, "Unknown", getErr
+			}
+
+			forkFollowInfo, forkFollowInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.FORKFOLLOW.ToString())
+			if forkFollowInfoErr != nil {
+				return nil, "Unknown", fmt.Errorf("unable to get HA Status info postgres %s to determine if it is available for credential creation",
+					postgresID)
+			}
+
+			var forkFollowStatus string
+			for _, i := range forkFollowInfo.Values {
+				forkFollowStatus = i.(string)
+			}
+
+			if forkFollowStatus == postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString() {
+				log.Printf("[DEBUG] Postgres %s Fork/Follow status is still '%s'", postgresID, forkFollowStatus)
+				return db, forkFollowStatus, nil
+			}
+
+			return db, forkFollowStatus, nil
+		}
+
+		stateConf := &resource.StateChangeConf{
+			Pending:      []string{postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString()},
+			Target:       []string{postgres.DatabaseInfoStatuses.AVAILABLE.ToString()},
+			Refresh:      forkFollowStatusChecker,
+			Timeout:      time.Duration(config.PostgresCredentialPreCreateVerifyTimeout) * time.Minute,
+			PollInterval: StateRefreshPollInterval,
+		}
+
+		if _, err := stateConf.WaitForStateContext(context.TODO()); err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  fmt.Sprintf("unable to create credential on postgres %s", postgresID),
+				Detail:   fmt.Sprintf("postgres %s's Fork/Follow status must be set to 'Available' before creating a credential", postgresID),
+			})
+			return diags
+		}
+	}
+
+	return diags
 }
