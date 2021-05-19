@@ -26,10 +26,7 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 			StateContext: resourceHerokuxAppContainerReleaseImport,
 		},
 
-		// https://www.terraform.io/docs/extend/resources/retries-and-customizable-timeouts.html
-		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(30 * time.Minute),
-		},
+		Timeouts: resourceTimeouts(),
 
 		Schema: map[string]*schema.Schema{
 			"app_id": {

@@ -22,6 +22,8 @@ func resourceHerokuxPipelineMember() *schema.Resource {
 			StateContext: resourceHerokuxPipelineMemberImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"pipeline_id": {
 				Type:         schema.TypeString,

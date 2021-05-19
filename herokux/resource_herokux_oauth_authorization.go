@@ -30,6 +30,8 @@ func resourceHerokuxOauthAuthorization() *schema.Resource {
 			StateContext: resourceHerokuxOauthAuthorizationImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"scope": {
 				Type:     schema.TypeSet,

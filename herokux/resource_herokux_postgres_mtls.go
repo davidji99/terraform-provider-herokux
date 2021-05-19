@@ -22,6 +22,8 @@ func resourceHerokuxPostgresMTLS() *schema.Resource {
 			StateContext: resourceHerokuxPostgresMTLSImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			// While it is preferable to use the UUID, the response returns the name so we need to use the name.
 			"database_name": {

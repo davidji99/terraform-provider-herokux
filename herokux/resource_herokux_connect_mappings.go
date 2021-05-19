@@ -24,6 +24,8 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 			StateContext: resourceHerokuxConnectMappingsImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:         schema.TypeString,

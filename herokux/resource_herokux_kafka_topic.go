@@ -26,6 +26,8 @@ func resourceHerokuxKafkaTopic() *schema.Resource {
 			StateContext: resourceHerokuxKafkaTopicImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"kafka_id": {
 				Type:         schema.TypeString,

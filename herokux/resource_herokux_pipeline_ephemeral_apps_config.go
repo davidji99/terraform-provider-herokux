@@ -22,6 +22,8 @@ func resourceHerokuxPipelineEphemeralAppsConfig() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"pipeline_id": {
 				Type:         schema.TypeString,

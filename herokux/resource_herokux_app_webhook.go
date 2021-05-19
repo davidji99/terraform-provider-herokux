@@ -22,6 +22,8 @@ func resourceHerokuxAppWebhook() *schema.Resource {
 			StateContext: resourceHerokuxAppWebhookImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:         schema.TypeString,

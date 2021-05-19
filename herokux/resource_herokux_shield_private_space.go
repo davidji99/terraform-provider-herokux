@@ -28,6 +28,8 @@ func resourceHerokuxShieldPrivateSpace() *schema.Resource {
 			StateContext: resourceHerokuxShieldPrivateSpaceImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,

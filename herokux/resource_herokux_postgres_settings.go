@@ -22,6 +22,8 @@ func resourceHerokuxPostgresSettings() *schema.Resource {
 			StateContext: resourceHerokuxPostgresSettingsImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
 				Type:         schema.TypeString,

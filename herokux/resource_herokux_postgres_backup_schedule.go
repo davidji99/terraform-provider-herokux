@@ -23,6 +23,8 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 			StateContext: resourceHerokuxPostgresBackupScheduleImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
 				Type:         schema.TypeString,

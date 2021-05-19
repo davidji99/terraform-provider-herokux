@@ -22,6 +22,8 @@ func resourceHerokuxFormationAutoscaling() *schema.Resource {
 			StateContext: resourceHerokuxFormationAutoscalingImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:         schema.TypeString,

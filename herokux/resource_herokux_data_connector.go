@@ -25,6 +25,8 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			StateContext: resourceHerokuxDataConnectorImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"source_id": {
 				Type:         schema.TypeString,

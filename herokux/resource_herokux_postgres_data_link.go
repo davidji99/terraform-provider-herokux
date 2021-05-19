@@ -21,6 +21,8 @@ func resourceHerokuxPostgresDataLink() *schema.Resource {
 			StateContext: resourceHerokuxPostgresDataLinkImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"local_db_id": {
 				Type:         schema.TypeString,

@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// resourceTimeouts returns predefined timeouts applicable for resources, not data sources.
+//
+// These timeouts have default values and can be overridden via their equivalent environment variable.
 func resourceTimeouts() *schema.ResourceTimeout {
 	resourceCreateTimeout := 90
 	resourceReadTimeout := 10

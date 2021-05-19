@@ -26,6 +26,8 @@ func resourceHerokuxPostgresMTLSCertificate() *schema.Resource {
 			StateContext: resourceHerokuxPostgresMTLSCertificateImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"database_name": {
 				Type:     schema.TypeString,

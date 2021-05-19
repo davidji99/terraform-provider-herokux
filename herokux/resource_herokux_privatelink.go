@@ -25,6 +25,8 @@ func resourceHerokuxPrivatelink() *schema.Resource {
 			StateContext: resourceHerokuxPrivatelinkImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"addon_id": {
 				Type:         schema.TypeString,

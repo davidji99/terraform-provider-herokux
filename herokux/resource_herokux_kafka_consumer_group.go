@@ -24,6 +24,8 @@ func resourceHerokuxKafkaConsumerGroup() *schema.Resource {
 			StateContext: resourceHerokuxKafkaConsumerGroupImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"kafka_id": {
 				Type:         schema.TypeString,

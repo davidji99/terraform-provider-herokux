@@ -23,6 +23,8 @@ func resourceHerokuxPostgresMTLSIPRule() *schema.Resource {
 			StateContext: resourceHerokuxPostgresMTLSIPRuleImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"database_name": {
 				Type:     schema.TypeString,
