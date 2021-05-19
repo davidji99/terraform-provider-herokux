@@ -21,9 +21,10 @@ Furthermore, this resource renders the `secrets.username` & `secrets.password` a
 Please ensure that your state file is properly secured and encrypted at rest.
 
 ### Resource Timeouts
-During creation and deletion, this resource checks the status of the credential. Additionally, for Premium, Private,
-and Shield databases, the provider verifies the database's Fork/Follow status prior to creating the credential.
-Credentials cannot be created on these databases if the Fork/Follow status is not set to 'Available'.
+During creation and deletion, this resource checks the status of the credential creation or deletion.
+Additionally, for Premium, Private, and Shield databases, the provider verifies the Postgres database's Fork/Follow
+and HA (high availability) statuses prior to creating the credential. Credentials cannot be created on the database
+if both statuses are not set to 'Available'.
 
 All the aforementioned timeouts can be customized via the `timeouts.postgres_credential_create_verify_timeout` and
 `timeouts.postgres_credential_delete_verify_timeout` attributes in your `provider` block.
@@ -35,7 +36,7 @@ provider "herokux" {
   timeouts {
     postgres_credential_create_verify_timeout = 20
     postgres_credential_delete_verify_timeout = 20
-    postgres_credential_pre_create_verify_timeout = 30
+    postgres_credential_pre_create_verify_timeout = 35
   }
 }
 ```

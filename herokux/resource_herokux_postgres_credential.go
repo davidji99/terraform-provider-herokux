@@ -306,13 +306,13 @@ func postgresCredentialDeletionStateRefreshFunc(client *api.Client, postgresID, 
 func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID string) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	log.Printf("[DEBUG] Checking if postgres %s is available for credential creation", postgresID)
+	log.Printf("[DEBUG] Checking if Postgres %s is available for credential creation", postgresID)
 
 	db, _, getErr := client.Postgres.GetDB(postgresID)
 	if getErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary: fmt.Sprintf("unable to fetch postgres %s info to determine if it is available for credential creation",
+			Summary: fmt.Sprintf("unable to fetch Postgres %s info to determine if it's available for credential creation",
 				postgresID),
 			Detail: getErr.Error(),
 		})
@@ -323,7 +323,7 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 	if dbPlanInfoErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary: fmt.Sprintf("unable to get plan info postgres %s to determine if it is available for credential creation",
+			Summary: fmt.Sprintf("unable to get plan info Postgres %s to determine if it's available for credential creation",
 				postgresID),
 			Detail: dbPlanInfoErr.Error(),
 		})
@@ -339,7 +339,7 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 
 	shouldVerifyDBCredAvail := ContainsString([]string{"premium", "private", "shield"}, dbPlan)
 
-	log.Printf("[DEBUG] Should verify postgres's %s Fork/Follow status prior to creating credential: %v",
+	log.Printf("[DEBUG] Should verify Postgres's %s Fork/Follow & HA statuses prior to creating credential? %v",
 		postgresID, shouldVerifyDBCredAvail)
 
 	if shouldVerifyDBCredAvail {
@@ -351,21 +351,28 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 
 			forkFollowInfo, forkFollowInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.FORKFOLLOW.ToString())
 			if forkFollowInfoErr != nil {
-				return nil, "Unknown", fmt.Errorf("unable to get HA Status info postgres %s to determine if it is available for credential creation",
+				return nil, "Unknown", fmt.Errorf("can't get Fork/Follow info for Postgres %s to determine if it's available for credential creation",
 					postgresID)
 			}
+			forkFollowStatus := forkFollowInfo.Values[0].(string)
 
-			var forkFollowStatus string
-			for _, i := range forkFollowInfo.Values {
-				forkFollowStatus = i.(string)
+			haStatusInfo, haStatusInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.HASTATUS.ToString())
+			if haStatusInfoErr != nil {
+				return nil, "Unknown", fmt.Errorf("can't get Fork/Follow info for Postgres %s to determine if it's available for credential creation",
+					postgresID)
+			}
+			haStatus := haStatusInfo.Values[0].(string)
+
+			if forkFollowStatus == postgres.DatabaseInfoStatuses.AVAILABLE.ToString() && haStatus == postgres.DatabaseInfoStatuses.AVAILABLE.ToString() {
+				log.Printf("[DEBUG] Postgres %s can now create credentials as Fork/Follow & HA statuses are now '%s' and '%s'",
+					postgresID, forkFollowStatus, haStatus)
+				return db, postgres.DatabaseInfoStatuses.AVAILABLE.ToString(), nil
 			}
 
-			if forkFollowStatus == postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString() {
-				log.Printf("[DEBUG] Postgres %s Fork/Follow status is still '%s'", postgresID, forkFollowStatus)
-				return db, forkFollowStatus, nil
-			}
+			log.Printf("[DEBUG] Postgres %s Fork/Follow status is still '%s'", postgresID, forkFollowStatus)
+			log.Printf("[DEBUG] Postgres %s HA status is still '%s'", postgresID, haStatus)
 
-			return db, forkFollowStatus, nil
+			return db, postgres.DatabaseInfoStatuses.TEMP_UNAVAILABLE.ToString(), nil
 		}
 
 		stateConf := &resource.StateChangeConf{
@@ -380,7 +387,8 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("unable to create credential on postgres %s", postgresID),
-				Detail:   fmt.Sprintf("postgres %s's Fork/Follow status must be set to 'Available' before creating a credential", postgresID),
+				Detail: fmt.Sprintf("Postgres %s's Fork/Follow & HA statuses must be both set to '%s' before creating a credential",
+					postgresID, postgres.DatabaseInfoStatuses.AVAILABLE.ToString()),
 			})
 			return diags
 		}
