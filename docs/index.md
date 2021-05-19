@@ -168,53 +168,53 @@ Only a single `delays` block may be specified, and it supports the following arg
   to be properly modified before proceeding with further action(s). Each timeout's polling intervals is set to 20 seconds.
   Only a single `timeouts` block may be specified, and it supports the following arguments:
 
-    * `mtls_provision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
+    * `mtls_provision_verify_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
       to be provisioned on a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.
 
-    * `mtls_deprovision_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
+    * `mtls_deprovision_verify_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
       to be deprovisioned from a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.
 
-    * `mtls_iprule_create_timeout` - (Optional) The number of minutes to wait for a MTLS IP rule
+    * `mtls_iprule_create_verify_timeout` - (Optional) The number of minutes to wait for a MTLS IP rule
       to be created/authorized for a database. Defaults to 10 minutes.
 
-    * `mtls_certificate_create_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
-      to be create and ready for use. Defaults to 10 minutes.
+    * `mtls_certificate_create_verify_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
+      to be created and ready for use. Defaults to 10 minutes.
 
-    * `mtls_certificate_delete_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
+    * `mtls_certificate_delete_verify_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
       to be deleted. Defaults to 10 minutes.
 
-    * `kafka_cg_create_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be created.
+    * `kafka_cg_create_verify_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be created.
       Defaults to 10 minutes.
 
-    * `kafka_cg_delete_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be deleted.
+    * `kafka_cg_delete_verify_timeout` - (Optional) The number of minutes to wait for a Kafka consumer group to be deleted.
       Defaults to 10 minutes.
 
-    * `kafka_topic_create_timeout` - (Optional) The number of minutes to wait for a Kafka topic to ready. Ready state
+    * `kafka_topic_create_verify_timeout` - (Optional) The number of minutes to wait for a Kafka topic to ready. Ready state
       is achieved when the topic itself is provisioned with the specified number of partitions.
       Defaults to 10 minutes. Minimum required is 3 minutes.
 
-    * `kafka_topic_update_timeout` - (Optional) The number of minutes to wait for a Kafka topic to updated remotely.
+    * `kafka_topic_update_verify_timeout` - (Optional) The number of minutes to wait for a Kafka topic to updated remotely.
       Defaults to 10 minutes. Minimum required is 3 minutes.
 
-    * `privatelink_create_timeout` - (Optional) The number of minutes to wait for a privatelink to be provisioned.
+    * `privatelink_create_verify_timeout` - (Optional) The number of minutes to wait for a privatelink to be provisioned.
       Defaults to 15 minutes. Minimum required is 5 minutes.
 
-    * `privatelink_delete_timeout` - (Optional) The number of minutes to wait for a privatelink to be deprovisioned.
+    * `privatelink_delete_verify_timeout` - (Optional) The number of minutes to wait for a privatelink to be deprovisioned.
       Defaults to 15 minutes. Minimum required is 5 minutes.
 
-    * `privatelink_allowed_acccounts_add_timeout` - (Optional) The number of minutes to wait for allowed accounts
+    * `privatelink_allowed_acccounts_add_verify_timeout` - (Optional) The number of minutes to wait for allowed accounts
       to become active for a privatelink. Defaults to 10 minutes. Minimum required is 2 minutes.
 
-    * `data_connector_create_timeout` - (Optional) The number of minutes to wait for a data connector to be provisioned.
+    * `data_connector_create_verify_timeout` - (Optional) The number of minutes to wait for a data connector to be provisioned.
       Defaults to 20 minutes. Minimum required is 10 minutes.
 
-    * `data_connector_delete_timeout` - (Optional) The number of minutes to wait for a data connector to be deleted.
+    * `data_connector_delete_verify_timeout` - (Optional) The number of minutes to wait for a data connector to be deleted.
       Defaults to 10 minutes. Minimum required is 3 minutes.
 
-    * `data_connector_status_update_timeout` - (Optional) The number of minutes to wait for a data connector status to be updated.
+    * `data_connector_status_update_verify_timeout` - (Optional) The number of minutes to wait for a data connector status to be updated.
       Defaults to 10 minutes. Minimum required is 5 minutes.
 
-    * `data_connector_settings_update_timeout` - (Optional) The number of minutes to wait for a data connector settings to be updated.
+    * `data_connector_settings_update_verify_timeout` - (Optional) The number of minutes to wait for a data connector settings to be updated.
       Defaults to 10 minutes. Minimum required is 5 minutes.
 
     * `postgres_credential_pre_create_verify_timeout` - (Optional) The number of minutes to wait for a postgres database
@@ -222,11 +222,11 @@ Only a single `delays` block may be specified, and it supports the following arg
       after a Premium, Private, or Shield postgres database is provisioned.
       Defaults to 45 minutes. Minimum required is 20 minutes.
 
-    * `postgres_credential_create_timeout` - (Optional) The number of minutes to wait for a postgres credential to be created.
+    * `postgres_credential_create_verify_timeout` - (Optional) The number of minutes to wait for a postgres credential to be created.
       Defaults to 10 minutes. Minimum required is 5 minutes.
 
-    * `postgres_credential_delete_timeout` - (Optional) The number of minutes to wait for a postgres credential to be deleted.
+    * `postgres_credential_delete_verify_timeout` - (Optional) The number of minutes to wait for a postgres credential to be deleted.
       Defaults to 10 minutes. Minimum required is 5 minutes.
 
-    * `shield_private_space_create_timeout` - (Optional) The number of minutes to wait for a shield private space
+    * `shield_private_space_create_verify_timeout` - (Optional) The number of minutes to wait for a shield private space
       to be provisioned. Defaults to 20 minutes. Minimum required is 10 minutes.

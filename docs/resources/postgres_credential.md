@@ -25,16 +25,16 @@ During creation and deletion, this resource checks the status of the credential.
 and Shield databases, the provider verifies the database's Fork/Follow status prior to creating the credential.
 Credentials cannot be created on these databases if the Fork/Follow status is not set to 'Available'.
 
-All the aforementioned timeouts can be customized via the `timeouts.postgres_credential_create_timeout` and
-`timeouts.postgres_credential_delete_timeout` attributes in your `provider` block.
+All the aforementioned timeouts can be customized via the `timeouts.postgres_credential_create_verify_timeout` and
+`timeouts.postgres_credential_delete_verify_timeout` attributes in your `provider` block.
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    postgres_credential_create_timeout = 20
-    postgres_credential_delete_timeout = 20
+    postgres_credential_create_verify_timeout = 20
+    postgres_credential_delete_verify_timeout = 20
     postgres_credential_pre_create_verify_timeout = 30
   }
 }

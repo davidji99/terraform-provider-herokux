@@ -28,15 +28,15 @@ Please refer to the following documentation when deciding how to configure a top
 ### Resource Timeouts
 This resource checks the status of a creation or update action.
 Both checks' default timeout is 10 minutes, which can be customized via the
-`timeouts.kafka_topic_create_timeout` and `timeouts.kafka_topic_update_timeout` attributes in your `provider` block.
+`timeouts.kafka_topic_create_verify_timeout` and `timeouts.kafka_topic_update_verify_timeout` attributes in your `provider` block.
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    kafka_topic_create_timeout = 15
-    kafka_topic_update_timeout = 15
+    kafka_topic_create_verify_timeout = 15
+    kafka_topic_update_verify_timeout = 15
   }
 }
 ```

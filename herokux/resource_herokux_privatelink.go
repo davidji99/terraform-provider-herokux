@@ -99,7 +99,7 @@ func resourceHerokuxPrivatelinkCreate(ctx context.Context, d *schema.ResourceDat
 		Pending:      []string{data.PrivatelinkStatuses.PROVISIONING.ToString()},
 		Target:       []string{data.PrivatelinkStatuses.OPERATIONAL.ToString()},
 		Refresh:      PrivatelinkCreateStateRefreshFunc(client, addonID),
-		Timeout:      time.Duration(config.PrivatelinkCreateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.PrivatelinkCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
@@ -199,7 +199,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 			Pending:      []string{data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString()},
 			Target:       []string{data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString()},
 			Refresh:      PrivatelinkUpdateStateRefreshFunc(client, d.Id()),
-			Timeout:      time.Duration(config.PrivatelinkAllowedAccountsAddTimeout) * time.Minute,
+			Timeout:      time.Duration(config.PrivatelinkAllowedAccountsAddVerifyTimeout) * time.Minute,
 			PollInterval: StateRefreshPollInterval,
 		}
 
@@ -235,7 +235,7 @@ func resourceHerokuxPrivatelinkDelete(ctx context.Context, d *schema.ResourceDat
 		Pending:      []string{data.PrivatelinkStatuses.DEPROVISIONING.ToString()},
 		Target:       []string{data.PrivatelinkStatuses.DEPROVISIONED.ToString()},
 		Refresh:      PrivatelinkDeleteStateRefreshFunc(client, d.Id()),
-		Timeout:      time.Duration(config.PrivatelinkDeleteTimeout) * time.Minute,
+		Timeout:      time.Duration(config.PrivatelinkDeleteVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 

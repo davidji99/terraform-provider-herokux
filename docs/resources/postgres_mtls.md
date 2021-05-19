@@ -23,15 +23,15 @@ Users could then do either of the following:
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the MTLS provisioning or deprovisioning.
 Both checks' default timeout is 10 minutes, which can be customized
-via the `timeouts.mtls_provision_timeout` and `timeouts.mtls_deprovision_timeout` attributes in your `provider` block.
+via the `timeouts.mtls_provision_verify_timeout` and `timeouts.mtls_deprovision_verify_timeout` attributes in your `provider` block.
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    mtls_provision_timeout = 15
-    mtls_deprovision_timeout = 15
+    mtls_provision_verify_timeout = 15
+    mtls_deprovision_verify_timeout = 15
   }
 }
 ```

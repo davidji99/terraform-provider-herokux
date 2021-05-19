@@ -17,27 +17,27 @@ import (
 )
 
 const (
-	DefaultMTLSProvisionTimeout                     = int64(10)
-	DefaultMTLSMTLSDeprovisionTimeout               = int64(10)
-	DefaultMTLSIPRuleCreateTimeout                  = int64(10)
-	DefaultMTLSCertificateCreateTimeout             = int64(10)
-	DefaultMTLSCertificateDeleteTimeout             = int64(10)
-	DefaultKafkaCGCreateTimeout                     = int64(10)
-	DefaultKafkaCGDeleteTimeout                     = int64(10)
-	DefaultKafkaTopicCreateTimeout                  = int64(10)
-	DefaultKafkaTopicUpdateTimeout                  = int64(10)
-	DefaultPrivatelinkCreateTimeout                 = int64(15)
-	DefaultPrivatelinkDeleteTimeout                 = int64(15)
-	DefaultPrivatelinkAllowedAccountsAddTimeout     = int64(10)
-	DefaultPrivatelinkAllowedAccountsRemoveTimeout  = int64(10)
-	DefaultDataConnectorCreateTimeout               = int64(20)
-	DefaultDataConnectorSettingsUpdateTimeout       = int64(10)
-	DefaultDataConnectorDeleteTimeout               = int64(10)
-	DefaultDataConnectorStatusUpdateTimeout         = int64(10)
-	DefaultPostgresCredentialPreCreateVerifyTimeout = int64(45)
-	DefaultPostgresCredentialCreateTimeout          = int64(10)
-	DefaultPostgresCredentialDeleteTimeout          = int64(10)
-	DefaultPrivateSpaceCreateTimeout                = int64(20)
+	DefaultMTLSProvisionVerifyTimeout                    = int64(10)
+	DefaultMTLSMTLSDeprovisionVerifyTimeout              = int64(10)
+	DefaultMTLSIPRuleCreateVerifyTimeout                 = int64(10)
+	DefaultMTLSCertificateCreateVerifyTimeout            = int64(10)
+	DefaultMTLSCertificateDeleteVerifyTimeout            = int64(10)
+	DefaultKafkaCGCreateVerifyTimeout                    = int64(10)
+	DefaultKafkaCGDeleteVerifyTimeout                    = int64(10)
+	DefaultKafkaTopicCreateVerifyTimeout                 = int64(10)
+	DefaultKafkaTopicUpdateVerifyTimeout                 = int64(10)
+	DefaultPrivatelinkCreateVerifyTimeout                = int64(15)
+	DefaultPrivatelinkDeleteVerifyTimeout                = int64(15)
+	DefaultPrivatelinkAllowedAccountsAddVerifyTimeout    = int64(10)
+	DefaultPrivatelinkAllowedAccountsRemoveVerifyTimeout = int64(10)
+	DefaultDataConnectorCreateVerifyTimeout              = int64(20)
+	DefaultDataConnectorSettingsUpdateVerifyTimeout      = int64(10)
+	DefaultDataConnectorDeleteVerifyTimeout              = int64(10)
+	DefaultDataConnectorStatusUpdateVerifyTimeout        = int64(10)
+	DefaultPostgresCredentialPreCreateVerifyTimeout      = int64(45)
+	DefaultPostgresCredentialCreateVerifyTimeout         = int64(10)
+	DefaultPostgresCredentialDeleteVerifyTimeout         = int64(10)
+	DefaultPrivateSpaceCreateVerifyTimeout               = int64(20)
 
 	DefaultPostgresSettingsModifyDelay = int64(2)
 	DefaultConnectMappingModifyDelay   = int64(15)
@@ -64,27 +64,27 @@ type Config struct {
 	kolkrabbiURL      string
 
 	// Custom Timeouts
-	MTLSProvisionTimeout                     int64
-	MTLSDeprovisionTimeout                   int64
-	MTLSIPRuleCreateTimeout                  int64
-	MTLSCertificateCreateTimeout             int64
-	MTLSCertificateDeleteTimeout             int64
-	KafkaCGCreateTimeout                     int64
-	KafkaCGDeleteTimeout                     int64
-	KafkaTopicCreateTimeout                  int64
-	KafkaTopicUpdateTimeout                  int64
-	PrivatelinkCreateTimeout                 int64
-	PrivatelinkDeleteTimeout                 int64
-	PrivatelinkAllowedAccountsAddTimeout     int64
-	PrivatelinkAllowedAccountsRemoveTimeout  int64
-	DataConnectorCreateTimeout               int64
-	DataConnectorSettingsUpdateTimeout       int64
-	DataConnectorDeleteTimeout               int64
-	DataConnectorStatusUpdateTimeout         int64
-	PostgresCredentialCreateTimeout          int64
-	PostgresCredentialPreCreateVerifyTimeout int64
-	PostgresCredentialDeleteTimeout          int64
-	PrivateSpaceCreateTimeout                int64
+	MTLSProvisionVerifyTimeout                    int64
+	MTLSDeprovisionVerifyTimeout                  int64
+	MTLSIPRuleCreateVerifyTimeout                 int64
+	MTLSCertificateCreateVerifyTimeout            int64
+	MTLSCertificateDeleteVerifyTimeout            int64
+	KafkaCGCreateVerifyTimeout                    int64
+	KafkaCGDeleteVerifyTimeout                    int64
+	KafkaTopicCreateVerifyTimeout                 int64
+	KafkaTopicUpdateVerifyTimeout                 int64
+	PrivatelinkCreateVerifyTimeout                int64
+	PrivatelinkDeleteVerifyTimeout                int64
+	PrivatelinkAllowedAccountsAddVerifyTimeout    int64
+	PrivatelinkAllowedAccountsRemoveVerifyTimeout int64
+	DataConnectorCreateVerifyTimeout              int64
+	DataConnectorSettingsUpdateVerifyTimeout      int64
+	DataConnectorDeleteVerifyTimeout              int64
+	DataConnectorStatusUpdateVerifyTimeout        int64
+	PostgresCredentialCreateVerifyTimeout         int64
+	PostgresCredentialPreCreateVerifyTimeout      int64
+	PostgresCredentialDeleteVerifyTimeout         int64
+	PrivateSpaceCreateVerifyTimeout               int64
 
 	// Custom Delays
 	PostgresSettingsModifyDelay int64
@@ -93,27 +93,27 @@ type Config struct {
 
 func NewConfig() *Config {
 	c := &Config{
-		MTLSProvisionTimeout:                     DefaultMTLSProvisionTimeout,
-		MTLSDeprovisionTimeout:                   DefaultMTLSMTLSDeprovisionTimeout,
-		MTLSIPRuleCreateTimeout:                  DefaultMTLSIPRuleCreateTimeout,
-		MTLSCertificateCreateTimeout:             DefaultMTLSCertificateCreateTimeout,
-		MTLSCertificateDeleteTimeout:             DefaultMTLSCertificateDeleteTimeout,
-		KafkaCGCreateTimeout:                     DefaultKafkaCGCreateTimeout,
-		KafkaCGDeleteTimeout:                     DefaultKafkaCGDeleteTimeout,
-		KafkaTopicCreateTimeout:                  DefaultKafkaTopicCreateTimeout,
-		KafkaTopicUpdateTimeout:                  DefaultKafkaTopicUpdateTimeout,
-		PrivatelinkCreateTimeout:                 DefaultPrivatelinkCreateTimeout,
-		PrivatelinkDeleteTimeout:                 DefaultPrivatelinkDeleteTimeout,
-		PrivatelinkAllowedAccountsAddTimeout:     DefaultPrivatelinkAllowedAccountsAddTimeout,
-		PrivatelinkAllowedAccountsRemoveTimeout:  DefaultPrivatelinkAllowedAccountsRemoveTimeout,
-		DataConnectorCreateTimeout:               DefaultDataConnectorCreateTimeout,
-		DataConnectorSettingsUpdateTimeout:       DefaultDataConnectorSettingsUpdateTimeout,
-		DataConnectorDeleteTimeout:               DefaultDataConnectorDeleteTimeout,
-		DataConnectorStatusUpdateTimeout:         DefaultDataConnectorStatusUpdateTimeout,
-		PostgresCredentialPreCreateVerifyTimeout: DefaultPostgresCredentialPreCreateVerifyTimeout,
-		PostgresCredentialCreateTimeout:          DefaultPostgresCredentialCreateTimeout,
-		PostgresCredentialDeleteTimeout:          DefaultPostgresCredentialDeleteTimeout,
-		PrivateSpaceCreateTimeout:                DefaultPrivateSpaceCreateTimeout,
+		MTLSProvisionVerifyTimeout:                    DefaultMTLSProvisionVerifyTimeout,
+		MTLSDeprovisionVerifyTimeout:                  DefaultMTLSMTLSDeprovisionVerifyTimeout,
+		MTLSIPRuleCreateVerifyTimeout:                 DefaultMTLSIPRuleCreateVerifyTimeout,
+		MTLSCertificateCreateVerifyTimeout:            DefaultMTLSCertificateCreateVerifyTimeout,
+		MTLSCertificateDeleteVerifyTimeout:            DefaultMTLSCertificateDeleteVerifyTimeout,
+		KafkaCGCreateVerifyTimeout:                    DefaultKafkaCGCreateVerifyTimeout,
+		KafkaCGDeleteVerifyTimeout:                    DefaultKafkaCGDeleteVerifyTimeout,
+		KafkaTopicCreateVerifyTimeout:                 DefaultKafkaTopicCreateVerifyTimeout,
+		KafkaTopicUpdateVerifyTimeout:                 DefaultKafkaTopicUpdateVerifyTimeout,
+		PrivatelinkCreateVerifyTimeout:                DefaultPrivatelinkCreateVerifyTimeout,
+		PrivatelinkDeleteVerifyTimeout:                DefaultPrivatelinkDeleteVerifyTimeout,
+		PrivatelinkAllowedAccountsAddVerifyTimeout:    DefaultPrivatelinkAllowedAccountsAddVerifyTimeout,
+		PrivatelinkAllowedAccountsRemoveVerifyTimeout: DefaultPrivatelinkAllowedAccountsRemoveVerifyTimeout,
+		DataConnectorCreateVerifyTimeout:              DefaultDataConnectorCreateVerifyTimeout,
+		DataConnectorSettingsUpdateVerifyTimeout:      DefaultDataConnectorSettingsUpdateVerifyTimeout,
+		DataConnectorDeleteVerifyTimeout:              DefaultDataConnectorDeleteVerifyTimeout,
+		DataConnectorStatusUpdateVerifyTimeout:        DefaultDataConnectorStatusUpdateVerifyTimeout,
+		PostgresCredentialPreCreateVerifyTimeout:      DefaultPostgresCredentialPreCreateVerifyTimeout,
+		PostgresCredentialCreateVerifyTimeout:         DefaultPostgresCredentialCreateVerifyTimeout,
+		PostgresCredentialDeleteVerifyTimeout:         DefaultPostgresCredentialDeleteVerifyTimeout,
+		PrivateSpaceCreateVerifyTimeout:               DefaultPrivateSpaceCreateVerifyTimeout,
 
 		PostgresSettingsModifyDelay: DefaultPostgresSettingsModifyDelay,
 		ConnectMappingModifyDelay:   DefaultConnectMappingModifyDelay,
@@ -231,87 +231,87 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 		}
 		for _, v := range vL {
 			timeoutsConfig := v.(map[string]interface{})
-			if v, ok := timeoutsConfig["mtls_provision_timeout"].(int); ok {
-				c.MTLSProvisionTimeout = int64(v)
+			if v, ok := timeoutsConfig["mtls_provision_verify_timeout"].(int); ok {
+				c.MTLSProvisionVerifyTimeout = int64(v)
 			}
-			if v, ok := timeoutsConfig["mtls_deprovision_timeout"].(int); ok {
-				c.MTLSDeprovisionTimeout = int64(v)
-			}
-
-			if v, ok := timeoutsConfig["mtls_iprule_create_timeout"].(int); ok {
-				c.MTLSDeprovisionTimeout = int64(v)
+			if v, ok := timeoutsConfig["mtls_deprovision_verify_timeout"].(int); ok {
+				c.MTLSDeprovisionVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["mtls_certificate_create_timeout"].(int); ok {
-				c.MTLSCertificateCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["mtls_iprule_create_verify_timeout"].(int); ok {
+				c.MTLSDeprovisionVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["mtls_certificate_delete_timeout"].(int); ok {
-				c.MTLSCertificateDeleteTimeout = int64(v)
+			if v, ok := timeoutsConfig["mtls_certificate_create_verify_timeout"].(int); ok {
+				c.MTLSCertificateCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["kafka_cg_create_timeout"].(int); ok {
-				c.KafkaCGCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["mtls_certificate_delete_verify_timeout"].(int); ok {
+				c.MTLSCertificateDeleteVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["kafka_cg_delete_timeout"].(int); ok {
-				c.KafkaCGDeleteTimeout = int64(v)
+			if v, ok := timeoutsConfig["kafka_cg_create_verify_timeout"].(int); ok {
+				c.KafkaCGCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["kafka_topic_create_timeout"].(int); ok {
-				c.KafkaTopicCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["kafka_cg_delete_verify_timeout"].(int); ok {
+				c.KafkaCGDeleteVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["kafka_topic_update_timeout"].(int); ok {
-				c.KafkaTopicUpdateTimeout = int64(v)
+			if v, ok := timeoutsConfig["kafka_topic_create_verify_timeout"].(int); ok {
+				c.KafkaTopicCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["privatelink_create_timeout"].(int); ok {
-				c.PrivatelinkCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["kafka_topic_update_verify_timeout"].(int); ok {
+				c.KafkaTopicUpdateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["privatelink_delete_timeout"].(int); ok {
-				c.PrivatelinkDeleteTimeout = int64(v)
+			if v, ok := timeoutsConfig["privatelink_create_verify_timeout"].(int); ok {
+				c.PrivatelinkCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["privatelink_allowed_acccounts_add_timeout"].(int); ok {
-				c.PrivatelinkAllowedAccountsAddTimeout = int64(v)
+			if v, ok := timeoutsConfig["privatelink_delete_verify_timeout"].(int); ok {
+				c.PrivatelinkDeleteVerifyTimeout = int64(v)
+			}
+
+			if v, ok := timeoutsConfig["privatelink_allowed_acccounts_add_verify_timeout"].(int); ok {
+				c.PrivatelinkAllowedAccountsAddVerifyTimeout = int64(v)
 			}
 
 			if v, ok := timeoutsConfig["privatelink_allowed_acccounts_remove_timeout"].(int); ok {
-				c.PrivatelinkAllowedAccountsRemoveTimeout = int64(v)
+				c.PrivatelinkAllowedAccountsRemoveVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["data_connector_create_timeout"].(int); ok {
-				c.DataConnectorCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["data_connector_create_verify_timeout"].(int); ok {
+				c.DataConnectorCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["data_connector_settings_update_timeout"].(int); ok {
-				c.DataConnectorSettingsUpdateTimeout = int64(v)
+			if v, ok := timeoutsConfig["data_connector_settings_update_verify_timeout"].(int); ok {
+				c.DataConnectorSettingsUpdateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["data_connector_delete_timeout"].(int); ok {
-				c.DataConnectorDeleteTimeout = int64(v)
+			if v, ok := timeoutsConfig["data_connector_delete_verify_timeout"].(int); ok {
+				c.DataConnectorDeleteVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["data_connector_status_update_timeout"].(int); ok {
-				c.DataConnectorStatusUpdateTimeout = int64(v)
+			if v, ok := timeoutsConfig["data_connector_status_update_verify_timeout"].(int); ok {
+				c.DataConnectorStatusUpdateVerifyTimeout = int64(v)
 			}
 
 			if v, ok := timeoutsConfig["postgres_credential_pre_create_verify_timeout"].(int); ok {
 				c.PostgresCredentialPreCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["postgres_credential_create_timeout"].(int); ok {
-				c.PostgresCredentialCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["postgres_credential_create_verify_timeout"].(int); ok {
+				c.PostgresCredentialCreateVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["postgres_credential_delete_timeout"].(int); ok {
-				c.PostgresCredentialDeleteTimeout = int64(v)
+			if v, ok := timeoutsConfig["postgres_credential_delete_verify_timeout"].(int); ok {
+				c.PostgresCredentialDeleteVerifyTimeout = int64(v)
 			}
 
-			if v, ok := timeoutsConfig["shield_private_space_create_timeout"].(int); ok {
-				c.PrivateSpaceCreateTimeout = int64(v)
+			if v, ok := timeoutsConfig["shield_private_space_create_verify_timeout"].(int); ok {
+				c.PrivateSpaceCreateVerifyTimeout = int64(v)
 			}
 		}
 	}

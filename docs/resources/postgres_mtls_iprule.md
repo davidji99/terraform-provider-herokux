@@ -16,7 +16,7 @@ Please wait a bit before attempting the action. The actual wait time is unknown 
 
 ### Resource Timeouts
 During creation, this resource checks if the newly IP rule's status changes from 'Authorizing' to 'Authorized'.
-This check's default timeout is ~10 minutes, which can be customized via the `timeouts.mtls_iprule_create_timeout` attribute
+This check's default timeout is ~10 minutes, which can be customized via the `timeouts.mtls_iprule_create_verify_timeout` attribute
 in your `provider` block.
 
 For example:
@@ -24,7 +24,7 @@ For example:
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    mtls_iprule_create_timeout = 15
+    mtls_iprule_create_verify_timeout = 15
   }
 }
 ```

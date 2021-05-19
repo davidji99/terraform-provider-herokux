@@ -130,7 +130,7 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 		Pending:      []string{postgres.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
 		Target:       []string{postgres.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
 		Refresh:      MTLSSIPRuleStateRefreshFunc(client, dbName, ipRule.GetID()),
-		Timeout:      time.Duration(config.MTLSIPRuleCreateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.MTLSIPRuleCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
