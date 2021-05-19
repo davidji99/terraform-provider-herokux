@@ -1,6 +1,7 @@
 package herokux
 
 import (
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 
 	helper "github.com/davidji99/terraform-provider-herokux/helper/test"
@@ -31,4 +32,13 @@ func TestProvider_impl(t *testing.T) {
 
 func testAccPreCheck(t *testing.T) {
 	testAccConfig.GetOrAbort(t, helper.TestConfigHerokuxAPIKey)
+}
+
+func externalProviders() map[string]resource.ExternalProvider {
+	return map[string]resource.ExternalProvider{
+		"heroku": {
+			VersionConstraint: ">= 4.4.1",
+			Source:            "heroku/heroku",
+		},
+	}
 }

@@ -40,21 +40,18 @@ func TestAccHerokuxPostgresCredential_Basic(t *testing.T) {
 	})
 }
 
-func TestAccHerokuxPostgresCredential_WithPremiumPG(t *testing.T) {
+func TestAccHerokuxPostgresCredential_E2E_PremiumPG(t *testing.T) {
+	testAccConfig.GetRunE2ETestsOrSkip(t)
+
 	orgName := testAccConfig.GetAnyOrganizationOrSkip(t)
 	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
 	plan := "premium-0"
 	credName := fmt.Sprintf("pgcredtest-%s", acctest.RandString(10))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { testAccPreCheck(t) },
-		Providers: testAccProviders,
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"heroku": {
-				VersionConstraint: "4.4.1",
-				Source:            "heroku/heroku",
-			},
-		},
+		PreCheck:          func() { testAccPreCheck(t) },
+		Providers:         testAccProviders,
+		ExternalProviders: externalProviders(),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckHerokuxPostgresCredential_basicWithHerokuResource(appName, orgName, plan, credName),
