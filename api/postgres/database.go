@@ -29,9 +29,11 @@ type DatabaseLeader struct {
 
 // DatabaseInfo represents a database's information.
 type DatabaseInfo struct {
-	Name          *string       `json:"name,omitempty"`
-	Values        []interface{} `json:"values,omitempty"` // most of the values are strings
-	ResolveDBName *bool         `json:"resolve_db_name,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	ResolveDBName *bool   `json:"resolve_db_name,omitempty"`
+
+	// Most of the values are strings and only have one element.
+	Values []interface{} `json:"values,omitempty"`
 }
 
 func (d *Database) RetrieveSpecificInfo(name string) (*DatabaseInfo, error) {
