@@ -1,3 +1,1 @@
-## 0.1.0 (Unreleased)
-
-BACKWARDS INCOMPATIBILITIES / NOTES:
+List of changes can be found here: https://github.com/davidji99/terraform-provider-herokux/releases
