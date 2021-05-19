@@ -26,6 +26,8 @@ func resourceHerokuxPostgresMTLSCertificate() *schema.Resource {
 			StateContext: resourceHerokuxPostgresMTLSCertificateImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"database_name": {
 				Type:     schema.TypeString,
@@ -115,7 +117,7 @@ func resourceHerokuxPostgresMTLSCertificateCreate(ctx context.Context, d *schema
 		Pending:      []string{postgres.MTLSCertStatuses.PENDING.ToString()},
 		Target:       []string{postgres.MTLSCertStatuses.READY.ToString()},
 		Refresh:      MTLSSCertStateRefreshFunc(client, dbName, cert.GetID()),
-		Timeout:      time.Duration(config.MTLSCertificateCreateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.MTLSCertificateCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
@@ -180,7 +182,7 @@ func resourceHerokuxPostgresMTLSCertificateDelete(ctx context.Context, d *schema
 		Pending:      []string{postgres.MTLSCertStatuses.DISABLING.ToString()},
 		Target:       []string{postgres.MTLSCertStatuses.DISABLED.ToString()},
 		Refresh:      MTLSCertificateDeletionStateRefreshFunc(client, dbName, certID),
-		Timeout:      time.Duration(config.MTLSCertificateDeleteTimeout) * time.Minute,
+		Timeout:      time.Duration(config.MTLSCertificateDeleteVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 

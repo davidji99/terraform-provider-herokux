@@ -23,17 +23,17 @@ between 5 and 10 minutes to become available.
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the privatelink provisioning/deprovisioning
 as well as allowlisting AWS account IDs. All the aforementioned timeouts can be customized
-via the `timeouts.privatelink_create_timeout`, `timeouts.privatelink_delete_timeout`
-and `timeouts.privatelink_allowed_acccounts_add_timeout` attributes in your `provider` block.
+via the `timeouts.privatelink_create_verify_timeout`, `timeouts.privatelink_delete_verify_timeout`
+and `timeouts.privatelink_allowed_acccounts_add_verify_timeout` attributes in your `provider` block.
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    privatelink_create_timeout = 20
-    privatelink_delete_timeout = 20
-    privatelink_allowed_acccounts_add_timeout = 20
+    privatelink_create_verify_timeout = 20
+    privatelink_delete_verify_timeout = 20
+    privatelink_allowed_acccounts_add_verify_timeout = 20
   }
 }
 ```

@@ -21,6 +21,8 @@ func resourceHerokuxAppGithubIntegration() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:         schema.TypeString,

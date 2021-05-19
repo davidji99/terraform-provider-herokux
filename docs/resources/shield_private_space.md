@@ -34,7 +34,7 @@ associated with this feature.
 
 ### Resource Timeouts
 During creation, this resource checks the status of the shield private space provisioning status.
-The aforementioned timeout can be customized via the `timeouts.shield_private_space_create_timeout`
+The aforementioned timeout can be customized via the `timeouts.shield_private_space_create_verify_timeout`
 attribute in your `provider` block.
 
 For example:
@@ -42,7 +42,7 @@ For example:
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    shield_private_space_create_timeout = 30
+    shield_private_space_create_verify_timeout = 30
   }
 }
 ```

@@ -28,6 +28,8 @@ func resourceHerokuxRedisConfig() *schema.Resource {
 			StateContext: resourceHerokuxRedisConfigImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"redis_id": {
 				Type:         schema.TypeString,

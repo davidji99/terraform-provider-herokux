@@ -28,6 +28,8 @@ func resourceHerokuxShieldPrivateSpace() *schema.Resource {
 			StateContext: resourceHerokuxShieldPrivateSpaceImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -189,7 +191,7 @@ func resourceHerokuxShieldPrivateSpaceCreate(ctx context.Context, d *schema.Reso
 		Pending:      []string{"allocating"},
 		Target:       []string{"Operational"},
 		Refresh:      ShieldPrivateSpaceStateRefreshFunc(client, space.ID),
-		Timeout:      time.Duration(config.PrivateSpaceCreateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.PrivateSpaceCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 

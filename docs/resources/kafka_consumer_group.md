@@ -13,15 +13,15 @@ This resource manages consumer groups in an existing Heroku Kafka instance.
 ### Resource Timeouts
 This resource checks the status of the creation or deletion action.
 Both checks' default timeout is 10 minutes, which can be customized via the
-`timeouts.kafka_cg_create_timeout` and `timeouts.kafka_cg_delete_timeout` attributes in your `provider` block.
+`timeouts.kafka_cg_create_verify_timeout` and `timeouts.kafka_cg_delete_verify_timeout` attributes in your `provider` block.
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    kafka_cg_create_timeout = 15
-    kafka_cg_delete_timeout = 15
+    kafka_cg_create_verify_timeout = 15
+    kafka_cg_delete_verify_timeout = 15
   }
 }
 ```

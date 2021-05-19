@@ -21,6 +21,8 @@ func resourceHerokuxRedisMaintenanceWindow() *schema.Resource {
 			StateContext: resourceHerokuxRedisMaintenanceWindowImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"redis_id": {
 				Type:         schema.TypeString,

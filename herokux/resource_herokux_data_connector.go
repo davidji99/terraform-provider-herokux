@@ -25,6 +25,8 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			StateContext: resourceHerokuxDataConnectorImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"source_id": {
 				Type:         schema.TypeString,
@@ -219,7 +221,7 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 		Pending:      []string{postgres.DataConnectorStatuses.CREATING.ToString()},
 		Target:       []string{postgres.DataConnectorStatuses.AVAILABLE.ToString()},
 		Refresh:      DataConnectorCreateStateRefreshFunc(client, dc.GetID()),
-		Timeout:      time.Duration(config.DataConnectorCreateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.DataConnectorCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
@@ -325,7 +327,7 @@ func updateSettingsDataConnector(ctx context.Context, d *schema.ResourceData, me
 		Pending:      []string{"updating"},
 		Target:       []string{"updated"},
 		Refresh:      DataConnectorSettingsUpdateRefreshFunc(client, d.Id(), settings),
-		Timeout:      time.Duration(config.DataConnectorSettingsUpdateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.DataConnectorSettingsUpdateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
@@ -412,7 +414,7 @@ func pauseResumeDataConnector(ctx context.Context, d *schema.ResourceData, meta 
 		Pending:      []string{pendingState},
 		Target:       []string{targetState},
 		Refresh:      DataConnectorStatusRefreshFunc(client, d.Id(), pendingState, targetState),
-		Timeout:      time.Duration(config.DataConnectorStatusUpdateTimeout) * time.Minute,
+		Timeout:      time.Duration(config.DataConnectorStatusUpdateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 
@@ -442,7 +444,7 @@ func resourceHerokuxDataConnectorDelete(ctx context.Context, d *schema.ResourceD
 		Pending:      []string{postgres.DataConnectorStatuses.DEPROVISIONED.ToString()},
 		Target:       []string{postgres.DataConnectorStatuses.DELETED.ToString()},
 		Refresh:      DataConnectorDeleteStateRefreshFunc(client, d.Id()),
-		Timeout:      time.Duration(config.DataConnectorDeleteTimeout) * time.Minute,
+		Timeout:      time.Duration(config.DataConnectorDeleteVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 

@@ -23,6 +23,8 @@ func resourceHerokuxFormationAlert() *schema.Resource {
 			StateContext: resourceHerokuxFormationAlertImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:         schema.TypeString,

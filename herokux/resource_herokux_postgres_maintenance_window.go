@@ -21,6 +21,8 @@ func resourceHerokuxPostgresMaintenanceWindow() *schema.Resource {
 			StateContext: resourceHerokuxPostgresMaintenanceWindowImport,
 		},
 
+		Timeouts: resourceTimeouts(),
+
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
 				Type:         schema.TypeString,

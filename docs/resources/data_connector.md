@@ -31,19 +31,19 @@ physical or mental health; and information related to the provision or payment o
 During creation, modification and deletion, this resource checks the progress of the action you took for the `apply`.
 All the aforementioned timeouts can be customized via the following attributes in your `provider` block:
 
-* `tdata_connector_create_timeout`
-* `tdata_connector_delete_timeout`
-* `tdata_connector_status_update_timeout`
-* `tdata_connector_settings_update_timeout`
+* `data_connector_create_verify_timeout`
+* `data_connector_delete_verify_timeout`
+* `data_connector_status_update_verify_timeout`
+* `data_connector_settings_update_verify_timeout`
 
 For example:
 
 ```hcl-terraform
 provider "herokux" {
   timeouts {
-    data_connector_create_timeout = 20
-    data_connector_delete_timeout = 20
-    data_connector_status_update_timeout = 20
+    data_connector_create_verify_timeout = 20
+    data_connector_delete_verify_timeout = 20
+    data_connector_status_update_verify_timeout = 20
   }
 }
 ```
