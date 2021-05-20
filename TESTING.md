@@ -45,6 +45,9 @@ The following parameters are available for running the test. The absence of some
 * **HEROKUX_PIPELINE_ID** (`string`) - The UUID of an existing pipeline.
 * **HEROKUX_GITHUB_ORG_REPO** (`string`) - The org/repo of an existing Github repository.
 * **HEROKUX_USER_EMAIL** (`string`) - Email address of an existing Heroku user.
+* **HEROKUX_RUN_E2E_TESTS** (`string`) - Execute integration tests that make use of the Heroku provider for a true E2E
+  test experience. These tests may take a long time as they create all required upstream resources. Set to `"true"` to
+  execute these tests.
 
 **For example:**
 ```bash

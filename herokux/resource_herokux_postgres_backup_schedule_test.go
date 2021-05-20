@@ -2,6 +2,8 @@ package herokux
 
 import (
 	"fmt"
+	"github.com/davidji99/terraform-provider-herokux/helper/test"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
 )
@@ -107,6 +109,56 @@ func TestAccHerokuxPostgresBackupSchedule_BasicZeroHour(t *testing.T) {
 	})
 }
 
+func TestAccE2EHerokuxPostgresBackupSchedule(t *testing.T) {
+	testAccConfig.GetRunE2ETestsOrSkip(t)
+
+	orgName := testAccConfig.GetAnyOrganizationOrSkip(t)
+	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
+	plan := "heroku-postgresql:premium-0"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		Providers:         testAccProviders,
+		ExternalProviders: externalProviders(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuxPostgresBackupSchedule_basicWithHerokuResource(appName, orgName, plan, "Africa/Abidjan", 5),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "postgres_id"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "hour", "5"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "timezone", "Africa/Abidjan"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "name"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_weeks"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_months"),
+				),
+			},
+			{
+				Config: testAccCheckHerokuxPostgresBackupSchedule_basicWithHerokuResource(appName, orgName, plan, "Asia/Barnaul", 20),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "postgres_id"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "hour", "20"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_backup_schedule.foobar", "timezone", "Asia/Barnaul"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "name"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_weeks"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_backup_schedule.foobar", "retain_months"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckHerokuxPostgresBackupSchedule_basic(postgresID, timezone string, hour int) string {
 	return fmt.Sprintf(`
 resource "herokux_postgres_backup_schedule" "foobar" {
@@ -115,6 +167,18 @@ resource "herokux_postgres_backup_schedule" "foobar" {
 	timezone = "%s"
 }
 `, postgresID, hour, timezone)
+}
+
+func testAccCheckHerokuxPostgresBackupSchedule_basicWithHerokuResource(appName, orgName, addonPlan, timezone string, hour int) string {
+	return fmt.Sprintf(`
+%s
+
+resource "herokux_postgres_backup_schedule" "foobar" {
+	postgres_id = heroku_addon.foobar.id
+	hour = %d
+	timezone = "%s"
+}
+`, test.HerokuAppAddonBlock(appName, orgName, addonPlan), hour, timezone)
 }
 
 func testAccCheckHerokuxPostgresBackupSchedule_NoTimeZone(postgresID string, hour int) string {
