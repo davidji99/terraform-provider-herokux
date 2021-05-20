@@ -27,6 +27,15 @@ A set of tests can be selected by passing `TESTARGS` a substring. For example, t
 $ make testacc TEST="./herokux/" TESTARGS='-run=HerokuxFormationAutoscaling'
 ```
 
+## E2E Acceptance Tests
+Some, not all, resources have tests that utilize the Heroku Terraform provider for a full end-to-end testing experience.
+These tests, tagged with `TestAccE2E...`, will take much longer to run and be run by setting the following environment
+variable:
+
+```shell
+HEROKUX_RUN_E2E_TESTS=true
+```
+
 ### Test Parameters
 
 The following parameters are available for running the test. The absence of some of the non-required parameters will cause certain tests to be skipped.
