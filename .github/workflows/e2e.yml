@@ -6,6 +6,7 @@ on:
     paths:
       - 'api/**'
       - 'herokux/**'
+      - '.github/workflows/e2e.yml'
 env:
   GO111MODULE: on
 
