@@ -1,0 +1,35 @@
+name: E2E Tests
+on: [push]
+env:
+  GO111MODULE: on
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.16.x]
+        platform: [ ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/setup-go@v2.1.3
+        with:
+          go-version: ${{ matrix.go-version }}
+      - uses: actions/checkout@v2.3.4
+
+      - name: Cache go modules
+        uses: actions/cache@v2.1.5
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+
+    - name: Run make build
+      run: make build
+
+    - name: Execute E2E tests
+      if: github.event_name == 'push' && contains(github.ref, 'master')
+      env:
+        HEROKUX_ORGANIZATION: ${{ secrets.HEROKUX_ORGANIZATION }}
+        HEROKUX_RUN_E2E_TESTS: true
+      run: make testacc TEST="./herokux/" TESTARGS='-run=TestAccE2E'

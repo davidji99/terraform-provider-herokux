@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"fmt"
+	"github.com/davidji99/terraform-provider-herokux/helper/test"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"testing"
@@ -181,6 +182,44 @@ func TestAccHerokuxKafkaTopic_DisableRetention(t *testing.T) {
 	})
 }
 
+func TestAccE2EHerokuxKafkaTopic(t *testing.T) {
+	testAccConfig.GetRunE2ETestsOrSkip(t)
+
+	orgName := testAccConfig.GetAnyOrganizationOrSkip(t)
+	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
+	plan := "heroku-kafka:standard-0"
+	topicName := fmt.Sprintf("tftest-%s", acctest.RandString(15))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		Providers:         testAccProviders,
+		ExternalProviders: externalProviders(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuxKafkaTopic_basicWithHerokuResource(appName, orgName, plan, topicName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"herokux_kafka_topic.foobar", "kafka_id"),
+					resource.TestCheckResourceAttr(
+						"herokux_kafka_topic.foobar", "name", topicName),
+					resource.TestCheckResourceAttr(
+						"herokux_kafka_topic.foobar", "partitions", "8"),
+					resource.TestCheckResourceAttr(
+						"herokux_kafka_topic.foobar", "replication_factor", "3"),
+					resource.TestCheckResourceAttr(
+						"herokux_kafka_topic.foobar", "retention_time", "1d"),
+					resource.TestCheckResourceAttr(
+						"herokux_kafka_topic.foobar", "compaction", "false"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_kafka_topic.foobar", "status"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_kafka_topic.foobar", "cleanup_policy"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckHerokuxKafkaTopic_basic(kafkaID, name string) string {
 	return fmt.Sprintf(`
 resource "herokux_kafka_topic" "foobar" {
@@ -228,4 +267,16 @@ resource "herokux_kafka_topic" "foobar" {
 	compaction = true
 }
 `, kafkaID, name)
+}
+
+func testAccCheckHerokuxKafkaTopic_basicWithHerokuResource(appName, orgName, addonPlan, topicName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "herokux_kafka_topic" "foobar" {
+	kafka_id = heroku_addon.foobar.id
+	name = "%s"
+	partitions = 8
+}
+`, test.HerokuAppAddonBlock(appName, orgName, addonPlan), topicName)
 }
