@@ -1,6 +1,8 @@
 name: E2E Tests
 on:
   push:
+    branches:
+      - 'master'
     paths:
       - 'api/**'
       - 'herokux/**'
