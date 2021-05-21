@@ -59,7 +59,7 @@ resource "heroku_addon" "remote_db" {
 
 resource "herokux_postgres_data_link" "foobar" {
   local_db_id = heroku_addon.local_db.id
-  remote_db_name = heroku_addon.local_db.name
+  remote_db_name = heroku_addon.remote_db.name
   name = "my_custom_data_l1nk_name"
 }
 ```
