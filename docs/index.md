@@ -16,8 +16,7 @@ All resources in this provider use the same API endpoints as the Heroku CLI and/
 Overall, this provider's purpose is to supplement, not supplant, the official Heroku provider.
 
 -> **IMPORTANT!**
-This provider should be used with caution when Terraforming resources in environments that receive customer traffic.
-Additionally, resources may change in behavior or be removed at any given time to match any API changes.
+Resources may change in behavior or be removed at any given time to match relevant API changes.
 
 ## Contributing
 
