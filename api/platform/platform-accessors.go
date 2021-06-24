@@ -9,6 +9,30 @@ import (
 	"time"
 )
 
+// GetApp returns the App field.
+func (a *Addon) GetApp() *App {
+	if a == nil {
+		return nil
+	}
+	return a.App
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (a *Addon) GetID() string {
+	if a == nil || a.ID == nil {
+		return ""
+	}
+	return *a.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (a *Addon) GetName() string {
+	if a == nil || a.Name == nil {
+		return ""
+	}
+	return *a.Name
+}
+
 // GetID returns the ID field if it's non-nil, zero value otherwise.
 func (a *App) GetID() string {
 	if a == nil || a.ID == nil {

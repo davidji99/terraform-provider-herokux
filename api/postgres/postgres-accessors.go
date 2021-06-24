@@ -858,6 +858,62 @@ func (m *MTLSIPRule) GetUpdatedAt() time.Time {
 	return *m.UpdatedAt
 }
 
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetCreatedAt() time.Time {
+	if p == nil || p.CreatedAt == nil {
+		return time.Time{}
+	}
+	return *p.CreatedAt
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetID() string {
+	if p == nil || p.ID == nil {
+		return ""
+	}
+	return *p.ID
+}
+
+// GetLogInputURL returns the LogInputURL field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetLogInputURL() string {
+	if p == nil || p.LogInputURL == nil {
+		return ""
+	}
+	return *p.LogInputURL
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetName() string {
+	if p == nil || p.Name == nil {
+		return ""
+	}
+	return *p.Name
+}
+
+// GetNamespace returns the Namespace field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetNamespace() string {
+	if p == nil || p.Namespace == nil {
+		return ""
+	}
+	return *p.Namespace
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetUpdatedAt() time.Time {
+	if p == nil || p.UpdatedAt == nil {
+		return time.Time{}
+	}
+	return *p.UpdatedAt
+}
+
+// GetWebURL returns the WebURL field if it's non-nil, zero value otherwise.
+func (p *PostgresDatabase) GetWebURL() string {
+	if p == nil || p.WebURL == nil {
+		return ""
+	}
+	return *p.WebURL
+}
+
 // GetAddon returns the Addon field.
 func (p *Privatelink) GetAddon() *PrivatelinkAddon {
 	if p == nil {

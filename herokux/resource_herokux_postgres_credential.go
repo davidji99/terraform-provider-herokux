@@ -263,6 +263,8 @@ func resourceHerokuxPostgresCredentialDelete(ctx context.Context, d *schema.Reso
 		return diag.Errorf("error waiting for postgres credential %s to be deleted on %s: %s", credName, postgresID, err.Error())
 	}
 
+	log.Printf("[DEBUG] Deleted postgres credential %s", credName)
+
 	return nil
 }
 

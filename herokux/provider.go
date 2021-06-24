@@ -288,6 +288,7 @@ func New() *schema.Provider {
 			"herokux_pipeline_github_integration":    resourceHerokuxPipelineGithubIntegration(),
 			"herokux_pipeline_member":                resourceHerokuxPipelineMember(),
 			"herokux_postgres_backup_schedule":       resourceHerokuxPostgresBackupSchedule(),
+			"herokux_postgres_connection_pooling":    resourceHerokuxPostgresConnectionPooling(),
 			"herokux_postgres_credential":            resourceHerokuxPostgresCredential(),
 			"herokux_postgres_data_link":             resourceHerokuxPostgresDataLink(),
 			"herokux_postgres_maintenance_window":    resourceHerokuxPostgresMaintenanceWindow(),

@@ -1,7 +1,7 @@
 ---
 layout: "herokux"
 page_title: "HerokuX: herokux_connect_mappings"
-sidebar_current: "docs-herokux-resource-connect_mappings"
+sidebar_current: "docs-herokux-resource-connect-mappings"
 description: |-
     Provides a resource to manage a Heroku Connect's mappings.
 ---
