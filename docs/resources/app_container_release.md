@@ -26,12 +26,22 @@ resource "heroku_app" "foobar" {
   region = "us"
 }
 
-# Push the Image to Heroku
+resource "null_resource" "push_web" {
+  provisioner "local-exec" {
+    command = "docker push registry.heroku.com/${heroku_app.foobar.name}/web"
+  }
+
+  triggers = {
+    app_id = heroku_app.foobar.uuid
+  }
+}
 
 data "herokux_registry_image" "foobar" {
   app_id = heroku_app.foobar.uuid
   process_type = "web"
   docker_tag = "latest"
+  
+  depends_on = [null_resource.push_web]
 }
 
 resource "herokux_app_container_release" "foobar" {
