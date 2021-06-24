@@ -37,6 +37,32 @@ func TestAccHerokuxPostgresConnectionPooling_Basic(t *testing.T) {
 	})
 }
 
+func TestAccHerokuxPostgresConnectionPooling_NoName(t *testing.T) {
+	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
+	orgName := testAccConfig.GetAnyOrganizationOrSkip(t)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:          func() { testAccPreCheck(t) },
+		Providers:         testAccProviders,
+		ExternalProviders: externalProviders(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuxPostgresConnectionPooling_NoName(orgName, appName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_connection_pooling.foobar", "name", "DATABASE_CONNECTION_POOL"),
+					resource.TestCheckResourceAttr(
+						"herokux_postgres_connection_pooling.foobar", "config_var", fmt.Sprintf("%s_URL", "DATABASE_CONNECTION_POOL")),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_connection_pooling.foobar", "app_id"),
+					resource.TestCheckResourceAttrSet(
+						"herokux_postgres_connection_pooling.foobar", "postgres_id"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccHerokuxPostgresConnectionPooling_Invalid(t *testing.T) {
 	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
 	name := "0test-name"
@@ -65,4 +91,15 @@ resource "herokux_postgres_connection_pooling" "foobar" {
 	name = "%s"
 }
 `, test.HerokuAppAddonBlock(appName, orgName, "heroku-postgresql:standard-0"), name)
+}
+
+func testAccCheckHerokuxPostgresConnectionPooling_NoName(orgName, appName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "herokux_postgres_connection_pooling" "foobar" {
+	postgres_id = heroku_addon.foobar.id
+	app_id = heroku_app.foobar.uuid
+}
+`, test.HerokuAppAddonBlock(appName, orgName, "heroku-postgresql:standard-0"))
 }

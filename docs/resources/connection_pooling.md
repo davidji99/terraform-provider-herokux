@@ -51,8 +51,8 @@ The following arguments are supported:
 * `app_id` - (Required) `<string>` The UUID of the app.
 * `name` - (Optional) `<string>` Base name of the new config var. Must start with a letter and can only contain
   uppercase letters, numbers, and underscores. Default value is `DATABASE_CONNECTION_POOL`.
-  * Any modifications to `name` will result in resource recreation as it is not possible to modify an existing
-    connection pooling.
+    * Any modifications to `name` will result in resource recreation as it is not possible to modify an existing
+      connection pooling.
 
 ## Attributes Reference
 
