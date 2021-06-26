@@ -10,7 +10,7 @@ description: |-
 
 This resource provides the ability to deploy a docker image to a Heroku application.
 
-The specified docker image must be build and pushed to the Heroku Registry prior to using this resource.
+The specified docker image must be built and pushed to the Heroku Registry prior to using this resource.
 For more information regarding building and pushing image(s),
 please visit the [Container Registry & Runtime](https://devcenter.heroku.com/articles/container-registry-and-runtime#build-an-image-and-push) article.
 
@@ -19,7 +19,7 @@ Please be advised that this resource will destroy the container (or dyno) on the
 if it is removed from a configuration.
 
 ### Resource Timeouts
-This resource checks the status of an app container release modification. The default timeout is 10 minutes,
+This resource checks the status of an app container release modification. The default timeout is 20 minutes,
 which can be customized via the `timeouts.app_container_release_verify_timeout` attributes in your `provider` block.
 
 For example:
