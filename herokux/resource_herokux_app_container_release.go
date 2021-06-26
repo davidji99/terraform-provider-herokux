@@ -15,6 +15,13 @@ import (
 	"time"
 )
 
+const (
+	ReleaseStatusSucceeded = "succeeded"
+	ReleaseStatusPending   = "pending"
+	ReleaseStatusError     = "error"
+	ReleaseStatusUnknown   = "unknown"
+)
+
 func resourceHerokuxAppContainerRelease() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHerokuxAppContainerReleaseCreate,
@@ -202,7 +209,7 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 	//	}
 	//}
 
-	log.Printf("[DEBUG] Releasing containers on app %s with %v", appID, imageOpts)
+	log.Printf("[DEBUG] Releasing container on app %s with %v", appID, imageOpts)
 
 	// There's an inconsistency with this Platform API variant where it relies on the Formation endpoint
 	// to release the docker image instead of a dedicated Release endpoint (like how heroku_app_release functions).
@@ -210,24 +217,24 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 	if updateErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Unable to create release containers for app",
+			Summary:  fmt.Sprintf("error releasing %s container release on app %s", imageOpts.Type, appID),
 			Detail:   updateErr.Error(),
 		})
 		return diags
 	}
 
-	log.Printf("[INFO] Begin Checking if new docker release was successful")
+	log.Printf("[INFO] Begin checking if %s container release on app %s is successful", imageOpts.Type, appID)
 
 	stateConf := &resource.StateChangeConf{
-		Pending: []string{"pending"},
-		Target:  []string{"succeeded"},
+		Pending: []string{ReleaseStatusPending, ReleaseStatusUnknown},
+		Target:  []string{ReleaseStatusSucceeded},
 		Refresh: containerReleaseStateRefreshFunc(platformAPI, appID, *imageOpts.DockerImageID, imageOpts.Type),
 		Timeout: d.Timeout("create"),
 		Delay:   5 * time.Second,
 	}
 
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for %s docker release on %s to succeed", imageOpts.Type, appID)
+		return diag.Errorf("error waiting for %s container release on app %s to succeed", imageOpts.Type, appID)
 	}
 
 	log.Printf("[DEBUG] Released %s container on app %s", imageOpts.Type, appID)
@@ -239,22 +246,32 @@ func containerReleaseStateRefreshFunc(client *heroku.Service, appID, imageID, pr
 	return func() (interface{}, string, error) {
 		// Retrieve list of recent releases.
 		releases, listErr := client.ReleaseList(context.Background(), appID,
-			&heroku.ListRange{Descending: true, Field: "version", Max: 5})
+			&heroku.ListRange{Descending: true, Field: "version", Max: 20})
 		if listErr != nil {
-			return nil, "error", listErr
+			return nil, ReleaseStatusError, listErr
 		}
 
 		// Find the release that was generated from the releasing the docker image to the app.
-		// We'll have to construct the release description manually for comparison
+		// We'll have to construct the release description manually for comparison.
 		shortImageID := strings.Split(imageID, ":")[1][0:12]
 		targetReleaseDescription := fmt.Sprintf("Deployed %s (%s)", processType, shortImageID)
 
 		for _, r := range releases {
-			if r.Description == targetReleaseDescription && r.Current {
+			if r.Description == targetReleaseDescription && r.Status == ReleaseStatusSucceeded {
+				log.Printf("[DEBUG] app %s's %s process - status: %s | current: %v",
+					appID, processType, r.Status, r.Current)
+				return r, r.Status, nil
+			}
+
+			if r.Description == targetReleaseDescription && r.Status != ReleaseStatusSucceeded {
+				log.Printf("[DEBUG] Still waiting for app %s's %s process - status: %s | current: %v",
+					appID, processType, r.Status, r.Current)
 				return r, r.Status, nil
 			}
 		}
 
-		return releases, "pending", nil
+		log.Printf("[DEBUG] Unable to find app %s's %s process in releases", appID, processType)
+
+		return releases, ReleaseStatusUnknown, nil
 	}
 }
