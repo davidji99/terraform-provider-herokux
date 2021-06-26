@@ -38,6 +38,7 @@ const (
 	DefaultPostgresCredentialCreateVerifyTimeout         = int64(10)
 	DefaultPostgresCredentialDeleteVerifyTimeout         = int64(10)
 	DefaultPrivateSpaceCreateVerifyTimeout               = int64(20)
+	DefaultAppContainerReleaseVerifyTimeout              = int64(20)
 
 	DefaultPostgresSettingsModifyDelay = int64(2)
 	DefaultConnectMappingModifyDelay   = int64(15)
@@ -85,6 +86,7 @@ type Config struct {
 	PostgresCredentialPreCreateVerifyTimeout      int64
 	PostgresCredentialDeleteVerifyTimeout         int64
 	PrivateSpaceCreateVerifyTimeout               int64
+	AppContainerReleaseVerifyTimeout              int64
 
 	// Custom Delays
 	PostgresSettingsModifyDelay int64
@@ -114,6 +116,7 @@ func NewConfig() *Config {
 		PostgresCredentialCreateVerifyTimeout:         DefaultPostgresCredentialCreateVerifyTimeout,
 		PostgresCredentialDeleteVerifyTimeout:         DefaultPostgresCredentialDeleteVerifyTimeout,
 		PrivateSpaceCreateVerifyTimeout:               DefaultPrivateSpaceCreateVerifyTimeout,
+		AppContainerReleaseVerifyTimeout:              DefaultAppContainerReleaseVerifyTimeout,
 
 		PostgresSettingsModifyDelay: DefaultPostgresSettingsModifyDelay,
 		ConnectMappingModifyDelay:   DefaultConnectMappingModifyDelay,
@@ -312,6 +315,10 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 
 			if v, ok := timeoutsConfig["shield_private_space_create_verify_timeout"].(int); ok {
 				c.PrivateSpaceCreateVerifyTimeout = int64(v)
+			}
+
+			if v, ok := timeoutsConfig["app_container_release_verify_timeout"].(int); ok {
+				c.AppContainerReleaseVerifyTimeout = int64(v)
 			}
 		}
 	}

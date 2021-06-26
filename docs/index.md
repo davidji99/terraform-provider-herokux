@@ -230,3 +230,6 @@ Only a single `delays` block may be specified, and it supports the following arg
 
     * `shield_private_space_create_verify_timeout` - (Optional) The number of minutes to wait for a shield private space
       to be provisioned. Defaults to 20 minutes. Minimum required is 10 minutes.
+
+    * `app_container_release_verify_timeout` - (Optional) The number of minutes to wait for an app container (docker) release
+      to be successfully deployed. Defaults to 20 minutes. Minimum required is 10 minutes.

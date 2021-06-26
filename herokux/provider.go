@@ -238,6 +238,13 @@ func New() *schema.Provider {
 							Default:      DefaultPrivateSpaceCreateVerifyTimeout,
 							ValidateFunc: validation.IntAtLeast(10),
 						},
+
+						"app_container_release_verify_timeout": {
+							Type:         schema.TypeInt,
+							Optional:     true,
+							Default:      DefaultAppContainerReleaseVerifyTimeout,
+							ValidateFunc: validation.IntAtLeast(10),
+						},
 					},
 				},
 			},

@@ -229,7 +229,7 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 		Pending: []string{ReleaseStatusPending, ReleaseStatusUnknown},
 		Target:  []string{ReleaseStatusSucceeded},
 		Refresh: containerReleaseStateRefreshFunc(platformAPI, appID, *imageOpts.DockerImageID, imageOpts.Type),
-		Timeout: d.Timeout("create"),
+		Timeout: time.Duration(config.AppContainerReleaseVerifyTimeout) * time.Minute,
 		Delay:   5 * time.Second,
 	}
 
