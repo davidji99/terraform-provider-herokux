@@ -18,6 +18,20 @@ please visit the [Container Registry & Runtime](https://devcenter.heroku.com/art
 Please be advised that this resource will destroy the container (or dyno) on the application
 if it is removed from a configuration.
 
+### Resource Timeouts
+This resource checks the status of an app container release modification. The default timeout is 10 minutes,
+which can be customized via the `timeouts.app_container_release_verify_timeout` attributes in your `provider` block.
+
+For example:
+
+```hcl-terraform
+provider "herokux" {
+  timeouts {
+    app_container_release_verify_timeout = 15
+  }
+}
+```
+
 ## Example Usage
 
 ```hcl-terraform

@@ -31,6 +31,37 @@ func TestAccHerokuxAppContainerRelease_Basic(t *testing.T) {
 	})
 }
 
+func TestAccHerokuxAppContainerRelease_DoubleRelease(t *testing.T) {
+	appID := testAccConfig.GetAppIDorSkip(t)
+	imageID := testAccConfig.GetImageIDorSkip(t)
+	processType := "web"
+	processType2 := "worker"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { testAccPreCheck(t) },
+		Providers: testAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckHerokuxAppContainerRelease_doubleRelease(appID, imageID, processType, processType2),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.web", "app_id", appID),
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.web", "image_id", imageID),
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.web", "process_type", "web"),
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.worker", "app_id", appID),
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.worker", "image_id", imageID),
+					resource.TestCheckResourceAttr(
+						"herokux_app_container_release.worker", "process_type", "worker"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccHerokuxAppContainerRelease_InvalidImageID(t *testing.T) {
 	appID := testAccConfig.GetAppIDorSkip(t)
 	imageID := "some_invalid_image_id"
@@ -80,6 +111,22 @@ resource "herokux_app_container_release" "foobar" {
 	process_type = "%s"
 }
 `, appID, imageID, processType)
+}
+
+func testAccCheckHerokuxAppContainerRelease_doubleRelease(appID, imageID, processType1, processType2 string) string {
+	return fmt.Sprintf(`
+resource "herokux_app_container_release" "web" {
+	app_id = "%[1]s"
+	image_id = "%[2]s"
+	process_type = "%[3]s"
+}
+
+resource "herokux_app_container_release" "worker" {
+	app_id = "%[1]s"
+	image_id = "%[2]s"
+	process_type = "%[4]s"
+}
+`, appID, imageID, processType1, processType2)
 }
 
 func testAccCheckHerokuxAppContainerRelease_basicDataSource(appID, processType string) string {

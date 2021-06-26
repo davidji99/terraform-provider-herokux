@@ -2,6 +2,7 @@ package registry
 
 import "github.com/davidji99/simpleresty"
 
+// Manifest represents a docker image data. This struct is only returned via a specific header, DistributionManifestAcceptHeader.
 type Manifest struct {
 	SchemaVersion *int             `json:"schemaVersion,omitempty"`
 	MediaType     *string          `json:"mediaType,omitempty"`
@@ -9,6 +10,7 @@ type Manifest struct {
 	Layers        []*ManifestLayer `json:"layers,omitempty"`
 }
 
+// ManifestConfig is a config for a manifest.
 type ManifestConfig struct {
 	MediaType *string `json:"mediaType,omitempty"`
 	Size      *int    `json:"size,omitempty"`
@@ -18,6 +20,7 @@ type ManifestConfig struct {
 	Digest *string `json:"digest,omitempty"`
 }
 
+// ManifestLayer represents a docker layer.
 type ManifestLayer struct {
 	MediaType *string `json:"mediaType,omitempty"`
 	Size      *int    `json:"size,omitempty"`
