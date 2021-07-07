@@ -52,7 +52,7 @@ The following arguments are supported:
   Choose one of the following (case-sensitive):
     * `every_ten_minutes`
     * `every_hour_at_##` - Valid values for `##` are `0`, `10`, `20`, `30`, `40`, `50`.
-    * `everyday_at_HH:MM` - Valid values for `HH` and `MM` are (using 24hour time format):
+    * `every_day_at_HH:MM` - Valid values for `HH` and `MM` are (using 24hour time format):
         * `HH` - `00` through `23`. For example, `05`, `16`, etc.
         * `MM` - either `30` or `00`.
 
