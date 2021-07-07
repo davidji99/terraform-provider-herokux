@@ -3,7 +3,7 @@ package registry
 import (
 	"fmt"
 	"github.com/davidji99/simpleresty"
-	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	config "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"time"
 )
 
@@ -14,11 +14,11 @@ const (
 // Registry represents API functionality that's part of the Heroku Registry.
 type Registry struct {
 	http   *simpleresty.Client
-	config *config2.Config
+	config *config.Config
 }
 
 // New constructs a client to interface with the Heroku Platform APIs.
-func New(config *config2.Config) *Registry {
+func New(config *config.Config) *Registry {
 	r := &Registry{http: simpleresty.NewWithBaseURL(config.RegistryBaseURL), config: config}
 	r.setHeaders()
 

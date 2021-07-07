@@ -128,6 +128,18 @@ func KolkrabbiBaseURL(url string) Option {
 	}
 }
 
+// SchedulerBaseURL allows for a custom Scheduler API URL.
+func SchedulerBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.SchedulerURL = url
+		return nil
+	}
+}
+
 // UserAgent allows for a custom User Agent.
 func UserAgent(userAgent string) Option {
 	return func(c *Config) error {

@@ -233,3 +233,44 @@ func setPermissionsInState(d *schema.ResourceData, permissions []*platform.Permi
 	}
 	d.Set("permissions", p)
 }
+
+func parseFrequency(frequency string) (int, int, error) {
+	var every, at int
+
+	log.Printf("[DEBUG] Frequency parsing: begin")
+
+	every10Min := regexp.MustCompile(EveryTenMinFrequency)
+	everyHour := regexp.MustCompile(`^every_hour_at_(0|10|20|30|40|50)$`)
+	everyDay := regexp.MustCompile(`^every_day_at_(0[0-9]|1[0-9]|2[0-3]|00):(30|00)$`)
+
+	switch {
+	case every10Min.MatchString(frequency):
+		log.Printf("[DEBUG] Frequency parsing: detected every 10 minutes option")
+
+		every = 10
+		at = 0
+	case everyHour.MatchString(frequency):
+		log.Printf("[DEBUG] Frequency parsing: detected every hour option")
+
+		result := everyHour.FindStringSubmatch(frequency)
+		every = 60
+		at, _ = strconv.Atoi(result[1])
+
+		log.Printf("[DEBUG] Frequency parsing: every hour at %d", at)
+	case everyDay.MatchString(frequency):
+		log.Printf("[DEBUG] Frequency parsing: detected every day option")
+
+		result := everyDay.FindStringSubmatch(frequency)
+		hour, _ := strconv.Atoi(result[1])
+		min, _ := strconv.Atoi(result[2])
+
+		at = (hour * 60) + min
+		every = 1440
+
+		log.Printf("[DEBUG] Frequency parsing: every day at %d (in minutes)", at)
+	default:
+		return 0, 0, fmt.Errorf("unsupported frequency format: %s", frequency)
+	}
+
+	return every, at, nil
+}

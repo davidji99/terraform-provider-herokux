@@ -63,6 +63,7 @@ type Config struct {
 	connectCentralURL string
 	registryURL       string
 	kolkrabbiURL      string
+	schedulerURL      string
 
 	// Custom Timeouts
 	MTLSProvisionVerifyTimeout                    int64
@@ -136,6 +137,7 @@ func (c *Config) initializeAPI() error {
 		config.ConnectCentralBaseURL(c.connectCentralURL),
 		config.RegistryBaseURL(c.registryURL),
 		config.KolkrabbiBaseURL(c.kolkrabbiURL),
+		config.SchedulerBaseURL(c.schedulerURL),
 	)
 	if clientInitErr != nil {
 		return clientInitErr
@@ -203,6 +205,11 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 	if v, ok := d.GetOk("kolkrabbi_api_url"); ok {
 		vs := v.(string)
 		c.kolkrabbiURL = vs
+	}
+
+	if v, ok := d.GetOk("scheduler_api_url"); ok {
+		vs := v.(string)
+		c.schedulerURL = vs
 	}
 
 	if v, ok := d.GetOk("platform_api_url"); ok {

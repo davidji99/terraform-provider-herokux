@@ -32,6 +32,9 @@ type Config struct {
 	// KolkrabbiURL is the base URL for Heroku's Kolkrabbi API.
 	KolkrabbiURL string
 
+	// SchedulerURL is the base URL for Heroku's Scheduler API.
+	SchedulerURL string
+
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
 
@@ -51,7 +54,7 @@ type Config struct {
 	AcceptHeader string
 }
 
-// parseOptions parses the supplied options functions.
+// ParseOptions parses the supplied options functions.
 func (c *Config) ParseOptions(opts ...Option) error {
 	// Range over each options function and apply it to our API type to
 	// configure it. Options functions are applied in order, with any

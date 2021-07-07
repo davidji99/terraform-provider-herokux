@@ -73,6 +73,12 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_KOLKRABBI_API_URL", api.DefaultKolkrabbiAPIBaseURL),
 			},
 
+			"scheduler_api_url": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_SCHEDULER_API_URL", api.DefaultSchedulerAPIBaseURL),
+			},
+
 			"platform_api_url": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -306,6 +312,7 @@ func New() *schema.Provider {
 			"herokux_privatelink":                    resourceHerokuxPrivatelink(),
 			"herokux_redis_config":                   resourceHerokuxRedisConfig(),
 			"herokux_redis_maintenance_window":       resourceHerokuxRedisMaintenanceWindow(),
+			"herokux_scheduler_job":                  resourceHerokuxSchedulerJob(),
 			"herokux_shield_private_space":           resourceHerokuxShieldPrivateSpace(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
