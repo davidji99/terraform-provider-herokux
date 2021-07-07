@@ -11,6 +11,7 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/terraform-provider-herokux/api/redis"
 	"github.com/davidji99/terraform-provider-herokux/api/registry"
+	"github.com/davidji99/terraform-provider-herokux/api/scheduler"
 )
 
 const (
@@ -43,6 +44,9 @@ const (
 	// DefaultKolkrabbiAPIBaseURL is the default base URL for Kolkrabbi API.
 	DefaultKolkrabbiAPIBaseURL = "https://kolkrabbi.heroku.com"
 
+	// DefaultSchedulerAPIBaseURL is the default base URL for Scheduler API.
+	DefaultSchedulerAPIBaseURL = "https://particleboard.heroku.com"
+
 	// DefaultUserAgent is the user agent used when making API calls.
 	DefaultUserAgent = "herokux-go"
 
@@ -65,15 +69,16 @@ type Client struct {
 	config *config2.Config
 
 	// API endpoints
+	Connect   *connect.Connect
 	Data      *data.Data
 	Kafka     *kafka.Kafka
+	Kolkrabbi *kolkrabbi.Kolkrabbi
 	Metrics   *metrics.Metrics
 	Platform  *platform.Platform
 	Postgres  *postgres.Postgres
 	Redis     *redis.Redis
-	Connect   *connect.Connect
 	Registry  *registry.Registry
-	Kolkrabbi *kolkrabbi.Kolkrabbi
+	Scheduler *scheduler.Scheduler
 }
 
 // New constructs a new client to interact with Heroku APIs.
@@ -90,6 +95,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		ConnectCentralBaseURL: DefaultConnectCentralBaseURL,
 		RegistryBaseURL:       DefaultRegistryBaseURL,
 		KolkrabbiURL:          DefaultKolkrabbiAPIBaseURL,
+		SchedulerURL:          DefaultSchedulerAPIBaseURL,
 		UserAgent:             DefaultUserAgent,
 		APIToken:              "",
 		BasicAuth:             "",
@@ -114,6 +120,7 @@ func New(opts ...config2.Option) (*Client, error) {
 		Connect:   connect.New(config),
 		Registry:  registry.New(config),
 		Kolkrabbi: kolkrabbi.New(config),
+		Scheduler: scheduler.New(config),
 	}
 
 	return client, nil
