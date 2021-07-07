@@ -3,7 +3,7 @@ layout: "herokux"
 page_title: "HerokuX: herokux_redis_config"
 sidebar_current: "docs-herokux-resource-redis-config"
 description: |-
-  Provides a resource to manage the configurations for a Redis instance/
+  Provides a resource to manage the configurations for a Redis instance
 ---
 
 # herokux\_redis\_config
