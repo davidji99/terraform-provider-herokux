@@ -46,6 +46,13 @@ func resourceHerokuxPostgresCredential() *schema.Resource {
 				ValidateFunc: validateCredentialName,
 			},
 
+			"permission": {
+				Type: schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{"none", "read_only", "read_write"},
+				false),
+			},
+
 			"state": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -186,6 +193,23 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 
 	// Set the ID to be a composite of the postgres ID and the credential name.
 	d.SetId(fmt.Sprintf("%s:%s", postgresID, name))
+
+	// Set credential permission if applicable
+	if v, ok := d.GetOk("permission"); ok {
+		permission := v.(string)
+
+		// Retrieve the database name
+		db, _, dbGetErr := client.Postgres.GetDB(postgresID)
+		if dbGetErr != nil {
+			return diag.FromErr(dbGetErr)
+		}
+
+		// Set the permission for the credential
+		_, _, setPermErr := client.Data.SetPGCredentialPermission(postgresID, db.GetName(), name, permission)
+		if setPermErr != nil {
+			return diag.FromErr(setPermErr)
+		}
+	}
 
 	return resourceHerokuxPostgresCredentialRead(ctx, d, meta)
 }
