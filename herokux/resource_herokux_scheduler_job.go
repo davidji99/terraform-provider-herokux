@@ -185,7 +185,7 @@ func resourceHerokuxSchedulerJobRead(ctx context.Context, d *schema.ResourceData
 	if convertErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  fmt.Sprintf("issue retrieving value for the frequency attribute"),
+			Summary:  "issue retrieving value for the frequency attribute",
 			Detail:   convertErr.Error(),
 		})
 
