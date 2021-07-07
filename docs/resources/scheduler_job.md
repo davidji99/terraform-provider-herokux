@@ -67,7 +67,7 @@ The following attributes are exported:
 
 Existing schedule jobs can be imported using a composite value of the Heroku app UUID and job ID separated
 by a colon. The simplest way to locate the job ID is to visit the scheduler webpage and click on the pencil
-icon next to an existing job. The job ID will be provided in the URL: `https://dashboard.heroku.com/apps/<MY_APP>/scheduler?job=<JOB_ID>`
+icon next to an existing job. The job ID will be provided in the URL: `https://dashboard.heroku.com/apps/57d660e0-3d20-40b7-8d20-e77b95189e5a/scheduler?job=881234`
 
 For example:
 
