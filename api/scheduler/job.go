@@ -36,11 +36,16 @@ type JobAttributes struct {
 }
 
 // JobRequest represents a request to create/update a job.
+//
+// Explanation for `every` and `at`:
+// - "every 10 minutes": `every` = 10 | `at` is always 0.
+// - "every hour at x": `every` = 60 | `at` is either 0,10,20,30,40,50.
+// - "every day at x": `every` = 1440 | `at` is additions of 30 starting at 0 (00:00) with a max of 1410 (23:30) for each 30 minute interval.
 type JobRequest struct {
 	Command  string `json:"command,omitempty"`
 	DynoSize string `json:"dyno-size,omitempty"`
-	Every    int    `json:"every,omitempty"`
-	At       int    `json:"at,omitempty"`
+	Every    int    `json:"every"`
+	At       int    `json:"at"`
 }
 
 type JobDataRequest struct {

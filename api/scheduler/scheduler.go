@@ -15,7 +15,7 @@ type Scheduler struct {
 
 // New constructs a client to interface with the Heroku scheduler APIs.
 func New(config *config.Config) *Scheduler {
-	s := &Scheduler{http: simpleresty.NewWithBaseURL(config.RegistryBaseURL), config: config}
+	s := &Scheduler{http: simpleresty.NewWithBaseURL(config.SchedulerURL), config: config}
 	s.setHeaders()
 
 	return s
