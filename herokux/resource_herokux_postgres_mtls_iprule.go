@@ -128,8 +128,8 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Waiting for MTLS IP rule on %s to be authorized", dbName)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{postgres.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
-		Target:       []string{postgres.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
+		Pending:      []string{general.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
+		Target:       []string{general.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
 		Refresh:      MTLSSIPRuleStateRefreshFunc(client, dbName, ipRule.GetID()),
 		Timeout:      time.Duration(config.MTLSIPRuleCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,

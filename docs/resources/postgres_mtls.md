@@ -3,13 +3,12 @@ layout: "herokux"
 page_title: "HerokuX: herokux_postgres_mtls"
 sidebar_current: "docs-herokux-resource-postgres-mtls"
 description: |-
-  Provides a resource to manage the MTLS configuration of a postgres database
+  Provides a resource to manage the MTLS configuration for Heroku Private or Shield Postgres.
 ---
 
 # herokux\_postgres\_mtls
 
-This resource manages the MTLS configuration of an existing Private or Shield Heroku Postgres database (version 10 or above).
-Essentially, this resource provisions and deprovisions MTLS for a target database.
+This resource manages the MTLS configuration for Heroku Private or Shield Postgres database (version 10 or above).
 
 ### Initial Certificate
 Upon successful MTLS provisioning, Heroku provisions a certificate ready for use by clients.
@@ -39,9 +38,16 @@ provider "herokux" {
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_space" "foobar" {
+  name         = "foobar-space"
+  organization = "my_org"
+  region       = "virginia"
+}
+
 resource "heroku_app" "foobar" {
   name   = "my_foobar_app"
   region = "us"
+  space  = heroku_space.foobar.name
 
   organization {
     name = "my_org"
@@ -50,7 +56,7 @@ resource "heroku_app" "foobar" {
 
 resource "heroku_addon" "database" {
   app  = heroku_app.foobar.name
-  plan = "heroku-postgresql:premium-0"
+  plan = "heroku-postgresql:private-0"
 }
 
 resource "herokux_postgres_mtls" "foobar" {

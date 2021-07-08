@@ -17,8 +17,8 @@ func (k *Kafka) ListMTLSIPRules(kafkaID string) ([]*general.MtlsIPRule, *simpler
 }
 
 // GetMTLSIPRule returns a single IP rule.
-func (k *Kafka) GetMTLSIPRule(kafkaID, ruleID string) ([]*general.MtlsIPRule, *simpleresty.Response, error) {
-	var result []*general.MtlsIPRule
+func (k *Kafka) GetMTLSIPRule(kafkaID, ruleID string) (*general.MtlsIPRule, *simpleresty.Response, error) {
+	var result *general.MtlsIPRule
 	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/ip-rules/%s", kafkaID, ruleID)
 
 	// Execute the request
