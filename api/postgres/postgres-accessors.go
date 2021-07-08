@@ -810,54 +810,6 @@ func (m *MTLSCert) GetUpdatedAt() time.Time {
 	return *m.UpdatedAt
 }
 
-// GetCIDR returns the CIDR field if it's non-nil, zero value otherwise.
-func (m *MTLSIPRule) GetCIDR() string {
-	if m == nil || m.CIDR == nil {
-		return ""
-	}
-	return *m.CIDR
-}
-
-// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
-func (m *MTLSIPRule) GetCreatedAt() time.Time {
-	if m == nil || m.CreatedAt == nil {
-		return time.Time{}
-	}
-	return *m.CreatedAt
-}
-
-// GetDescription returns the Description field if it's non-nil, zero value otherwise.
-func (m *MTLSIPRule) GetDescription() string {
-	if m == nil || m.Description == nil {
-		return ""
-	}
-	return *m.Description
-}
-
-// GetID returns the ID field if it's non-nil, zero value otherwise.
-func (m *MTLSIPRule) GetID() string {
-	if m == nil || m.ID == nil {
-		return ""
-	}
-	return *m.ID
-}
-
-// GetStatus returns the Status field.
-func (m *MTLSIPRule) GetStatus() *MTLSIPRuleStatus {
-	if m == nil {
-		return nil
-	}
-	return m.Status
-}
-
-// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
-func (m *MTLSIPRule) GetUpdatedAt() time.Time {
-	if m == nil || m.UpdatedAt == nil {
-		return time.Time{}
-	}
-	return *m.UpdatedAt
-}
-
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
 func (p *PostgresDatabase) GetCreatedAt() time.Time {
 	if p == nil || p.CreatedAt == nil {
