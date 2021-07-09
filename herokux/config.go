@@ -19,7 +19,7 @@ import (
 const (
 	DefaultMTLSProvisionVerifyTimeout                    = int64(10)
 	DefaultMTLSMTLSDeprovisionVerifyTimeout              = int64(10)
-	DefaultMTLSIPRuleCreateVerifyTimeout                 = int64(10)
+	DefaultMTLSIPRuleCreateVerifyTimeout                 = int64(20)
 	DefaultMTLSCertificateCreateVerifyTimeout            = int64(10)
 	DefaultMTLSCertificateDeleteVerifyTimeout            = int64(10)
 	DefaultKafkaCGCreateVerifyTimeout                    = int64(10)
