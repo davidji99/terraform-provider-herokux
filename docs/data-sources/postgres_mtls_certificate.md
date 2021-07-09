@@ -15,10 +15,14 @@ This data source renders the certificate "private_key" attribute in plain-text i
 
 ## Example Usage
 
-```hcl
+```hcl-terraform
+data "heroku_addon" "database" {
+  name = "postgres-fitted-123"
+}
+
 data "herokux_postgres_mtls_certificate" "foobar" {
-  database_name = "MY_DB_NAME"
-  cert_id = "MY_CERT_ID"
+  database_name = heroku_addon.database.name
+  cert_id = "1d17bd09-6ad2-4a39-b50a-e02e467f5ee2"
 }
 ```
 
@@ -26,8 +30,8 @@ data "herokux_postgres_mtls_certificate" "foobar" {
 
 The following arguments are supported:
 
-* `database_name` - (Required) The database name
-* `cert_id` - (Required) The certificate ID
+* `database_name` - (Required) The database name.
+* `cert_id` - (Required) The certificate UUID.
 
 ## Attributes Reference
 
