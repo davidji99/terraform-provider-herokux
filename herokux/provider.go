@@ -116,7 +116,7 @@ func New() *schema.Provider {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      DefaultMTLSIPRuleCreateVerifyTimeout,
-							ValidateFunc: validation.IntAtLeast(1),
+							ValidateFunc: validation.IntAtLeast(10),
 						},
 
 						"mtls_certificate_create_verify_timeout": {
