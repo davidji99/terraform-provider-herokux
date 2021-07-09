@@ -3,21 +3,23 @@ layout: "herokux"
 page_title: "HerokuX: herokux_postgres_mtls_iprule"
 sidebar_current: "docs-herokux-resource-postgres-mtls-iprule"
 description: |-
-  Provides a resource to manage IP rules for an existing MTLS enabled postgres database
+  Provides a resource to manage MTLS IP rules for Heroku Private or Shield Postgres.
 ---
 
 # herokux\_postgres\_mtls\_iprule
 
-This resource manages IP rules for an existing MTLS enabled postgres database. There is a hard limit of 60 IP blocks that can be allowlisted per Postgres database.
+This resource manages MTLS IP rules for a Heroku Private or Shield Postgres database. There is a hard limit of 60 IP blocks
+that can be allowlisted per database.
 
 -> **IMPORTANT!**
-Deleting and re-adding the same CIDR range to the same MTLS enabled database may cause an unknown server error in Heroku.
-Please wait a bit before attempting the action. The actual wait time is unknown at the moment.
+Deleting and re-adding a MTLS IP rule using the same CIDR range in succession may cause an unknown server error
+in Heroku. Please wait a bit after destruction before attempting to recreate the MTLS IP rule.
+The actual wait time is unknown at the moment.
 
 ### Resource Timeouts
-During creation, this resource checks if the newly IP rule's status changes from 'Authorizing' to 'Authorized'.
-This check's default timeout is ~10 minutes, which can be customized via the `timeouts.mtls_iprule_create_verify_timeout` attribute
-in your `provider` block.
+During creation, this resource verifies if the MTLS IP rule status successfully changes from 'Authorizing' to 'Authorized'.
+This check's default timeout is ~10 minutes, which can be customized via the `timeouts.mtls_iprule_create_verify_timeout`
+attribute in your `provider` block.
 
 For example:
 
@@ -29,17 +31,19 @@ provider "herokux" {
 }
 ```
 
-### Reason for separate resources to manage MTLS and MTLS IP rules
-Although the IP rule API endpoint is a child of the MTLS endpoint, each IP rule has its own UUID. Therefore, it is better
-to have an IP rule managed as a separate resource for optimal lifecycle management with terraform. If you have a lot of IP rules
-to add, please utilize Terraform's `count` or `for_each` expression to keep your code DRY.
-
 ## Example Usage
 
 ```hcl-terraform
+resource "heroku_space" "foobar" {
+  name         = "foobar-space"
+  organization = "my_org"
+  region       = "virginia"
+}
+
 resource "heroku_app" "foobar" {
   name   = "my_foobar_app"
   region = "us"
+  space  = heroku_space.foobar.name
 
   organization {
     name = "my_org"
@@ -48,7 +52,7 @@ resource "heroku_app" "foobar" {
 
 resource "heroku_addon" "database" {
   app  = heroku_app.foobar.name
-  plan = "heroku-postgresql:premium-0"
+  plan = "heroku-postgresql:private-0"
 }
 
 resource "herokux_postgres_mtls" "foobar" {
@@ -57,8 +61,8 @@ resource "herokux_postgres_mtls" "foobar" {
 
 resource "herokux_postgres_mtls_iprule" "foobar" {
   database_name = herokux_postgres_mtls.foobar.database_name
-  cidr = "1.2.3.4/32"
-  description = "this is a test IP rule"
+  cidr          = "1.2.3.4/32"
+  description   = "CI/CD outbound IPs"
 }
 ```
 
@@ -83,7 +87,7 @@ The following attributes are exported:
 
 ## Import
 
-An existing database MTLS IP rule can be imported using a composite value of the database name and IP CIDR separated
+An existing Postgres MTLS IP rule can be imported using a composite value of the database name and IP CIDR separated
 by a colon.
 
 For example:

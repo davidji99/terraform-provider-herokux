@@ -295,6 +295,7 @@ func New() *schema.Provider {
 			"herokux_formation_alert":                resourceHerokuxFormationAlert(),
 			"herokux_formation_autoscaling":          resourceHerokuxFormationAutoscaling(),
 			"herokux_kafka_consumer_group":           resourceHerokuxKafkaConsumerGroup(),
+			"herokux_kafka_mtls_iprule":              resourceHerokuxKafkaMTLSIPRule(),
 			"herokux_kafka_topic":                    resourceHerokuxKafkaTopic(),
 			"herokux_oauth_authorization":            resourceHerokuxOauthAuthorization(),
 			"herokux_pipeline_ephemeral_apps_config": resourceHerokuxPipelineEphemeralAppsConfig(),

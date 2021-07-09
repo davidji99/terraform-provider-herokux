@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/api/general"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -76,7 +77,7 @@ func resourceHerokuxPostgresMTLSIPRuleImport(ctx context.Context, d *schema.Reso
 	}
 
 	// Loop through the existing rules to find the rule ID
-	var ipRule *postgres.MTLSIPRule
+	var ipRule *general.MtlsIPRule
 	for _, r := range ipRules {
 		if r.GetCIDR() == cidr {
 			ipRule = r
@@ -104,7 +105,7 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 	config := meta.(*Config)
 	client := config.API
 
-	opts := &postgres.MTLSIPRuleRequest{}
+	opts := &general.MTLSIPRuleRequest{}
 
 	dbName := getDatabaseName(d)
 
@@ -127,8 +128,8 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Waiting for MTLS IP rule on %s to be authorized", dbName)
 	stateConf := &resource.StateChangeConf{
-		Pending:      []string{postgres.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
-		Target:       []string{postgres.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
+		Pending:      []string{general.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
+		Target:       []string{general.MTLSIPRuleStatuses.AUTHORIZED.ToString()},
 		Refresh:      MTLSSIPRuleStateRefreshFunc(client, dbName, ipRule.GetID()),
 		Timeout:      time.Duration(config.MTLSIPRuleCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
@@ -197,7 +198,7 @@ func MTLSSIPRuleStateRefreshFunc(client *api.Client, dbName, ipRuleID string) re
 			return nil, postgres.MTLSConfigStatuses.UNKNOWN.ToString(), getErr
 		}
 
-		if *ipRule.GetStatus() == postgres.MTLSIPRuleStatuses.AUTHORIZING {
+		if *ipRule.GetStatus() == general.MTLSIPRuleStatuses.AUTHORIZING {
 			log.Printf("[DEBUG] Still waiting for MTLS IP rule on %s to be authorized", dbName)
 			return ipRule, ipRule.GetStatus().ToString(), nil
 		}

@@ -2,28 +2,12 @@ package postgres
 
 import (
 	"github.com/davidji99/simpleresty"
-	"time"
+	"github.com/davidji99/terraform-provider-herokux/api/general"
 )
 
-// MTLSIPRule represents a MTLS IP rule.
-type MTLSIPRule struct {
-	ID          *string           `json:"id,omitempty"`
-	CIDR        *string           `json:"cidr,omitempty"`
-	Description *string           `json:"description,omitempty"`
-	Status      *MTLSIPRuleStatus `json:"status,omitempty"`
-	CreatedAt   *time.Time        `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time        `json:"updated_at,omitempty"`
-}
-
-// MTLSIPRuleRequest represents a request to create an IP rule.
-type MTLSIPRuleRequest struct {
-	CIDR        string `json:"cidr,omitempty"`
-	Description string `json:"description,omitempty"`
-}
-
 // ListMTLSIPRules returns all IP rules.
-func (p *Postgres) ListMTLSIPRules(dbNameOrID string) ([]*MTLSIPRule, *simpleresty.Response, error) {
-	var result []*MTLSIPRule
+func (p *Postgres) ListMTLSIPRules(dbNameOrID string) ([]*general.MtlsIPRule, *simpleresty.Response, error) {
+	var result []*general.MtlsIPRule
 	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
 
 	// Execute the request
@@ -33,8 +17,8 @@ func (p *Postgres) ListMTLSIPRules(dbNameOrID string) ([]*MTLSIPRule, *simpleres
 }
 
 // GetMTLSIPRule returns a single IP rule.
-func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*MTLSIPRule, *simpleresty.Response, error) {
-	var result *MTLSIPRule
+func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*general.MtlsIPRule, *simpleresty.Response, error) {
+	var result *general.MtlsIPRule
 	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules/%s", dbNameOrID, ipRuleID)
 
 	// Execute the request
@@ -44,8 +28,8 @@ func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*MTLSIPRule, *sim
 }
 
 // CreateMTLSIPRule creates an IP rule.
-func (p *Postgres) CreateMTLSIPRule(dbNameOrID string, opts *MTLSIPRuleRequest) (*MTLSIPRule, *simpleresty.Response, error) {
-	var result *MTLSIPRule
+func (p *Postgres) CreateMTLSIPRule(dbNameOrID string, opts *general.MTLSIPRuleRequest) (*general.MtlsIPRule, *simpleresty.Response, error) {
+	var result *general.MtlsIPRule
 	urlStr := p.http.RequestURL("/postgres/v0/databases/%s/tls-endpoint/ip-rules", dbNameOrID)
 
 	// Execute the request

@@ -2,16 +2,17 @@ package postgres
 
 import (
 	"github.com/davidji99/simpleresty"
+	"github.com/davidji99/terraform-provider-herokux/api/general"
 )
 
 // MTLS represents the MTLS configuration for a given Heroku Postgres addon
 type MTLS struct {
-	App                       *string           `json:"app,omitempty"`
-	Addon                     *string           `json:"addon,omitempty"`
-	Status                    *MTLSConfigStatus `json:"status,omitempty"`
-	EnabledBy                 *string           `json:"enabled_by,omitempty"`
-	CertificateAuthorityChain *string           `json:"certificate_authority_chain,omitempty"`
-	ActiveIPRules             []MTLSIPRule      `json:"active_ip_rules,omitempty"`
+	App                       *string              `json:"app,omitempty"`
+	Addon                     *string              `json:"addon,omitempty"`
+	Status                    *MTLSConfigStatus    `json:"status,omitempty"`
+	EnabledBy                 *string              `json:"enabled_by,omitempty"`
+	CertificateAuthorityChain *string              `json:"certificate_authority_chain,omitempty"`
+	ActiveIPRules             []general.MtlsIPRule `json:"active_ip_rules,omitempty"`
 }
 
 // ProvisionMTLS enables MTLS for a database.

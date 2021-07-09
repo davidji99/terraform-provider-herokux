@@ -174,8 +174,8 @@ Only a single `delays` block may be specified, and it supports the following arg
     * `mtls_deprovision_verify_timeout` - (Optional) The number of minutes to wait for a MTLS configuration
       to be deprovisioned from a database. Defaults to 10 minutes. Minimum required (based off of Heroku documentation) is 5 minutes.
 
-    * `mtls_iprule_create_verify_timeout` - (Optional) The number of minutes to wait for a MTLS IP rule
-      to be created/authorized for a database. Defaults to 10 minutes.
+    * `mtls_iprule_create_verify_timeout` - (Optional) The number of minutes to wait for a Postgres or Kafka MTLS IP rule
+      to be created/authorized. Defaults to 10 minutes.
 
     * `mtls_certificate_create_verify_timeout` - (Optional) The number of minutes to wait for a MTLS certificate
       to be created and ready for use. Defaults to 10 minutes.
