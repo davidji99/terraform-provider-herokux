@@ -20,7 +20,7 @@ resource "heroku_app" "foobar" {
   region = "us"
 }
 
-# Push image to Heroku Registry
+# <Push image to Heroku Registry>
 
 data "herokux_registry_image" "foobar" {
   app_id = heroku_app.foobar.uuid

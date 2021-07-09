@@ -12,7 +12,7 @@ Use this data source to get information about all add-ons installed on a specifi
 
 ## Example Usage
 
-```hcl
+```hcl-terraform
 data "herokux_addons" "foobar" {
   app_id = "44e263f7-2e06-403b-9f37-44f0f9bcd5e9"
   addon_service_name = "heroku-postgresql"
