@@ -39,6 +39,12 @@ type ErrorResponse struct {
 	Errors []Error `json:"errors"`
 }
 
+// GetQueryParam represents a query parameter to used with GraphQL GET requests.
+type GetQueryParam struct {
+	Query     string `url:"query,omitempty"`
+	Variables string `url:"variables,omitempty"`
+}
+
 func (r *ErrorResponse) Error() string {
 	if len(r.Errors) > 0 {
 		messages := []string{}
