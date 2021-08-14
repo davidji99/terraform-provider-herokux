@@ -18,7 +18,7 @@ func (p *PostgresDataclip) GetCreatedAt() time.Time {
 }
 
 // GetDatasource returns the Datasource field.
-func (p *PostgresDataclip) GetDatasource() *PostgresDataClipDatasource {
+func (p *PostgresDataclip) GetDatasource() *PostgresDataclipDatasource {
 	if p == nil {
 		return nil
 	}
@@ -131,7 +131,7 @@ func (p *PostgresDataclip) HasVersions() bool {
 }
 
 // GetAddonID returns the AddonID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAddonID() string {
+func (p *PostgresDataclipDatasource) GetAddonID() string {
 	if p == nil || p.AddonID == nil {
 		return ""
 	}
@@ -139,7 +139,7 @@ func (p *PostgresDataClipDatasource) GetAddonID() string {
 }
 
 // GetAddonName returns the AddonName field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAddonName() string {
+func (p *PostgresDataclipDatasource) GetAddonName() string {
 	if p == nil || p.AddonName == nil {
 		return ""
 	}
@@ -147,7 +147,7 @@ func (p *PostgresDataClipDatasource) GetAddonName() string {
 }
 
 // GetAppID returns the AppID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAppID() string {
+func (p *PostgresDataclipDatasource) GetAppID() string {
 	if p == nil || p.AppID == nil {
 		return ""
 	}
@@ -155,7 +155,7 @@ func (p *PostgresDataClipDatasource) GetAppID() string {
 }
 
 // GetAppName returns the AppName field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAppName() string {
+func (p *PostgresDataclipDatasource) GetAppName() string {
 	if p == nil || p.AppName == nil {
 		return ""
 	}
@@ -163,7 +163,7 @@ func (p *PostgresDataClipDatasource) GetAppName() string {
 }
 
 // GetAttachmentID returns the AttachmentID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAttachmentID() string {
+func (p *PostgresDataclipDatasource) GetAttachmentID() string {
 	if p == nil || p.AttachmentID == nil {
 		return ""
 	}
@@ -171,7 +171,7 @@ func (p *PostgresDataClipDatasource) GetAttachmentID() string {
 }
 
 // GetAttachmentName returns the AttachmentName field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetAttachmentName() string {
+func (p *PostgresDataclipDatasource) GetAttachmentName() string {
 	if p == nil || p.AttachmentName == nil {
 		return ""
 	}
@@ -179,15 +179,23 @@ func (p *PostgresDataClipDatasource) GetAttachmentName() string {
 }
 
 // GetID returns the ID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipDatasource) GetID() string {
+func (p *PostgresDataclipDatasource) GetID() string {
 	if p == nil || p.ID == nil {
 		return ""
 	}
 	return *p.ID
 }
 
+// GetTogglePublicClipShare returns the TogglePublicClipShare field.
+func (p *PostgresDataclipSharingResponse) GetTogglePublicClipShare() *PostgresDataclip {
+	if p == nil {
+		return nil
+	}
+	return p.TogglePublicClipShare
+}
+
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetCreatedAt() time.Time {
+func (p *PostgresDataclipVersion) GetCreatedAt() time.Time {
 	if p == nil || p.CreatedAt == nil {
 		return time.Time{}
 	}
@@ -195,7 +203,7 @@ func (p *PostgresDataClipVersion) GetCreatedAt() time.Time {
 }
 
 // GetCreatorID returns the CreatorID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetCreatorID() string {
+func (p *PostgresDataclipVersion) GetCreatorID() string {
 	if p == nil || p.CreatorID == nil {
 		return ""
 	}
@@ -203,7 +211,7 @@ func (p *PostgresDataClipVersion) GetCreatorID() string {
 }
 
 // GetID returns the ID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetID() string {
+func (p *PostgresDataclipVersion) GetID() string {
 	if p == nil || p.ID == nil {
 		return ""
 	}
@@ -211,7 +219,7 @@ func (p *PostgresDataClipVersion) GetID() string {
 }
 
 // GetLatestResultSize returns the LatestResultSize field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetLatestResultSize() int {
+func (p *PostgresDataclipVersion) GetLatestResultSize() int {
 	if p == nil || p.LatestResultSize == nil {
 		return 0
 	}
@@ -219,7 +227,7 @@ func (p *PostgresDataClipVersion) GetLatestResultSize() int {
 }
 
 // GetResult returns the Result field.
-func (p *PostgresDataClipVersion) GetResult() *PostgresDataClipVersionResult {
+func (p *PostgresDataclipVersion) GetResult() *PostgresDataclipVersionResult {
 	if p == nil {
 		return nil
 	}
@@ -227,7 +235,7 @@ func (p *PostgresDataClipVersion) GetResult() *PostgresDataClipVersionResult {
 }
 
 // GetSql returns the Sql field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetSql() string {
+func (p *PostgresDataclipVersion) GetSql() string {
 	if p == nil || p.Sql == nil {
 		return ""
 	}
@@ -235,7 +243,7 @@ func (p *PostgresDataClipVersion) GetSql() string {
 }
 
 // GetURL returns the URL field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersion) GetURL() string {
+func (p *PostgresDataclipVersion) GetURL() string {
 	if p == nil || p.URL == nil {
 		return ""
 	}
@@ -243,7 +251,7 @@ func (p *PostgresDataClipVersion) GetURL() string {
 }
 
 // GetCompletedAt returns the CompletedAt field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetCompletedAt() time.Time {
+func (p *PostgresDataclipVersionResult) GetCompletedAt() time.Time {
 	if p == nil || p.CompletedAt == nil {
 		return time.Time{}
 	}
@@ -251,7 +259,7 @@ func (p *PostgresDataClipVersionResult) GetCompletedAt() time.Time {
 }
 
 // GetDuration returns the Duration field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetDuration() int {
+func (p *PostgresDataclipVersionResult) GetDuration() int {
 	if p == nil || p.Duration == nil {
 		return 0
 	}
@@ -259,7 +267,7 @@ func (p *PostgresDataClipVersionResult) GetDuration() int {
 }
 
 // GetError returns the Error field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetError() string {
+func (p *PostgresDataclipVersionResult) GetError() string {
 	if p == nil || p.Error == nil {
 		return ""
 	}
@@ -267,7 +275,7 @@ func (p *PostgresDataClipVersionResult) GetError() string {
 }
 
 // GetID returns the ID field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetID() string {
+func (p *PostgresDataclipVersionResult) GetID() string {
 	if p == nil || p.ID == nil {
 		return ""
 	}
@@ -275,7 +283,7 @@ func (p *PostgresDataClipVersionResult) GetID() string {
 }
 
 // GetQueryFinishAt returns the QueryFinishAt field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetQueryFinishAt() time.Time {
+func (p *PostgresDataclipVersionResult) GetQueryFinishAt() time.Time {
 	if p == nil || p.QueryFinishAt == nil {
 		return time.Time{}
 	}
@@ -283,7 +291,7 @@ func (p *PostgresDataClipVersionResult) GetQueryFinishAt() time.Time {
 }
 
 // GetQueryStartAt returns the QueryStartAt field if it's non-nil, zero value otherwise.
-func (p *PostgresDataClipVersionResult) GetQueryStartAt() time.Time {
+func (p *PostgresDataclipVersionResult) GetQueryStartAt() time.Time {
 	if p == nil || p.QueryStartAt == nil {
 		return time.Time{}
 	}

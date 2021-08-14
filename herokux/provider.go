@@ -306,6 +306,7 @@ func New() *schema.Provider {
 			"herokux_postgres_connection_pooling":    resourceHerokuxPostgresConnectionPooling(),
 			"herokux_postgres_credential":            resourceHerokuxPostgresCredential(),
 			"herokux_postgres_data_link":             resourceHerokuxPostgresDataLink(),
+			"herokux_postgres_dataclip":              resourceHerokuxPostgresDataclip(),
 			"herokux_postgres_maintenance_window":    resourceHerokuxPostgresMaintenanceWindow(),
 			"herokux_postgres_mtls":                  resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate":      resourceHerokuxPostgresMTLSCertificate(),

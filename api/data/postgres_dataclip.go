@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"fmt"
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/graphql"
@@ -15,7 +16,7 @@ type PostgresDataclip struct {
 	Title        *string                     `json:"title,omitempty"`
 	TeamID       *string                     `json:"team_id,omitempty"`
 	PublicSlug   *string                     `json:"public_slug,omitempty"`
-	PublicSlugBy *string                     `json:"public_slug_by,omitempty"`
+	PublicSlugBy *string                     `json:"public_slug_by,omitempty"` // is the user that enabled sharing
 	UserShares   []string                    `json:"user_shares,omitempty"`
 	TeamShares   []string                    `json:"team_shares,omitempty"`
 	Detached     *bool                       `json:"detached,omitempty"`
@@ -69,7 +70,8 @@ func (d *Data) ListPostgresDataclips() ([]*PostgresDataclip, *simpleresty.Respon
 	resp := postgresDataclipsListResponse{}
 	respBody := &graphql.Response{Data: &resp}
 
-	urlStr, queryErr := d.http.RequestURLWithQueryParams("/graphql", graphql.GetQueryParam{Query: postgresDataclipListKey})
+	urlStr, queryErr := d.http.RequestURLWithQueryParams("/graphql",
+		graphql.GetQueryParam{Query: postgresDataclipListKey})
 	if queryErr != nil {
 		return nil, nil, queryErr
 	}
@@ -79,16 +81,20 @@ func (d *Data) ListPostgresDataclips() ([]*PostgresDataclip, *simpleresty.Respon
 		return nil, response, getErr
 	}
 
+	if resp.ListClips == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
 	return resp.ListClips, response, nil
 }
 
-type postgresDataclipsGetResponse struct {
+type postgresDataclipGetResponse struct {
 	Clip *PostgresDataclip `json:"clip"`
 }
 
-// GetPostgresDataclips returns a single dataclip.
-func (d *Data) GetPostgresDataclips(slug string) (*PostgresDataclip, *simpleresty.Response, error) {
-	resp := postgresDataclipsGetResponse{}
+// GetPostgresDataclip returns a single dataclip.
+func (d *Data) GetPostgresDataclip(slug string) (*PostgresDataclip, *simpleresty.Response, error) {
+	resp := postgresDataclipGetResponse{}
 	respBody := &graphql.Response{Data: &resp}
 
 	urlStr, queryErr := d.http.RequestURLWithQueryParams("/graphql",
@@ -102,22 +108,28 @@ func (d *Data) GetPostgresDataclips(slug string) (*PostgresDataclip, *simplerest
 		return nil, response, getErr
 	}
 
+	if resp.Clip == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
 	return resp.Clip, response, nil
 }
 
-// DataclipRequest represents a request to create a dataclip.
-type DataclipRequest struct {
+// PostgresDataclipCreateRequest represents a request to create a postgres dataclip.
+//
+// All fields are required.
+type PostgresDataclipCreateRequest struct {
 	AttachmentID string
 	Sql          string
 	Title        string
 }
 
-type PostgresDataclipCreateResponse struct {
+type postgresDataclipCreateResponse struct {
 	CreateClip *PostgresDataclip `json:"createClip"`
 }
 
-// CreateDataclip creates a new data clip.
-func (d *Data) CreateDataclip(opts DataclipRequest) (*PostgresDataclip, *simpleresty.Response, error) {
+// CreatePostgresDataclip creates a new data clip.
+func (d *Data) CreatePostgresDataclip(opts *PostgresDataclipCreateRequest) (*PostgresDataclip, *simpleresty.Response, error) {
 	vars := map[string]interface{}{
 		"attachmentId": opts.AttachmentID,
 		"sql":          opts.Sql,
@@ -129,7 +141,7 @@ func (d *Data) CreateDataclip(opts DataclipRequest) (*PostgresDataclip, *simpler
 		Variables: vars,
 	}
 
-	resp := PostgresDataclipCreateResponse{}
+	resp := postgresDataclipCreateResponse{}
 	respBody := &graphql.Response{Data: &resp}
 
 	urlStr := d.http.RequestURL("/graphql")
@@ -138,11 +150,52 @@ func (d *Data) CreateDataclip(opts DataclipRequest) (*PostgresDataclip, *simpler
 		return nil, response, createErr
 	}
 
+	if resp.CreateClip == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
 	return resp.CreateClip, response, nil
 }
 
-func (d *Data) UpdateDataclip() {
+// PostgresDataclipUpdateRequest represents a request to update a Postgres dataclip.
+//
+// All fields are required.
+type PostgresDataclipUpdateRequest struct {
+	ClipID string
+	PostgresDataclipCreateRequest
+}
 
+type postgresDataclipUpdateResponse struct {
+	UpdateClip *PostgresDataclip `json:"updateClip"`
+}
+
+func (d *Data) UpdatePostgresDataclip(opts *PostgresDataclipUpdateRequest) (*PostgresDataclip, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"attachmentId": opts.AttachmentID,
+		"sql":          opts.Sql,
+		"title":        opts.Title,
+		"clipId":       opts.ClipID,
+	}
+
+	reqBody := &graphql.Request{
+		Query:     postgresDataclipUpdateKey,
+		Variables: vars,
+	}
+
+	resp := postgresDataclipUpdateResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, createErr := d.http.Post(urlStr, &respBody, reqBody)
+	if createErr != nil {
+		return nil, response, createErr
+	}
+
+	if resp.UpdateClip == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
+	return resp.UpdateClip, response, nil
 }
 
 type PostgresDataclipDeleteResponse struct {
@@ -163,13 +216,54 @@ func (d *Data) DeleteDataclip(id string) (*PostgresDataclipDeleteResponse, *simp
 	respBody := &graphql.Response{Data: &resp}
 
 	urlStr := d.http.RequestURL("/graphql")
-	response, deleteErr := d.http.Delete(urlStr, &respBody, reqBody)
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
 	if deleteErr != nil {
 		return nil, response, deleteErr
 	}
 
+	if resp.DeleteClip == "" {
+		return nil, nil, errors.New(response.Body)
+	}
+
 	return &resp, response, nil
 }
+
+type PostgresDataclipSharingResponse struct {
+	TogglePublicClipShare *PostgresDataclip `json:"togglePublicClipShare"`
+}
+
+func (d *Data) TogglePostgresDataclipSharing(slug string, enabled bool) (*PostgresDataclip, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"slug": slug,
+	}
+
+	query := postgresDataclipDisableShareKey
+	if enabled {
+		query = postgresDataclipEnableShareKey
+	}
+
+	reqBody := &graphql.Request{
+		Query:     query,
+		Variables: vars,
+	}
+
+	resp := PostgresDataclipSharingResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
+	if deleteErr != nil {
+		return nil, response, deleteErr
+	}
+
+	if resp.TogglePublicClipShare == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
+	return resp.TogglePublicClipShare, response, nil
+}
+
+// TODO: method for https://data-api.heroku.com/dataclips/<DATACLIP_SLUG>.json
 
 const (
 	postgresDataclipListKey = `
@@ -199,77 +293,7 @@ query FetchClipDetails($slug: ID!) {
     clip(slug: $slug) {
       ...clipFragment
     }
-  }fragment clipFragment on Clip {
-  id
-  created_at
-  creator {
-    id
-    email
-  }
-  edited_at
-  slug
-  title
-  user_shares {
-    id
-    clip_id
-    shared_by {
-      id
-      email
-    }
-    shared_with {
-      id
-      email
-    }
-  }
-  team_shares {
-    id
-    clip_id
-    shared_by {
-      id
-      email
-    }
-    shared_with {
-      id
-      name
-    }
-  }
-  team_id
-  public_slug
-  public_slug_by
-  detached
-  datasource {
-    id
-    addon_id
-    addon_name
-    attachment_id
-    attachment_name
-    app_id
-    app_name
-  }
-  versions(limit: 1) {
-    id
-    created_at
-    sql
-    url
-    latest_result_checksum
-    latest_result_at
-    latest_result_size
-    creator_id
-    creator {
-      email
-    }
-    result {
-      id
-      query_started_at
-      query_finished_at
-      error
-      completed_at
-      duration
-    }
-  }
-  editable
-}
-`
+  }` + graphqlAPIPostgresDataclipFields
 
 	postgresDataclipDeleteKey = `
 mutation DeleteDataclip($clipId: ID!) {
@@ -278,12 +302,35 @@ mutation DeleteDataclip($clipId: ID!) {
 `
 
 	postgresDataclipCreateKey = `
-mutation CreateDataclip($attachmentId: ID!, $title: String!, $sql: String!, $teamId: ID) {
+mutation CreatePostgresDataclip($attachmentId: ID!, $title: String!, $sql: String!, $teamId: ID) {
     createClip(attachmentId: $attachmentId, title: $title, sql: $sql, teamId: $teamId) {
         ...clipFragment   
         }  
+    }` + graphqlAPIPostgresDataclipFields
+
+	postgresDataclipUpdateKey = `
+mutation UpdateDataclip($clipId: ID!, $attachmentId: ID!, $title: String!, $sql: String!) {
+    updateClip(clipId: $clipId, attachmentId: $attachmentId, title: $title, sql: $sql) {
+        ...clipFragment
+        }
+    }` + graphqlAPIPostgresDataclipFields
+
+	postgresDataclipEnableShareKey = `
+mutation SharePublicDataclip($slug: ID!) {
+    togglePublicClipShare(slug: $slug, enabled: true) {
+        ...clipFragment
     }
-    fragment clipFragment on Clip {
+}` + graphqlAPIPostgresDataclipFields
+
+	postgresDataclipDisableShareKey = `
+mutation UnsharePublicDataclip($slug: ID!) {
+    togglePublicClipShare(slug: $slug, enabled: false) {
+        ...clipFragment
+    }
+}` + graphqlAPIPostgresDataclipFields
+
+	graphqlAPIPostgresDataclipFields = `
+fragment clipFragment on Clip {
         id
         created_at
         creator {
@@ -352,7 +399,6 @@ mutation CreateDataclip($attachmentId: ID!, $title: String!, $sql: String!, $tea
             }
         }
         editable
-    }
 }
 `
 )
