@@ -93,7 +93,7 @@ resource "herokux_formation_alert" "foobar" {
   threshold = "1202"
   sensitivity = 10
   is_active = true
-  email_reminder_frequency = 1440
+  notification_frequency = 1440
   notification_channels = ["app"]
 
   # Tells Terraform that this formation alert resource must be created/updated

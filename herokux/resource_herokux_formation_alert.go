@@ -142,7 +142,7 @@ func constructAppAlertOpts(d *schema.ResourceData, alertName string) *metrics.Fo
 
 	if v, ok := d.GetOk("notification_frequency"); ok {
 		opts.ReminderFrequency = v.(int)
-		log.Printf("[DEBUG] %s alert email_reminder_frequency: %v", alertName, opts.ReminderFrequency)
+		log.Printf("[DEBUG] %s alert notification_frequency: %v", alertName, opts.ReminderFrequency)
 	}
 
 	notificationChannels := make([]string, 0)
