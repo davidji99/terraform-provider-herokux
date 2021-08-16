@@ -374,6 +374,22 @@ func (p *PipelineMembershipRequestOpts) HasPermissions() bool {
 	return true
 }
 
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (t *Team) GetID() string {
+	if t == nil || t.ID == nil {
+		return ""
+	}
+	return *t.ID
+}
+
+// GetName returns the Name field if it's non-nil, zero value otherwise.
+func (t *Team) GetName() string {
+	if t == nil || t.Name == nil {
+		return ""
+	}
+	return *t.Name
+}
+
 // GetEmail returns the Email field if it's non-nil, zero value otherwise.
 func (u *User) GetEmail() string {
 	if u == nil || u.Email == nil {

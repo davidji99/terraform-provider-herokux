@@ -194,6 +194,38 @@ func (p *PostgresDataclipSharingResponse) GetTogglePublicClipShare() *PostgresDa
 	return p.TogglePublicClipShare
 }
 
+// GetClipID returns the ClipID field if it's non-nil, zero value otherwise.
+func (p *PostgresDataclipTeamShare) GetClipID() string {
+	if p == nil || p.ClipID == nil {
+		return ""
+	}
+	return *p.ClipID
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (p *PostgresDataclipTeamShare) GetID() string {
+	if p == nil || p.ID == nil {
+		return ""
+	}
+	return *p.ID
+}
+
+// GetClipID returns the ClipID field if it's non-nil, zero value otherwise.
+func (p *PostgresDataclipUserShare) GetClipID() string {
+	if p == nil || p.ClipID == nil {
+		return ""
+	}
+	return *p.ClipID
+}
+
+// GetID returns the ID field if it's non-nil, zero value otherwise.
+func (p *PostgresDataclipUserShare) GetID() string {
+	if p == nil || p.ID == nil {
+		return ""
+	}
+	return *p.ID
+}
+
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
 func (p *PostgresDataclipVersion) GetCreatedAt() time.Time {
 	if p == nil || p.CreatedAt == nil {
