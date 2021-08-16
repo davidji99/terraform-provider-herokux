@@ -5,32 +5,6 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/graphql"
 )
 
-const (
-	privatelinkGetKey = `
-query FetchPrivatelink($addonUUID: ID!) {
-    privatelink(addonUUID: $addonUUID) {
-      ...privatelinkFragment
-    }
-  }fragment privatelinkFragment on Privatelink {
-  app_name
-  addon_name
-  addon_uuid
-  status
-  service_name
-  allowed_accounts {
-    arn
-    status
-  }
-  connections {
-    endpoint_id
-    hostname
-    owner_arn
-    status
-  }
-}
-`
-)
-
 // Privatelink represents a connection between a Heroku postgres and AWS resources.
 type Privatelink struct {
 	AppName         *string                       `json:"app_name,omitempty"`
@@ -82,3 +56,29 @@ func (d *Data) GetPrivatelink(addonID string) (*Privatelink, *simpleresty.Respon
 
 	return &resp.Privatelink, response, nil
 }
+
+const (
+	privatelinkGetKey = `
+query FetchPrivatelink($addonUUID: ID!) {
+    privatelink(addonUUID: $addonUUID) {
+      ...privatelinkFragment
+    }
+  }fragment privatelinkFragment on Privatelink {
+  app_name
+  addon_name
+  addon_uuid
+  status
+  service_name
+  allowed_accounts {
+    arn
+    status
+  }
+  connections {
+    endpoint_id
+    hostname
+    owner_arn
+    status
+  }
+}
+`
+)

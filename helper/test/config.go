@@ -27,6 +27,7 @@ const (
 	TestConfigUserEmail
 	TestConfigOrganization
 	TestConfigRunE2ETests
+	TestConfigAttachmentID
 	TestConfigAcceptanceTestKey
 )
 
@@ -47,6 +48,7 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigUserEmail:           "HEROKUX_USER_EMAIL",
 	TestConfigOrganization:        "HEROKUX_ORGANIZATION",
 	TestConfigRunE2ETests:         "HEROKUX_RUN_E2E_TESTS",
+	TestConfigAttachmentID:        "HEROKUX_ATTACHMENT_ID",
 	TestConfigAcceptanceTestKey:   resource.TestEnvVar,
 }
 
@@ -160,4 +162,8 @@ func (t *TestConfig) GetRunE2ETestsOrSkip(testing *testing.T) {
 	if val != "true" {
 		testing.Skip(fmt.Sprintf("skipping test: config %v not set", TestConfigRunE2ETests))
 	}
+}
+
+func (t *TestConfig) GetAttachmentIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigAttachmentID)
 }
