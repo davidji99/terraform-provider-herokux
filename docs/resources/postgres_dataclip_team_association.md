@@ -1,21 +1,18 @@
 ---
 layout: "herokux"
-page_title: "HerokuX: herokux_postgres_dataclip_user_association"
-sidebar_current: "docs-herokux-resource-postgres-dataclip-user-association"
+page_title: "HerokuX: herokux_postgres_dataclip_team_association"
+sidebar_current: "docs-herokux-resource-postgres-dataclip-team-association"
 description: |-
-Provides a resource to manage the association of a Heroku user and Heroku Postgres dataclip.
+Provides a resource to manage the association of a Heroku team and Heroku Postgres dataclip.
 ---
 
-# herokux_postgres_dataclip_user_association
+# herokux_postgres_dataclip_team_association
 
 This resource manages the [association](https://devcenter.heroku.com/articles/dataclips#sharing-with-individuals-and-teams)
-of a Heroku user and Heroku Postgres dataclip.
+of a Heroku team and Heroku Postgres dataclip.
 
 -> **IMPORTANT!**
-You can share dataclip results with any email address. However, that email address must be associated with a Heroku account
-for the recipient to be able to access the dataclip’s results. This resource's underlying APIs do not return any errors
-when adding a non-Heroku user email to a dataclip. Therefore, you will need first verify Heroku user account existence prior
-to adding the email to a dataclip.
+All members of the selected team can view the dataclip.
 
 ## Example Usage
 
@@ -55,10 +52,14 @@ resource "herokux_postgres_dataclip" "primary-db-users" {
   enable_shareable_links = true
 }
 
-resource "herokux_postgres_dataclip_user_association" "cto" {
+data "heroku_team" "super-team" {
+  name = "super team"
+}
+
+resource "herokux_postgres_dataclip_team_association" "team" {
   dataclip_id = herokux_postgres_dataclip.dataclip.id
   dataclip_slug = herokux_postgres_dataclip.dataclip.slug
-  email = "cto@company.com"
+  team_id = data.heroku_team.super-team.id
 }
 ```
 
@@ -68,24 +69,24 @@ The following arguments are supported:
 
 * `dataclip_id` - (Required) `<string>` The UUID of the dataclip. Ideal to source this value from `herokux_postgres_dataclip.id`.
 * `dataclip_slug` - (Required) `<string>` The slug of the dataclip. Ideal to source this value from `herokux_postgres_dataclip.slug`.
-* `email` - (Required) `<string>` Email of an existing Heroku user.
+* `team_id` - (Required) `<string>` The UUID of a Heroku team.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `shared_by_email` - Email of the Heroku user that shared dataclip with the target `email`.
+* `team_name` - Name of team.
 
 ## Import
 
-An existing Postgres dataclip user association can be imported using a composite of the dataclip slug
-and email address separated by a colon character (`:`).
+An existing Postgres dataclip team association can be imported using a composite of the dataclip slug
+and team name separated by a colon character (`:`).
 
 For example:
 
-If `cto@company.com` has shared access to an existing dataclip, whose browser URL is
+If `super team` has shared access to an existing dataclip, whose browser URL is
 `https://data.heroku.com/dataclips/lfcdwnpbqthzyeyiucvgtgnuevhi`, the import ID is as follows:
 
 ```shell script
-$ terraform import herokux_postgres_dataclip_user_association.cto "lfcdwnpbqthzyeyiucvgtgnuevhi:cto@company.com"
+$ terraform import herokux_postgres_dataclip_team_association.team "lfcdwnpbqthzyeyiucvgtgnuevhi:super team"
 ```
