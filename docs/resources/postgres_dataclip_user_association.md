@@ -1,22 +1,19 @@
 ---
 layout: "herokux"
-page_title: "HerokuX: herokux_postgres_dataclip"
-sidebar_current: "docs-herokux-resource-postgres-dataclip"
+page_title: "HerokuX: herokux_postgres_dataclip_user_association"
+sidebar_current: "docs-herokux-resource-postgres-dataclip-user-association"
 description: |-
-Provides a resource to manage a dataclip on a Heroku Postgres database.
+Provides a resource to manage the association of a Heroku user and Heroku Postgres dataclip.
 ---
 
-# herokux\_postgres\_dataclip
+# herokux_postgres_dataclip_user_association
 
-This resource manages a [Dataclip](https://devcenter.heroku.com/articles/dataclips) on a Heroku Postgres database.
-Heroku Dataclips enable you to create SQL queries for your Heroku Postgres databases
-and share the results with colleagues, third-party tools, and the public.
-Recipients of a dataclip can view the data in their browser and also download it in JSON and CSV formats.
-
-Please be mindful of a Dataclip's [limitations and restrictions](https://devcenter.heroku.com/articles/dataclips#limits-and-restrictions).
+This resource manages the [association](https://devcenter.heroku.com/articles/dataclips#sharing-with-individuals-and-teams)
+of a Heroku user and Heroku Postgres dataclip.
 
 -> **IMPORTANT!**
-Dataclips cannot connect to Shield databases.
+You can share dataclip results with any email address. However, that email address must be associated with a Heroku account
+for the recipient to be able to access the dataclip’s results.
 
 ## Example Usage
 
@@ -55,40 +52,38 @@ resource "herokux_postgres_dataclip" "primary-db-users" {
   sql = "select * from users"
   enable_shareable_links = true
 }
+
+resource "herokux_postgres_dataclip_user_association" "cto" {
+  dataclip_id = herokux_postgres_dataclip.dataclip.id
+  dataclip_slug = herokux_postgres_dataclip.dataclip.slug
+  email = "cto@company.com"
+}
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
 
-* `postgres_attachment_id` - (Required) `<string>` The UUID of the addon attachment.
-* `title` - (Required) `<string>` Title of the dataclip.
-* `sql` - (Required) `<string>` SQL query.
-* `enable_shareable_links` - `<boolean>` Enable shareable links to share the results of this dataclip publicly.
-Defaults to `false`.
+* `dataclip_id` - (Required) `<string>` The UUID of the dataclip. Ideal to source this value from `herokux_postgres_dataclip.id`.
+* `dataclip_slug` - (Required) `<string>` The slug of the dataclip. Ideal to source this value from `herokux_postgres_dataclip.slug`.
+* `email` - (Required) `<string>` Email of an existing Heroku user.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-* `slug` - Slug value of the dataclip.
-* `creator_email` - Email address of the dataclip's creator.
-* `attachment_name` - Addon attachment name that the dataclip is using. This usually is `DATABASE`.
-* `addon_id` - The UUID of the Postgres database used by the dataclip.
-* `addon_name` - The name of the Postgres database used by the dataclip.
-* `app_id` - The UUID of the app that owns the Postgres addon.
-* `app_name` - The name of the app that own the Postgres addon.
+* `shared_by_email` - Email of the Heroku user that shared dataclip with the target `email`.
 
 ## Import
 
-An existing Postgres dataclip can be imported using the dataclip slug value. The slug value can be found via
-the browser URL when viewing a single dataclip
+An existing Postgres dataclip user association can be imported using a composite of the dataclip slug
+and email address separated by a colon character (`:`).
 
 For example:
 
-If the existing dataclip browser URL is `https://data.heroku.com/dataclips/lfcdwnpbqthzyeyiucvgtgnuevhi`,
-the slug value is `lfcdwnpbqthzyeyiucvgtgnuevhi`.
+If `cto@company.com` has shared access to an existing dataclip, whose browser URL is
+`https://data.heroku.com/dataclips/lfcdwnpbqthzyeyiucvgtgnuevhi`, the import ID is as follows:
 
 ```shell script
-$ terraform import herokux_postgres_dataclip.primary-db-users "lfcdwnpbqthzyeyiucvgtgnuevhi"
+$ terraform import herokux_postgres_dataclip.primary-db-users "lfcdwnpbqthzyeyiucvgtgnuevhi:cto@company.com"
 ```

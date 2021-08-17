@@ -87,7 +87,7 @@ the browser URL when viewing a single dataclip
 For example:
 
 If the existing dataclip browser URL is `https://data.heroku.com/dataclips/lfcdwnpbqthzyeyiucvgtgnuevhi`,
-the slug value is `lfcdwnpbqthzyeyiucvgtgnuevhi`.
+the slug is `lfcdwnpbqthzyeyiucvgtgnuevhi`.
 
 ```shell script
 $ terraform import herokux_postgres_dataclip.primary-db-users "lfcdwnpbqthzyeyiucvgtgnuevhi"
