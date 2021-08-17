@@ -226,7 +226,7 @@ func resourceHerokuxPostgresDataclipDelete(ctx context.Context, d *schema.Resour
 
 	log.Printf("[DEBUG] Deleting postgres dataclip %s", d.Id())
 
-	_, _, deleteErr := client.Data.DeleteDataclip(d.Id())
+	_, _, deleteErr := client.Data.DeletePostgresDataclip(d.Id())
 	if deleteErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

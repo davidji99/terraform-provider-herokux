@@ -11,21 +11,37 @@ import (
 
 // PostgresDataclip represents a postgres data clip.
 type PostgresDataclip struct {
-	ID           *string                     `json:"id,omitempty"`
-	Slug         *string                     `json:"slug,omitempty"`
-	Title        *string                     `json:"title,omitempty"`
-	TeamID       *string                     `json:"team_id,omitempty"`
-	PublicSlug   *string                     `json:"public_slug,omitempty"`
-	PublicSlugBy *string                     `json:"public_slug_by,omitempty"` // is the user that enabled sharing
-	UserShares   []string                    `json:"user_shares,omitempty"`
-	TeamShares   []string                    `json:"team_shares,omitempty"`
-	Detached     *bool                       `json:"detached,omitempty"`
-	Editable     *bool                       `json:"editable,omitempty"`
-	CreatedAt    *time.Time                  `json:"created_at,omitempty"`
-	EditedAt     *time.Time                  `json:"edited_at,omitempty"`
-	Creator      *platform.User              `json:"creator,omitempty"`
-	Datasource   *PostgresDataclipDatasource `json:"datasource,omitempty"`
-	Versions     []*PostgresDataclipVersion  `json:"versions,omitempty"`
+	ID           *string                      `json:"id,omitempty"`
+	Slug         *string                      `json:"slug,omitempty"`
+	Title        *string                      `json:"title,omitempty"`
+	TeamID       *string                      `json:"team_id,omitempty"`
+	PublicSlug   *string                      `json:"public_slug,omitempty"`
+	PublicSlugBy *string                      `json:"public_slug_by,omitempty"` // is the user that enabled sharing
+	UserShares   []*PostgresDataclipUserShare `json:"user_shares,omitempty"`
+	TeamShares   []*PostgresDataclipTeamShare `json:"team_shares,omitempty"`
+	Detached     *bool                        `json:"detached,omitempty"`
+	Editable     *bool                        `json:"editable,omitempty"`
+	CreatedAt    *time.Time                   `json:"created_at,omitempty"`
+	EditedAt     *time.Time                   `json:"edited_at,omitempty"`
+	Creator      *platform.User               `json:"creator,omitempty"`
+	Datasource   *PostgresDataclipDatasource  `json:"datasource,omitempty"`
+	Versions     []*PostgresDataclipVersion   `json:"versions,omitempty"`
+}
+
+// PostgresDataclipUserShare represents a user that has been granted shared access.
+type PostgresDataclipUserShare struct {
+	ID         *string        `json:"id,omitempty"`
+	ClipID     *string        `json:"clip_id,omitempty"`
+	SharedBy   *platform.User `json:"shared_by,omitempty"`
+	SharedWith *platform.User `json:"shared_with,omitempty"`
+}
+
+// PostgresDataclipTeamShare represents a team that has been granted shared access.
+type PostgresDataclipTeamShare struct {
+	ID         *string        `json:"id,omitempty"`
+	ClipID     *string        `json:"clip_id,omitempty"`
+	SharedBy   *platform.User `json:"shared_by,omitempty"`
+	SharedWith *platform.Team `json:"shared_with,omitempty"`
 }
 
 // PostgresDataclipDatasource represents a data clip source.
@@ -202,7 +218,8 @@ type PostgresDataclipDeleteResponse struct {
 	DeleteClip string `json:"deleteClip"`
 }
 
-func (d *Data) DeleteDataclip(id string) (*PostgresDataclipDeleteResponse, *simpleresty.Response, error) {
+// DeletePostgresDataclip deletes a Postgres dataclip.
+func (d *Data) DeletePostgresDataclip(id string) (*PostgresDataclipDeleteResponse, *simpleresty.Response, error) {
 	vars := map[string]interface{}{
 		"clipId": id,
 	}
@@ -263,6 +280,76 @@ func (d *Data) TogglePostgresDataclipSharing(slug string, enabled bool) (*Postgr
 	return resp.TogglePublicClipShare, response, nil
 }
 
+type postgresDataclipShareWithUserResponse struct {
+	ShareClipWithUser *PostgresDataclipUserShare `json:"shareClipWithUser"`
+}
+
+func (d *Data) SharePostgresDataclipWithUser(dataclipID, userEmail string) (*PostgresDataclipUserShare, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"clipId": dataclipID,
+		"email":  userEmail,
+	}
+
+	reqBody := &graphql.Request{
+		Query:     postgresDataclipShareWithUserKey,
+		Variables: vars,
+	}
+
+	resp := postgresDataclipShareWithUserResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
+	if deleteErr != nil {
+		return nil, response, deleteErr
+	}
+
+	if resp.ShareClipWithUser == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
+	return resp.ShareClipWithUser, response, nil
+}
+
+type postgresDataclipUnshareWithUserResponse struct {
+	UnshareClipWithUser *bool `json:"unshareClipWithUser,omitempty"`
+}
+
+func (d *Data) UnsharePostgresDataclipWithUser(dataclipID, dataclipShareID string) (bool, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"clipId":      dataclipID,
+		"clipShareId": dataclipShareID,
+	}
+
+	reqBody := &graphql.Request{
+		Query:     postgresDataclipUnshareWithUserKey,
+		Variables: vars,
+	}
+
+	resp := postgresDataclipUnshareWithUserResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
+	if deleteErr != nil {
+		return false, response, deleteErr
+	}
+
+	if resp.UnshareClipWithUser == nil {
+		return false, nil, errors.New(response.Body)
+	}
+
+	return *resp.UnshareClipWithUser, response, nil
+}
+
+func (d *Data) SharePostgresDataclipWithTeam() {
+
+}
+
+func (d *Data) UnsharePostgresDataclipWithTeam() {
+
+}
+
 // TODO: method for https://data-api.heroku.com/dataclips/<DATACLIP_SLUG>.json
 
 const (
@@ -296,7 +383,7 @@ query FetchClipDetails($slug: ID!) {
   }` + graphqlAPIPostgresDataclipFields
 
 	postgresDataclipDeleteKey = `
-mutation DeleteDataclip($clipId: ID!) {
+mutation DeletePostgresDataclip($clipId: ID!) {
     deleteClip(clipId: $clipId)
 }
 `
@@ -328,6 +415,30 @@ mutation UnsharePublicDataclip($slug: ID!) {
         ...clipFragment
     }
 }` + graphqlAPIPostgresDataclipFields
+
+	postgresDataclipShareWithUserKey = `
+mutation ShareDataclipWithUser($clipId: ID!, $email: String!) {
+   shareClipWithUser(clipId: $clipId, email: $email) {
+        id
+        created_at
+        clip_id
+        shared_by {
+            id
+            email
+        }
+        shared_with {
+            id
+            email
+        }
+   }
+}
+`
+
+	postgresDataclipUnshareWithUserKey = `
+mutation UnshareDataclipWithUser($clipId: ID!, $clipShareId: ID!) {
+    unshareClipWithUser(clipId: $clipId, clipShareId: $clipShareId)
+}
+`
 
 	graphqlAPIPostgresDataclipFields = `
 fragment clipFragment on Clip {

@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/graphql"
 )
@@ -32,7 +33,7 @@ type PrivatelinkConnections struct {
 }
 
 type privatelinkGetResponse struct {
-	Privatelink Privatelink `json:"privatelink"`
+	Privatelink *Privatelink `json:"privatelink"`
 }
 
 func (d *Data) GetPrivatelink(addonID string) (*Privatelink, *simpleresty.Response, error) {
@@ -54,7 +55,11 @@ func (d *Data) GetPrivatelink(addonID string) (*Privatelink, *simpleresty.Respon
 		return nil, response, getErr
 	}
 
-	return &resp.Privatelink, response, nil
+	if resp.Privatelink == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
+	return resp.Privatelink, response, nil
 }
 
 const (

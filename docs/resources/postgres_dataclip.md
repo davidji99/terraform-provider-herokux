@@ -76,8 +76,8 @@ The following attributes are exported:
 * `attachment_name` - Addon attachment name that the dataclip is using. This usually is `DATABASE`.
 * `addon_id` - The UUID of the Postgres database used by the dataclip.
 * `addon_name` - The name of the Postgres database used by the dataclip.
-* `app_id` - The UUID of the app that the Postgres addon belongs to.
-* `app_name` - The name of the app that the Postgres addon belongs to.
+* `app_id` - The UUID of the app that owns the Postgres addon.
+* `app_name` - The name of the app that own the Postgres addon.
 
 ## Import
 
@@ -87,7 +87,7 @@ the browser URL when viewing a single dataclip
 For example:
 
 If the existing dataclip browser URL is `https://data.heroku.com/dataclips/lfcdwnpbqthzyeyiucvgtgnuevhi`,
-the slug value is `lfcdwnpbqthzyeyiucvgtgnuevhi`.
+the slug is `lfcdwnpbqthzyeyiucvgtgnuevhi`.
 
 ```shell script
 $ terraform import herokux_postgres_dataclip.primary-db-users "lfcdwnpbqthzyeyiucvgtgnuevhi"
