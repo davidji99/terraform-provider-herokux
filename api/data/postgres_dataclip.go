@@ -342,12 +342,66 @@ func (d *Data) UnsharePostgresDataclipWithUser(dataclipID, dataclipShareID strin
 	return *resp.UnshareClipWithUser, response, nil
 }
 
-func (d *Data) SharePostgresDataclipWithTeam() {
-
+type postgresDataclipShareWithTeamResponse struct {
+	ShareClipWithTeam *PostgresDataclipTeamShare `json:"shareClipWithTeam"`
 }
 
-func (d *Data) UnsharePostgresDataclipWithTeam() {
+func (d *Data) SharePostgresDataclipWithTeam(dataclipID, teamID string) (*PostgresDataclipTeamShare, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"clipId": dataclipID,
+		"teamId": teamID,
+	}
 
+	reqBody := &graphql.Request{
+		Query:     postgresDataclipShareWithTeamKey,
+		Variables: vars,
+	}
+
+	resp := postgresDataclipShareWithTeamResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
+	if deleteErr != nil {
+		return nil, response, deleteErr
+	}
+
+	if resp.ShareClipWithTeam == nil {
+		return nil, nil, errors.New(response.Body)
+	}
+
+	return resp.ShareClipWithTeam, response, nil
+}
+
+type postgresDataclipUnshareWithTeamResponse struct {
+	UnshareClipWithTeam *bool `json:"unshareClipWithTeam,omitempty"`
+}
+
+func (d *Data) UnsharePostgresDataclipWithTeam(dataclipID, dataclipShareID string) (bool, *simpleresty.Response, error) {
+	vars := map[string]interface{}{
+		"clipId":      dataclipID,
+		"clipShareId": dataclipShareID,
+	}
+
+	reqBody := &graphql.Request{
+		Query:     postgresDataclipUnshareWithTeamKey,
+		Variables: vars,
+	}
+
+	resp := postgresDataclipUnshareWithTeamResponse{}
+	respBody := &graphql.Response{Data: &resp}
+
+	urlStr := d.http.RequestURL("/graphql")
+	response, deleteErr := d.http.Post(urlStr, &respBody, reqBody)
+	if deleteErr != nil {
+		return false, response, deleteErr
+	}
+
+	if resp.UnshareClipWithTeam == nil {
+		return false, nil, errors.New(response.Body)
+	}
+
+	return *resp.UnshareClipWithTeam, response, nil
 }
 
 // TODO: method for https://data-api.heroku.com/dataclips/<DATACLIP_SLUG>.json
@@ -437,6 +491,30 @@ mutation ShareDataclipWithUser($clipId: ID!, $email: String!) {
 	postgresDataclipUnshareWithUserKey = `
 mutation UnshareDataclipWithUser($clipId: ID!, $clipShareId: ID!) {
     unshareClipWithUser(clipId: $clipId, clipShareId: $clipShareId)
+}
+`
+
+	postgresDataclipShareWithTeamKey = `
+mutation ShareDataclipWithTeam($clipId: ID!, teamId: ID!) {
+   shareClipWithTeam(clipId: $clipId, teamId: $teamId) {
+        id
+        created_at
+        clip_id
+        shared_by {
+            id
+            email
+        }
+        shared_with {
+            id
+            email
+        }
+   }
+}
+`
+
+	postgresDataclipUnshareWithTeamKey = `
+mutation UnshareDataclipWithTeam($clipId: ID!, $clipShareId: ID!) {
+    unshareClipWithTeam(clipId: $clipId, clipShareId: $clipShareId)
 }
 `
 

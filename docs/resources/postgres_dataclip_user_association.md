@@ -13,7 +13,9 @@ of a Heroku user and Heroku Postgres dataclip.
 
 -> **IMPORTANT!**
 You can share dataclip results with any email address. However, that email address must be associated with a Heroku account
-for the recipient to be able to access the dataclip’s results.
+for the recipient to be able to access the dataclip’s results. This resource's underlying APIs do not return any errors
+when adding a non-Heroku user email to a dataclip. Therefore, you will need first verify Heroku user account existence prior
+to adding the email to a dataclip.
 
 ## Example Usage
 
