@@ -18,6 +18,7 @@ const (
 	TestConfigDatabaseName
 	TestConfigKafkaID
 	TestConfigTeamID
+	TestConfigTeamName
 	TestConfigRedisID
 	TestConfigPostgresID
 	TestConfigConnectID
@@ -39,6 +40,7 @@ var testConfigKeyToEnvName = map[TestConfigKey]string{
 	TestConfigDatabaseName:        "HEROKUX_DB_NAME",
 	TestConfigKafkaID:             "HEROKUX_KAFKA_ID",
 	TestConfigTeamID:              "HEROKUX_TEAM_ID",
+	TestConfigTeamName:            "HEROKUX_TEAM_NAME",
 	TestConfigRedisID:             "HEROKUX_REDIS_ID",
 	TestConfigPostgresID:          "HEROKUX_POSTGRES_ID",
 	TestConfigConnectID:           "HEROKUX_CONNECT_ID",
@@ -165,5 +167,9 @@ func (t *TestConfig) GetRunE2ETestsOrSkip(testing *testing.T) {
 }
 
 func (t *TestConfig) GetAttachmentIDorSkip(testing *testing.T) (val string) {
+	return t.GetOrSkip(testing, TestConfigAttachmentID)
+}
+
+func (t *TestConfig) GetTeamNameorSkip(testing *testing.T) (val string) {
 	return t.GetOrSkip(testing, TestConfigAttachmentID)
 }

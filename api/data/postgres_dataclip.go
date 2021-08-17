@@ -495,7 +495,7 @@ mutation UnshareDataclipWithUser($clipId: ID!, $clipShareId: ID!) {
 `
 
 	postgresDataclipShareWithTeamKey = `
-mutation ShareDataclipWithTeam($clipId: ID!, teamId: ID!) {
+mutation ShareDataclipWithTeam($clipId: ID!, $teamId: ID!) {
    shareClipWithTeam(clipId: $clipId, teamId: $teamId) {
         id
         created_at
@@ -506,7 +506,7 @@ mutation ShareDataclipWithTeam($clipId: ID!, teamId: ID!) {
         }
         shared_with {
             id
-            email
+            name
         }
    }
 }
