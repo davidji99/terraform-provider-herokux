@@ -16,6 +16,15 @@ const (
 	EveryTenMinFrequency = "every_ten_minutes"
 )
 
+var (
+	ValidSchedulerJobDynoSizes = []string{
+		"Standard-1X", "Standard-2X",
+		"Performance-M", "Performance-L",
+		"Private-S", "Private-M", "Private-L",
+		"Shield-S", "Shield-M", "Shield-L",
+	}
+)
+
 func resourceHerokuxSchedulerJob() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHerokuxSchedulerJobCreate,
@@ -41,10 +50,9 @@ func resourceHerokuxSchedulerJob() *schema.Resource {
 			},
 
 			"dyno_size": {
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringInSlice(
-					[]string{"Standard-1X", "Standard-2X", "Performance-M", "Performance-L"}, false),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringInSlice(ValidSchedulerJobDynoSizes, false),
 			},
 
 			"frequency": {

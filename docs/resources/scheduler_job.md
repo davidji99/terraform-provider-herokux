@@ -47,7 +47,8 @@ The following arguments are supported:
 * `app_id` - (Required) `<string>` The UUID of a Heroku app.
 * `command` - (Required) `<string>` The command to run.
 * `dyno_size` - (Required) `<string>` Size of [dyno](https://devcenter.heroku.com/articles/dyno-types).
-  Valid options are (case-sensitive): `Standard-1X`, `Standard-2X`, `Performance-M`, `Performance-L`.
+  Valid options are (case-sensitive):
+    * `Standard-1X`, `Standard-2X`, `Performance-(M|L)`, `Private-(S|M|L)`, `Shield-(S|M|L)`
 * `frequency`  - (Required) `<string>` The interval by which the job will run on schedule in UTC.
   Choose one of the following (case-sensitive):
     * `every_ten_minutes`
