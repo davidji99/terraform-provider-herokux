@@ -241,7 +241,7 @@ func parseFrequency(frequency string) (int, int, error) {
 
 	every10Min := regexp.MustCompile(EveryTenMinFrequency)
 	everyHour := regexp.MustCompile(`^every_hour_at_(0|10|20|30|40|50)$`)
-	everyDay := regexp.MustCompile(`^every_day_at_(0[0-9]|1[0-9]|2[0-3]|00):(30|00)$`)
+	everyDay := regexp.MustCompile(`^every_day_at_([0-9]|1[0-9]|2[0-3]|00):(30|00)$`)
 
 	switch {
 	case every10Min.MatchString(frequency):
