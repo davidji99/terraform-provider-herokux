@@ -105,7 +105,7 @@ func TestAccHerokuxSchedulerJob_Modification(t *testing.T) {
 	orgName := testAccConfig.GetAnyOrganizationOrSkip(t)
 	appName := fmt.Sprintf("tftest-%s", acctest.RandString(10))
 	plan := "scheduler:standard"
-	frequency := "every_day_at_17:30"
+	frequency := "every_day_at_4:30"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
@@ -122,7 +122,7 @@ func TestAccHerokuxSchedulerJob_Modification(t *testing.T) {
 					resource.TestCheckResourceAttr(
 						"herokux_scheduler_job.foobar", "dyno_size", "Standard-1X"),
 					resource.TestCheckResourceAttr(
-						"herokux_scheduler_job.foobar", "frequency", "every_day_at_17:30"),
+						"herokux_scheduler_job.foobar", "frequency", "every_day_at_4:30"),
 				),
 			},
 			{

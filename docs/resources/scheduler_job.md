@@ -50,12 +50,17 @@ The following arguments are supported:
   Valid options are (case-sensitive):
     * `Standard-1X`, `Standard-2X`, `Performance-(M|L)`, `Private-(S|M|L)`, `Shield-(S|M|L)`
 * `frequency`  - (Required) `<string>` The interval by which the job will run on schedule in UTC.
-  Choose one of the following (case-sensitive):
-    * `every_ten_minutes`
-    * `every_hour_at_##` - Valid values for `##` are `0`, `10`, `20`, `30`, `40`, `50`.
-    * `every_day_at_HH:MM` - Valid values for `HH` and `MM` are (using 24hour time format):
-        * `HH` - `00` through `23`. For example, `05`, `16`, etc.
-        * `MM` - either `30` or `00`.
+See [Frequency specification](#frequency) below for more details.
+
+### `frequency`
+
+Choose one of the following (case-sensitive):
+
+* `every_ten_minutes`
+* `every_hour_at_##` - Valid values for `##` are `0`, `10`, `20`, `30`, `40`, `50`.
+* `every_day_at_HH:MM` - Valid values for `HH` and `MM` are (using 24hour time format):
+* `HH` - `0` through `23`. For example, `5`, `16`, etc. No leading `0` for hours 0-9.
+* `MM` - either `30` or `00`.
 
 
 ## Attributes Reference
