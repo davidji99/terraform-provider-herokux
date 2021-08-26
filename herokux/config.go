@@ -249,7 +249,7 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 			}
 
 			if v, ok := timeoutsConfig["mtls_iprule_create_verify_timeout"].(int); ok {
-				c.MTLSDeprovisionVerifyTimeout = int64(v)
+				c.MTLSIPRuleCreateVerifyTimeout = int64(v)
 			}
 
 			if v, ok := timeoutsConfig["mtls_certificate_create_verify_timeout"].(int); ok {
