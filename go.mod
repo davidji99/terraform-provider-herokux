@@ -11,7 +11,7 @@ require (
 	github.com/google/go-github/v37 v37.0.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.7.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/stretchr/testify v1.7.0
