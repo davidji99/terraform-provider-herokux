@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -96,7 +97,7 @@ func validateAppWebhookName(v interface{}, k string) (ws []string, errors []erro
 func resourceHerokuxAppWebhookImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -167,7 +168,7 @@ func resourceHerokuxAppWebhookRead(ctx context.Context, d *schema.ResourceData, 
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -196,7 +197,7 @@ func resourceHerokuxAppWebhookUpdate(ctx context.Context, d *schema.ResourceData
 	opts := constructAppWebhookOpts(d)
 	appID := getAppID(d)
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -224,7 +225,7 @@ func resourceHerokuxAppWebhookDelete(ctx context.Context, d *schema.ResourceData
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

@@ -9,7 +9,6 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 // getAppID extracts the app ID attribute generically from a HerokuX resource.
@@ -165,26 +164,6 @@ func getConnectMappings(d *schema.ResourceData) []byte {
 	}
 
 	return mappings
-}
-
-func parseCompositeID(id string, numOfSplits int) ([]string, error) {
-	parts := strings.SplitN(id, ":", numOfSplits)
-
-	if len(parts) != numOfSplits {
-		return nil, fmt.Errorf("Error: import composite ID requires %d parts separated by a colon (x:y). "+
-			"Please check resource documentation for more information.", numOfSplits)
-	}
-	return parts, nil
-}
-
-func parseCompositeIDCustom(id, sep string, numOfSplits int) ([]string, error) {
-	parts := strings.SplitN(id, sep, numOfSplits)
-
-	if len(parts) != numOfSplits {
-		return nil, fmt.Errorf("Error: import composite ID requires %d parts each separated by a `%s`. "+
-			"Please check resource documentation for more information.", numOfSplits, sep)
-	}
-	return parts, nil
 }
 
 func stringArrayContains(arr []string, str string) bool {

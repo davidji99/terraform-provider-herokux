@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -104,7 +105,7 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 	client := meta.(*Config).API
 
 	// Parse te import ID for the appID and processType
-	importID, parseErr := parseCompositeID(d.Id(), 2)
+	importID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -182,7 +183,7 @@ func resourceHerokuxFormationAutoscalingRead(ctx context.Context, d *schema.Reso
 	metricsAPI := meta.(*Config).API
 	platformAPI := meta.(*Config).PlatformAPI
 
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -234,7 +235,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 	client := meta.(*Config).API
 
 	// Get app id and formation name
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -283,7 +284,7 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 func resourceHerokuxFormationAutoscalingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

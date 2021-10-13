@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -54,7 +55,7 @@ func resourceHerokuxPostgresDataclipUserAssociationImport(ctx context.Context, d
 	client := meta.(*Config).API
 
 	// Import id will be a composite of the dataclip slug and user email
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}

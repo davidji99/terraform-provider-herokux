@@ -6,6 +6,7 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -62,7 +63,7 @@ func resourceHerokuxPostgresMTLSIPRule() *schema.Resource {
 func resourceHerokuxPostgresMTLSIPRuleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
-	parsedImportID, parseErr := parseCompositeID(d.Id(), 2)
+	parsedImportID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -147,7 +148,7 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 func resourceHerokuxPostgresMTLSIPRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
-	ids, parseErr := parseCompositeID(d.Id(), 2)
+	ids, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -175,7 +176,7 @@ func resourceHerokuxPostgresMTLSIPRuleDelete(ctx context.Context, d *schema.Reso
 	config := meta.(*Config)
 	client := config.API
 
-	ids, parseErr := parseCompositeID(d.Id(), 2)
+	ids, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

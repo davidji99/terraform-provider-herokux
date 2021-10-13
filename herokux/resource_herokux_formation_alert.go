@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -95,7 +96,7 @@ func resourceHerokuxFormationAlertImport(ctx context.Context, d *schema.Resource
 	client := meta.(*Config).API
 
 	// Parse te import ID for the appID, processType, and name.
-	importID, parseErr := parseCompositeID(d.Id(), 3)
+	importID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -217,7 +218,7 @@ func resourceHerokuxFormationAlertRead(ctx context.Context, d *schema.ResourceDa
 	var diags diag.Diagnostics
 	metricsAPI := meta.(*Config).API
 
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -265,7 +266,7 @@ func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.Resource
 	metricsAPI := meta.(*Config).API
 	platformAPI := meta.(*Config).PlatformAPI
 
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -308,7 +309,7 @@ func resourceHerokuxFormationAlertUpdate(ctx context.Context, d *schema.Resource
 
 func resourceHerokuxFormationAlertDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
-	resourceID, parseErr := parseCompositeID(d.Id(), 3)
+	resourceID, parseErr := tfph.ParseCompositeID(d.Id(), 3)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

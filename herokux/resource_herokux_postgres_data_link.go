@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -72,7 +73,7 @@ func validateDataLinkName(v interface{}, k string) (ws []string, errors []error)
 }
 
 func resourceHerokuxPostgresDataLinkImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	_, parseErr := parseCompositeID(d.Id(), 2)
+	_, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, fmt.Errorf("unable to import: import requires the local db ID and remote db name separated by a colon")
 	}
@@ -134,7 +135,7 @@ func resourceHerokuxPostgresDataLinkRead(ctx context.Context, d *schema.Resource
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -177,7 +178,7 @@ func resourceHerokuxPostgresDataLinkDelete(ctx context.Context, d *schema.Resour
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
