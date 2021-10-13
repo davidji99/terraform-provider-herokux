@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/scheduler"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -72,7 +73,7 @@ func resourceHerokuxSchedulerJob() *schema.Resource {
 
 func resourceHerokuxSchedulerJobImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
-	parsedImportID, parseErr := parseCompositeID(d.Id(), 2)
+	parsedImportID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}

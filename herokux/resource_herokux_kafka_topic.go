@@ -3,6 +3,7 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"github.com/davidji99/tfph"
 	"log"
 	"regexp"
 	"time"
@@ -219,7 +220,7 @@ func topicCreationStateRefreshFunc(client *api.Client, kafkaID, topicName string
 func resourceHerokuxKafkaTopicRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -363,7 +364,7 @@ func topicUpdateStateRefreshFunc(client *api.Client, kafkaID, topicName string, 
 func resourceHerokuxKafkaTopicDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

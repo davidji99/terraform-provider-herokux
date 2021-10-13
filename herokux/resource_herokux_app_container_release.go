@@ -5,6 +5,7 @@ import (
 	"fmt"
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -90,7 +91,7 @@ func validateImageID(v interface{}, k string) (ws []string, errors []error) {
 }
 
 func resourceHerokuxAppContainerReleaseImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	compositeID, parseErr := parseCompositeIDCustom(d.Id(), "|", 3)
+	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2, "|")
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -122,7 +123,7 @@ func resourceHerokuxAppContainerReleaseCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceHerokuxAppContainerReleaseRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	compositeID, parseErr := parseCompositeID(d.Id(), 2)
+	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -151,7 +152,7 @@ func resourceHerokuxAppContainerReleaseDelete(ctx context.Context, d *schema.Res
 	clientAPI := config.API
 
 	// The resource will destroy the container upon deletion similar to the `heroku container:rm PROCESS_Type` command.
-	compositeID, parseErr := parseCompositeID(d.Id(), 2)
+	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

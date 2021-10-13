@@ -7,6 +7,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
 	github.com/davidji99/simpleresty v0.3.0
+	github.com/davidji99/tfph v0.1.0
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/google/go-github/v37 v37.0.0
 	github.com/google/go-querystring v1.1.0 // indirect

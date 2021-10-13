@@ -3,6 +3,7 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"github.com/davidji99/tfph"
 	"log"
 	"time"
 
@@ -95,7 +96,7 @@ func resourceHerokuxKafkaConsumerGroupCreate(ctx context.Context, d *schema.Reso
 func resourceHerokuxKafkaConsumerGroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}
@@ -115,7 +116,7 @@ func resourceHerokuxKafkaConsumerGroupDelete(ctx context.Context, d *schema.Reso
 	config := meta.(*Config)
 	client := config.API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return diag.FromErr(parseErr)
 	}

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -120,7 +121,7 @@ func resourceHerokuxDataConnector() *schema.Resource {
 func resourceHerokuxDataConnectorImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	client := meta.(*Config).API
 
-	result, parseErr := parseCompositeID(d.Id(), 2)
+	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
 	if parseErr != nil {
 		return nil, parseErr
 	}
