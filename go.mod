@@ -9,6 +9,7 @@ require (
 	github.com/davidji99/simpleresty v0.3.0
 	github.com/davidji99/tfph v0.1.1
 	github.com/elliotchance/orderedmap v1.4.0
+	github.com/go-resty/resty/v2 v2.6.0
 	github.com/google/go-github/v37 v37.0.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
