@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/davidji99/simpleresty"
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	"github.com/go-resty/resty/v2"
+	"net/http"
 	"time"
 )
 
@@ -32,8 +34,16 @@ func (k *Kafka) setHeaders() {
 		SetHeader("Accept", k.config.AcceptHeader).
 		SetHeader("User-Agent", k.config.UserAgent).
 		SetHeader("Authorization", fmt.Sprintf("Basic %s", k.config.BasicAuth)).
-		SetTimeout(2 * time.Minute).
-		SetAllowGetMethodPayload(true)
+		SetTimeout(5 * time.Minute).
+		SetAllowGetMethodPayload(true).
+		SetRetryCount(10).
+		SetRetryWaitTime(2 * time.Second).
+		SetRetryMaxWaitTime(60 * time.Second).
+		AddRetryCondition(
+			func(r *resty.Response, err error) bool {
+				return r.StatusCode() == http.StatusTooManyRequests
+			},
+		)
 
 	// Set additional headers
 	if k.config.CustomHTTPHeaders != nil {
