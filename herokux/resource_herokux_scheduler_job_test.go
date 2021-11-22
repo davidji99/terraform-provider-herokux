@@ -23,7 +23,8 @@ func TestAccHerokuxSchedulerJob_Basic_EveryTenMin(t *testing.T) {
 		ExternalProviders: externalProviders(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxSchedulerJob_basicWithHerokuResource(appName, orgName, plan, "test", "Standard-1X", frequency),
+				Config: testAccCheckHerokuxSchedulerJob_basicWithHerokuResource(appName, orgName, plan, "test",
+					"Standard-1X", frequency),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"herokux_scheduler_job.foobar", "app_id"),
@@ -53,7 +54,8 @@ func TestAccHerokuxSchedulerJob_Basic_EveryHour(t *testing.T) {
 		ExternalProviders: externalProviders(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxSchedulerJob_basicWithHerokuResource(appName, orgName, plan, "test", "Standard-1X", frequency),
+				Config: testAccCheckHerokuxSchedulerJob_basicWithHerokuResource(appName, orgName, plan, "test",
+					"Standard-1X", frequency),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet(
 						"herokux_scheduler_job.foobar", "app_id"),

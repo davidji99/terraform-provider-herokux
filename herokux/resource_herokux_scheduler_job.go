@@ -19,6 +19,7 @@ const (
 
 var (
 	ValidSchedulerJobDynoSizes = []string{
+		"Hobby", "Free",
 		"Standard-1X", "Standard-2X",
 		"Performance-M", "Performance-L",
 		"Private-S", "Private-M", "Private-L",
