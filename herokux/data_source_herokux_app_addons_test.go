@@ -18,7 +18,7 @@ func TestAccDatasourceHerokuxAppAddons_Basic(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxAddons_Basic(appID, addonServiceName),
+				Config: testAccCheckHerokuxAppAddons_Basic(appID, addonServiceName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.herokux_app_addons.foobar", "app_id", appID),
@@ -43,7 +43,7 @@ func TestAccDatasourceHerokuxAppAddons_Filter(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckHerokuxAddons_Basic(appID, addonServiceName),
+				Config: testAccCheckHerokuxAppAddons_Basic(appID, addonServiceName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.herokux_app_addons.foobar", "app_id", appID),
@@ -68,14 +68,14 @@ func TestAccDatasourceHerokuxAppAddons_NotFound(t *testing.T) {
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config:      testAccCheckHerokuxAddons_Basic(appID, addonServiceName),
+				Config:      testAccCheckHerokuxAppAddons_Basic(appID, addonServiceName),
 				ExpectError: regexp.MustCompile(`Could not find the requested add-ons installed`),
 			},
 		},
 	})
 }
 
-func testAccCheckHerokuxAddons_Basic(appID, addonServiceName string) string {
+func testAccCheckHerokuxAppAddons_Basic(appID, addonServiceName string) string {
 	return fmt.Sprintf(`
 data "herokux_app_addons" "foobar" {
   app_id = "%s"
