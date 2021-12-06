@@ -7,9 +7,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceHerokuxAddons() *schema.Resource {
+func dataSourceHerokuxAppAddons() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceHerokuxAddonsRead,
+		ReadContext: dataSourceHerokuxAppAddonsRead,
 		Schema: map[string]*schema.Schema{
 			"app_id": {
 				Type:     schema.TypeString,
@@ -32,7 +32,7 @@ func dataSourceHerokuxAddons() *schema.Resource {
 	}
 }
 
-func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceHerokuxAppAddonsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	platformAPI := meta.(*Config).PlatformAPI
 
 	appID := getAppID(d)

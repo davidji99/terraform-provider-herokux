@@ -1,19 +1,19 @@
 ---
 layout: "herokux"
-page_title: "Herokux: herokux_addons"
-sidebar_current: "docs-herokux-datasource-addons-x"
+page_title: "Herokux: herokux_app_addons"
+sidebar_current: "docs-herokux-datasource-app-addons-x"
 description: |-
   Get information about all add-ons installed on a specific App.
 ---
 
-# Data Source: herokux_addons
+# Data Source: herokux_app_addons
 
 Use this data source to get information about all add-ons installed on a specific app.
 
 ## Example Usage
 
 ```hcl-terraform
-data "herokux_addons" "foobar" {
+data "herokux_app_addons" "foobar" {
   app_id = "44e263f7-2e06-403b-9f37-44f0f9bcd5e9"
   addon_service_name = "heroku-postgresql"
 }
