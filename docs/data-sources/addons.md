@@ -19,12 +19,12 @@ data "herokux_addons" "all" {}
 
 // Filter by app name
 data "herokux_addons" "by_app_name" {
-  filter_by_app_name_regex = ".*api-stg.*"
+  app_name_regex = ".*api-stg.*"
 }
 
 // Filter by addon name
 data "herokux_addons" "by_addon_name" {
-  filter_by_addon_name_regex = "scheduler-.*"
+  addon_name_regex = "scheduler-.*"
 }
 ```
 
@@ -32,10 +32,10 @@ data "herokux_addons" "by_addon_name" {
 
 The following arguments are supported:
 
-* `filter_by_app_name_regex` - (Optional) Valid regex used to filter by app name.
-  Cannot be set in conjunction with `filter_by_addon_name_regex`.
-* `filter_by_addon_name_regex` - (Optional) Valid regex used to filter by addon name.
-  Cannot be set in conjunction with `filter_by_app_name_regex`.
+* `app_name_regex` - (Optional) Valid regex used to filter by app name.
+  Cannot be set in conjunction with `addon_name_regex`.
+* `addon_name_regex` - (Optional) Valid regex used to filter by addon name.
+  Cannot be set in conjunction with `app_name_regex`.
 
 ## Attributes Reference
 

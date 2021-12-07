@@ -15,17 +15,17 @@ func dataSourceHerokuxAddons() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceHerokuxAddonsRead,
 		Schema: map[string]*schema.Schema{
-			"filter_by_app_name_regex": {
+			"app_name_regex": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"filter_by_addon_name_regex"},
+				ConflictsWith: []string{"addon_name_regex"},
 				ValidateFunc:  validation.StringIsValidRegExp,
 			},
 
-			"filter_by_addon_name_regex": {
+			"addon_name_regex": {
 				Type:          schema.TypeString,
 				Optional:      true,
-				ConflictsWith: []string{"filter_by_app_name_regex"},
+				ConflictsWith: []string{"app_name_regex"},
 				ValidateFunc:  validation.StringIsValidRegExp,
 			},
 
@@ -68,16 +68,16 @@ func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, me
 	var isFilterByApp, isFilterByAddonName bool
 	var filterByAppRegex, filterByAddonName string
 
-	if v, ok := d.GetOk("filter_by_app_name_regex"); ok {
+	if v, ok := d.GetOk("app_name_regex"); ok {
 		isFilterByApp = true
 		filterByAppRegex = v.(string)
-		log.Printf("[DEBUG] filter_by_app_name_regex: %s", filterByAppRegex)
+		log.Printf("[DEBUG] app_name_regex: %s", filterByAppRegex)
 	}
 
-	if v, ok := d.GetOk("filter_by_addon_name_regex"); ok {
+	if v, ok := d.GetOk("addon_name_regex"); ok {
 		isFilterByAddonName = true
 		filterByAddonName = v.(string)
-		log.Printf("[DEBUG] filter_by_addon_name_regex: %s", filterByAddonName)
+		log.Printf("[DEBUG] addon_name_regex: %s", filterByAddonName)
 	}
 
 	// Return all addons that the authenticated token can access
