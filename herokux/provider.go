@@ -286,6 +286,7 @@ func New() *schema.Provider {
 			"herokux_kafka_mtls_iprules":        dataSourceHerokuxMTLSIPRules(),
 			"herokux_postgres_mtls_certificate": dataSourceHerokuxPostgresMTLSCertificate(),
 			"herokux_registry_image":            dataSourceHerokuxRegistryImage(),
+			"herokux_space_apps":                dataSourceHerokuxSpaceApps(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

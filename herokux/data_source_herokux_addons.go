@@ -81,7 +81,8 @@ func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	// Return all addons that the authenticated token can access
-	allAddons, addonListErr := platformAPI.AddOnList(ctx, nil)
+	// TODO: figure out a way to paginate.
+	allAddons, addonListErr := platformAPI.AddOnList(ctx, &heroku.ListRange{Max: 1000, Field: "id"})
 	if addonListErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -90,6 +91,8 @@ func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, me
 		})
 		return diags
 	}
+
+	log.Printf("[DEBUG] Found %d addons", len(allAddons))
 
 	// Set data source to be a random ID given this data source encompasses multiple addons.
 	d.SetId(time.Now().String())
@@ -110,7 +113,7 @@ func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, me
 			}
 		}
 
-		log.Printf("[DEBUG] Number of addons after filtering by addon name: %d", len(allAddonsFiltered))
+		log.Printf("[DEBUG] Number of addons after filtering by app name: %d", len(allAddonsFiltered))
 
 		setDataAddonsInState(d, allAddonsFiltered)
 
