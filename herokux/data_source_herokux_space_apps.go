@@ -63,6 +63,7 @@ func dataSourceHerokuxSpaceAppsRead(ctx context.Context, d *schema.ResourceData,
 
 	platformAPI := meta.(*Config).PlatformAPI
 	spaceRegex := d.Get("space_regex").(string)
+	log.Printf("[DEBUG] space_regex: %s", spaceRegex)
 
 	// Return all addons that the authenticated token can access
 	// TODO: figure out a way to paginate.

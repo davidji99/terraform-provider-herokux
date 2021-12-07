@@ -22,7 +22,7 @@ data "herokux_space_apps" "apps" {
 
 The following arguments are supported:
 
-* `space_regex` - (Required) Valid regex used to filter apps by space name.
+* `space_regex` - (Required) Valid regex used to filter apps by space name or UUID.
 
 ## Attributes Reference
 

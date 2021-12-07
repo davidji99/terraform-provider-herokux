@@ -57,6 +57,8 @@ func TestAccDatasourceHerokuxAddons_FilterByApp(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.herokux_addons.foobar", "addons.#", "1"),
+					resource.TestCheckResourceAttr(
+						"data.herokux_addons.foobar", "app_name_regex", ".*dj.*"),
 					resource.TestCheckResourceAttrSet(
 						"data.herokux_addons.foobar", "addons.0.app_id"),
 					resource.TestCheckResourceAttrSet(
@@ -83,6 +85,8 @@ func TestAccDatasourceHerokuxAddons_FilterByAddonName(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.herokux_addons.foobar", "addons.#", "3"),
+					resource.TestCheckResourceAttr(
+						"data.herokux_addons.foobar", "addon_name_regex", ".*scheduler-.*"),
 					resource.TestCheckResourceAttrSet(
 						"data.herokux_addons.foobar", "addons.0.app_id"),
 					resource.TestCheckResourceAttrSet(
@@ -132,7 +136,7 @@ data "herokux_addons" "foobar" {}
 func testAccCheckHerokuxAddons_FilterByApp(regex string) string {
 	return fmt.Sprintf(`
 data "herokux_addons" "foobar" {
-	filter_by_app_name_regex = "%s"
+	app_name_regex = "%s"
 }
 `, regex)
 }
@@ -140,7 +144,7 @@ data "herokux_addons" "foobar" {
 func testAccCheckHerokuxAddons_FilterByAddonName(regex string) string {
 	return fmt.Sprintf(`
 data "herokux_addons" "foobar" {
-	filter_by_addon_name_regex = "%s"
+	addon_name_regex = "%s"
 }
 `, regex)
 }
