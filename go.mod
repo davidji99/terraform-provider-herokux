@@ -10,7 +10,7 @@ require (
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/go-github/v37 v37.0.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.10.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
