@@ -17,12 +17,12 @@ Hi there,
 ### Terraform Version
 Run `terraform -v` to show the version. If you are not running the latest version of Terraform, please upgrade because your issue may have already been fixed.
 
-### HerokuX Provider Version
+### Provider Versions
 Run `terraform -v` to show core and any provider versions. A sample output could be:
 
 ```
-Terraform v0.12.20
-+ provider.herokux v0.1.0
+Terraform v1.1.0
++ provider.herokux v0.33.0
 ```
 
 ### Affected Resource(s)
@@ -35,8 +35,7 @@ If this issue appears to affect multiple resources, it may be an issue with Terr
 ### Terraform Configuration Files
 ```hcl
 # Copy-paste your Terraform configurations here - for large Terraform configs,
-# please use a service like Dropbox and share a link to the ZIP file. For
-# security, you can also encrypt the files using our GPG public key.
+# please use a service like Dropbox and share a link to the ZIP file.
 ```
 
 ### Debug Output
