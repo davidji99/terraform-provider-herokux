@@ -103,12 +103,17 @@ func (s *Scheduler) Create(appID string, opts *JobRequest) (*JobModifyResponse, 
 
 	body := struct {
 		Data struct {
+			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
 		} `json:"data"`
 	}{
 		Data: struct {
+			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
-		}(struct{ Attributes *JobRequest }{Attributes: opts}),
+		}(struct {
+			Type       string
+			Attributes *JobRequest
+		}{Type: "jobs", Attributes: opts}),
 	}
 
 	// Execute the request
@@ -124,12 +129,17 @@ func (s *Scheduler) Update(appID, jobID string, opts *JobRequest) (*JobModifyRes
 
 	body := struct {
 		Data struct {
+			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
 		} `json:"data"`
 	}{
 		Data: struct {
+			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
-		}(struct{ Attributes *JobRequest }{Attributes: opts}),
+		}(struct {
+			Type       string
+			Attributes *JobRequest
+		}{Type: "jobs", Attributes: opts}),
 	}
 
 	// Execute the request
