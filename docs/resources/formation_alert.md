@@ -63,7 +63,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_slug" "foobar" {
-  app      = heroku_app.foobar.id
+  app_id   = heroku_app.foobar.id
   file_url = "url_to_slug_artifact"
 
   process_types = {
@@ -72,12 +72,12 @@ resource "heroku_slug" "foobar" {
 }
 
 resource "heroku_app_release" "foobar" {
-  app = heroku_app.foobar.id
+  app_id  = heroku_app.foobar.id
   slug_id = heroku_slug.foobar.id
 }
 
 resource "heroku_formation" "foobar" {
-  app = heroku_app.foobar.id
+  app_id = heroku_app.foobar.id
   type = var.process_type
   quantity = 8
   size = var.dyno_size

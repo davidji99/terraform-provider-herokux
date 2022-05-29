@@ -38,7 +38,7 @@ resource "heroku_pipeline" "foobar" {
 
 # Couple app to pipeline.
 resource "heroku_pipeline_coupling" "staging" {
-  app      = heroku_app.staging.id
+  app_id   = heroku_app.staging.id
   pipeline = heroku_pipeline.foobar.id
   stage    = "staging"
 }
