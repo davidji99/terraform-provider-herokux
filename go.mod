@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
-	github.com/davidji99/simpleresty v0.3.0
+	github.com/davidji99/simpleresty v0.4.0
 	github.com/davidji99/tfph v0.1.1
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/go-resty/resty/v2 v2.7.0
@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.16.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/stretchr/testify v1.7.1
-	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 )
 
 require (
@@ -63,12 +63,12 @@ require (
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
+	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220407144326-9054f6ed7bac // indirect
 	google.golang.org/grpc v1.45.0 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20220512140231-539c8e751b99 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
