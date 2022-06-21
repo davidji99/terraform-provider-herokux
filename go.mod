@@ -12,7 +12,7 @@ require (
 	github.com/google/go-github/v37 v37.0.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.17.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.4
 	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401
 )
 
