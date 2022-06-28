@@ -6,7 +6,7 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
 	github.com/davidji99/simpleresty v0.4.0
-	github.com/davidji99/tfph v0.1.1
+	github.com/davidji99/tfph v0.1.2
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/go-github/v37 v37.0.0

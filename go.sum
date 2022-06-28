@@ -96,8 +96,8 @@ github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6 h1:ndEaO0
 github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6/go.mod h1:QpnoxJoa1ZHOUPIrxvrQrUYgk7zRCHVvcdvZeKK36LA=
 github.com/davidji99/simpleresty v0.4.0 h1:q1QR0jYK7wB+UmLMtQGRCxXfwFV4mjvNY/3UwaQA6bE=
 github.com/davidji99/simpleresty v0.4.0/go.mod h1:9DaVL7dGApuk59k/JqMhINESHS8j8rQwZjuSFiy9d2s=
-github.com/davidji99/tfph v0.1.1 h1:qIYKCz7lXuw8J1VBJYFJD6NrcQkE5xqgfunFah44Hyg=
-github.com/davidji99/tfph v0.1.1/go.mod h1:kEeaVJ862MVat47Oi94A5yYyvKSNoIzlD+gR4KV1Uts=
+github.com/davidji99/tfph v0.1.2 h1:uY3m6fVPC/vGQ7uZOl03a9WbDDwtgH9XV7voVMp2KKc=
+github.com/davidji99/tfph v0.1.2/go.mod h1:GsMKMce7Y8vqTAhPWHH4VbEbxx+J/tHmEFVv5IpsXO8=
 github.com/elliotchance/orderedmap v1.4.0 h1:wZtfeEONCbx6in1CZyE6bELEt/vFayMvsxqI5SgsR+A=
 github.com/elliotchance/orderedmap v1.4.0/go.mod h1:wsDwEaX5jEoyhbs7x93zk2H/qv0zwuhg4inXhDkYqys=
 github.com/emirpasic/gods v1.12.0 h1:QAUIPSaCu4G+POclxeqb3F+WPpdKqFGlw36+yOzGlrg=
