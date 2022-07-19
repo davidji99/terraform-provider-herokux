@@ -66,7 +66,7 @@ resource "herokux_app_container_release" "foobar" {
 
 # Update the web formation for the foobar application's web process type
 resource "heroku_formation" "foobar-web" {
-  app = heroku_app.foobar.name
+  app_id = heroku_app.foobar.id
   type = "web"
   quantity = 2
   size = "standard-2x"

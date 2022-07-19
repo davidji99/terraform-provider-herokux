@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"fmt"
-	"github.com/elliotchance/orderedmap"
+	"github.com/elliotchance/orderedmap/v2"
 	"regexp"
 	"strconv"
 )
@@ -73,16 +73,16 @@ func ConvertDurationToMilliseconds(d string) (int, error) {
 	return multiplier * magnitude, nil
 }
 
-// ConvertMillisecondstoDuration takes a millisecond integer parameter and converts it to a duration string
+// ConvertMillisecondsToDuration takes a millisecond integer parameter and converts it to a duration string
 // in the format of "<number><ms|s|m|h|d|w<".
 //
 // If the millisecond parameter overlaps with two durations such as 1w or 7d,
 // this function returns the longer duration unit.
-func ConvertMillisecondstoDuration(ms int) (string, error) {
+func ConvertMillisecondsToDuration(ms int) (string, error) {
 	// Loop through multiplier in order of largest to smallest. Return the first pair that divides cleanly.
 	for el := multipliersMap().Front(); el != nil; el = el.Next() {
-		duration := el.Key.(string)
-		multi := el.Value.(int)
+		duration := el.Key
+		multi := el.Value
 		if ms%multi == 0 {
 			return fmt.Sprintf("%d%s", ms/multi, duration), nil
 		}
@@ -91,9 +91,9 @@ func ConvertMillisecondstoDuration(ms int) (string, error) {
 	return "", fmt.Errorf("unable to parse milliseconds to duration")
 }
 
-// multipliersMap is an ordered map of longest duration to shortest duration unit and their respective multipliers.
-func multipliersMap() *orderedmap.OrderedMap {
-	m := orderedmap.NewOrderedMap()
+// multipliersMap is an ordered map of longest to shortest duration unit and their respective multipliers.
+func multipliersMap() *orderedmap.OrderedMap[string, int] {
+	m := orderedmap.NewOrderedMap[string, int]()
 
 	m.Set("w", WeekMultiplier)
 	m.Set("d", DayMultiplier)

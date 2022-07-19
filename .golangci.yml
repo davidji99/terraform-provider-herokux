@@ -52,8 +52,6 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
   lll:
     line-length: 140
-  maligned:
-    suggest-new: true
   misspell:
     locale: US
   nolintlint:
@@ -84,7 +82,6 @@ linters:
     - dogsled
 #    - gci
 #    - gochecknoglobals
-    - maligned
 #    - wsl
 resource_herokux_postgres:
   go:399:

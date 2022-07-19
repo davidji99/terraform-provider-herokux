@@ -28,7 +28,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "redis" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-redis:premium-0"
 }
 

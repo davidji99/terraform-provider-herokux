@@ -239,7 +239,7 @@ func resourceHerokuxKafkaTopicRead(ctx context.Context, d *schema.ResourceData, 
 		retentiontimeDuration = "disable"
 	} else {
 		var convErr error
-		retentiontimeDuration, convErr = kafka.ConvertMillisecondstoDuration(topic.GetRetentionTimeInMS())
+		retentiontimeDuration, convErr = kafka.ConvertMillisecondsToDuration(topic.GetRetentionTimeInMS())
 		if convErr != nil {
 			return diag.FromErr(convErr)
 		}

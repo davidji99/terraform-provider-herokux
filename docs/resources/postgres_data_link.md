@@ -48,12 +48,12 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "local_db" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-postgresql:premium-0"
 }
 
 resource "heroku_addon" "remote_db" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-postgresql:premium-0"
 }
 
