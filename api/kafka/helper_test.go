@@ -77,7 +77,7 @@ func TestConvertMStoDuration_Week(t *testing.T) {
 	expected := "2w"
 	testMS := 1209600000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -86,7 +86,7 @@ func TestConvertMStoDuration_Day(t *testing.T) {
 	expected := "8d"
 	testMS := 691200000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -95,7 +95,7 @@ func TestConvertMStoDuration_Hour(t *testing.T) {
 	expected := "47h"
 	testMS := 169200000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -104,7 +104,7 @@ func TestConvertMStoDuration_Minute(t *testing.T) {
 	expected := "123m"
 	testMS := 7380000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -113,7 +113,7 @@ func TestConvertMStoDuration_Second(t *testing.T) {
 	expected := "123s"
 	testMS := 123000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -122,7 +122,7 @@ func TestConvertMStoDuration_Millisecond(t *testing.T) {
 	expected := "12300ms"
 	testMS := 12300
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
@@ -131,7 +131,7 @@ func TestConvertMStoDuration_HigherDurationWins(t *testing.T) {
 	expected := "1w"
 	testMS := 604800000
 
-	result, err := ConvertMillisecondstoDuration(testMS)
+	result, err := ConvertMillisecondsToDuration(testMS)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, result)
 }
