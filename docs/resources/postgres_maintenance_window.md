@@ -32,7 +32,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "database" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-postgresql:premium-0"
 }
 

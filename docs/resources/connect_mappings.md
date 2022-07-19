@@ -107,7 +107,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "connect" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-shield:free"
 }
 
@@ -160,7 +160,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "connect" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-shield:free"
 }
 
@@ -189,7 +189,7 @@ resource "heroku_app" "foobar" {
 }
 
 resource "heroku_addon" "connect" {
-  app  = heroku_app.foobar.name
+  app_id  = heroku_app.foobar.id
   plan = "heroku-shield:free"
 }
 
