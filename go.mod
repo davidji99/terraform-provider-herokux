@@ -9,7 +9,7 @@ require (
 	github.com/davidji99/tfph v0.1.2
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/google/go-github/v37 v37.0.0
+	github.com/google/go-github/v45 v45.0.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.19.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/stretchr/testify v1.8.0
