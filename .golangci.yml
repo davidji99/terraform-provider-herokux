@@ -82,7 +82,6 @@ linters:
     - dogsled
 #    - gci
 #    - gochecknoglobals
-    - fieldalignment
 #    - wsl
 resource_herokux_postgres:
   go:399:
