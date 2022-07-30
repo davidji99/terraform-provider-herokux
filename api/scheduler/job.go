@@ -129,17 +129,20 @@ func (s *Scheduler) Update(appID, jobID string, opts *JobRequest) (*JobModifyRes
 
 	body := struct {
 		Data struct {
+			ID         string      `json:"id"`
 			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
 		} `json:"data"`
 	}{
 		Data: struct {
+			ID         string      `json:"id"`
 			Type       string      `json:"type"`
 			Attributes *JobRequest `json:"attributes"`
 		}(struct {
+			ID         string
 			Type       string
 			Attributes *JobRequest
-		}{Type: "jobs", Attributes: opts}),
+		}{Type: "jobs", Attributes: opts, ID: appID}),
 	}
 
 	// Execute the request
