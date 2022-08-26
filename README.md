@@ -15,7 +15,7 @@ not available in the official [Heroku Terraform provider](https://github.com/her
 
 ```hcl
 provider "herokux" {
-  version = "~> 0.1.0"
+  version = "~> 1.0.0"
 }
 ```
 
