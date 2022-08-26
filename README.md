@@ -8,8 +8,8 @@ not available in the official [Heroku Terraform provider](https://github.com/her
 
 ## Requirements
 
-- [Terraform](https://www.terraform.io/downloads.html) `v0.13+`
-- [Go](https://golang.org/doc/install) `v1.16+` (to build the provider plugin)
+- [Terraform](https://www.terraform.io/downloads.html) `v0.15+`
+- [Go](https://golang.org/doc/install) `v1.18+` (to build the provider plugin)
 
 ## Usage
 
