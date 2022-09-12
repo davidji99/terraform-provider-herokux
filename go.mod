@@ -7,7 +7,7 @@ require (
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
 	github.com/davidji99/simpleresty v0.4.0
 	github.com/davidji99/tfph v0.1.3
-	github.com/elliotchance/orderedmap/v2 v2.0.1
+	github.com/elliotchance/orderedmap/v2 v2.2.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/go-github/v45 v45.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.22.0
@@ -63,7 +63,6 @@ require (
 	github.com/vmihailenco/tagparser v0.1.1 // indirect
 	github.com/zclconf/go-cty v1.11.0 // indirect
 	golang.org/x/crypto v0.0.0-20220518034528-6f7dac969898 // indirect
-	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705 // indirect
 	golang.org/x/net v0.0.0-20220526153639-5463443f8c37 // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
