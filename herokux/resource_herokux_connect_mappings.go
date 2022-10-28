@@ -76,9 +76,9 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 
 // mappingsDiffSuppress makes sure the provider does a diff check without being affected by spacing or indentation.
 func mappingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	log.Println(fmt.Sprintf("This is old %v", old))
-	log.Println(fmt.Sprintf("This is k %v", k))
-	log.Println(fmt.Sprintf("This is new %v", new))
+	log.Printf("This is old %v", old)
+	log.Printf("This is k %v", k)
+	log.Printf("This is new %v", new)
 
 	in := []byte(old)
 	var raw map[string]interface{}
@@ -93,7 +93,7 @@ func mappingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 	log.Println(string(out))
 	log.Println(string(out2))
 
-	log.Println(fmt.Sprintf("this is the result of the diff suppress comparison: %v", string(out) == string(out2)))
+	log.Printf("this is the result of the diff suppress comparison: %v", string(out) == string(out2))
 
 	return string(out) == string(out2)
 }
