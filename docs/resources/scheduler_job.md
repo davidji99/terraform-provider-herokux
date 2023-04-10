@@ -48,7 +48,7 @@ The following arguments are supported:
 * `command` - (Required) `<string>` The command to run.
 * `dyno_size` - (Required) `<string>` Size of [dyno](https://devcenter.heroku.com/articles/dyno-types).
   Valid options are (case-sensitive):
-    * `Free`, `Hobby`, `Standard-1X`, `Standard-2X`, `Performance-(M|L)`, `Private-(S|M|L)`, `Shield-(S|M|L)`
+    * `Free`, `Hobby`, `Basic`, `Standard-1X`, `Standard-2X`, `Performance-(M|L)`, `Private-(S|M|L)`, `Shield-(S|M|L)`
 * `frequency`  - (Required) `<string>` The interval by which the job will run on schedule in UTC.
 See [Frequency specification](#frequency) below for more details.
 
