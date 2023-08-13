@@ -67,7 +67,7 @@ func (p *Postgres) CreateCredential(nameOrID, newCredName string) (*GenericRespo
 // to any existing addons.
 //
 // Returns a GenericResponse with a message of the following:
-//  - The credential from_api has been destroyed within postgresql-fluffy-50793 and detached from all apps.
+//   - The credential from_api has been destroyed within postgresql-fluffy-50793 and detached from all apps.
 //
 // Note: it takes a bit of time before the credential is fully deleted. The username/password are first to be deleted
 // and then the credential itself is deleted.

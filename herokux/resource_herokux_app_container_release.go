@@ -91,7 +91,7 @@ func validateImageID(v interface{}, k string) (ws []string, errors []error) {
 }
 
 func resourceHerokuxAppContainerReleaseImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2, "|")
+	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 3, "|")
 	if parseErr != nil {
 		return nil, parseErr
 	}
