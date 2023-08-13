@@ -9,7 +9,7 @@ not available in the official [Heroku Terraform provider](https://github.com/her
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) `v0.15+`
-- [Go](https://golang.org/doc/install) `v1.18+` (to build the provider plugin)
+- [Go](https://golang.org/doc/install) `v1.20+` (to build the provider plugin)
 
 ## Usage
 
