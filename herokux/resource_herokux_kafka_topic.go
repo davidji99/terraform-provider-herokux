@@ -195,8 +195,8 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 }
 
 // topicCreationStateRefreshFunc checks if the topic is ready. 'Ready' state is determined by two things:
-//  1) the topic is present when retrieving from all topics
-//  2) the number of partitions matches the specified count.
+//  1. the topic is present when retrieving from all topics
+//  2. the number of partitions matches the specified count.
 func topicCreationStateRefreshFunc(client *api.Client, kafkaID, topicName string, partitionCount int) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		topic, response, getErr := client.Kafka.GetTopicByName(kafkaID, topicName)

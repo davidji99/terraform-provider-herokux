@@ -33,12 +33,12 @@ const (
 // ConvertDurationToMilliseconds converts a duration unit to milliseconds integer value.
 //
 // Example: "10d". Supported suffixes:
-//  - `ms`, `millisecond`, `milliseconds`
-//  - `s`, `second`, `seconds`
-//  - `m`, `minute`, `minutes`
-//  - `h`, `hour`, `hours`
-//  - `d`, `day`, `days`
-//  - `w`, `week`, `weeks`
+//   - `ms`, `millisecond`, `milliseconds`
+//   - `s`, `second`, `seconds`
+//   - `m`, `minute`, `minutes`
+//   - `h`, `hour`, `hours`
+//   - `d`, `day`, `days`
+//   - `w`, `week`, `weeks`
 func ConvertDurationToMilliseconds(d string) (int, error) {
 	// Use regex to parse the duration string value.
 	// The parsing should return an index length of 3. Example: [10d 10 d]
