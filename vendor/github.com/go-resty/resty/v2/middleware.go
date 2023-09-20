@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2021 Jeevanandam M (jeeva@myjeeva.com), All rights reserved.
+// Copyright (c) 2015-2023 Jeevanandam M (jeeva@myjeeva.com), All rights reserved.
 // resty source code and usage is governed by a MIT style
 // license that can be found in the LICENSE file.
 
@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -36,6 +35,18 @@ func parseRequestURL(c *Client, r *Request) error {
 	if len(c.PathParams) > 0 {
 		for p, v := range c.PathParams {
 			r.URL = strings.Replace(r.URL, "{"+p+"}", url.PathEscape(v), -1)
+		}
+	}
+
+	// GitHub #663 Raw Path Params
+	if len(r.RawPathParams) > 0 {
+		for p, v := range r.RawPathParams {
+			r.URL = strings.Replace(r.URL, "{"+p+"}", v, -1)
+		}
+	}
+	if len(c.RawPathParams) > 0 {
+		for p, v := range c.RawPathParams {
+			r.URL = strings.Replace(r.URL, "{"+p+"}", v, -1)
 		}
 	}
 
@@ -128,7 +139,7 @@ func parseRequestHeader(c *Client, r *Request) error {
 func parseRequestBody(c *Client, r *Request) (err error) {
 	if isPayloadSupported(r.Method, c.AllowGetMethodPayload) {
 		// Handling Multipart
-		if r.isMultiPart && !(r.Method == MethodPatch) {
+		if r.isMultiPart {
 			if err = handleMultipart(c, r); err != nil {
 				return
 			}
@@ -164,7 +175,7 @@ CL:
 
 func createHTTPRequest(c *Client, r *Request) (err error) {
 	if r.bodyBuf == nil {
-		if reader, ok := r.Body.(io.Reader); ok {
+		if reader, ok := r.Body.(io.Reader); ok && isPayloadSupported(r.Method, c.AllowGetMethodPayload) {
 			r.RawRequest, err = http.NewRequest(r.Method, r.URL, reader)
 		} else if c.setContentLength || r.setContentLength {
 			r.RawRequest, err = http.NewRequest(r.Method, r.URL, http.NoBody)
@@ -172,7 +183,9 @@ func createHTTPRequest(c *Client, r *Request) (err error) {
 			r.RawRequest, err = http.NewRequest(r.Method, r.URL, nil)
 		}
 	} else {
-		r.RawRequest, err = http.NewRequest(r.Method, r.URL, r.bodyBuf)
+		// fix data race: must deep copy.
+		bodyBuf := bytes.NewBuffer(append([]byte{}, r.bodyBuf.Bytes()...))
+		r.RawRequest, err = http.NewRequest(r.Method, r.URL, bodyBuf)
 	}
 
 	if err != nil {
@@ -214,7 +227,7 @@ func createHTTPRequest(c *Client, r *Request) (err error) {
 	// assign get body func for the underlying raw request instance
 	r.RawRequest.GetBody = func() (io.ReadCloser, error) {
 		if bodyCopy != nil {
-			return ioutil.NopCloser(bytes.NewReader(bodyCopy.Bytes())), nil
+			return io.NopCloser(bytes.NewReader(bodyCopy.Bytes())), nil
 		}
 		return nil, nil
 	}
@@ -235,7 +248,7 @@ func addCredentials(c *Client, r *Request) error {
 
 	if !c.DisableWarn {
 		if isBasicAuth && !strings.HasPrefix(r.URL, "https") {
-			c.log.Warnf("Using Basic Auth in HTTP mode is not secure, use HTTPS")
+			r.log.Warnf("Using Basic Auth in HTTP mode is not secure, use HTTPS")
 		}
 	}
 
@@ -260,7 +273,7 @@ func addCredentials(c *Client, r *Request) error {
 }
 
 func requestLogger(c *Client, r *Request) error {
-	if c.Debug {
+	if c.Debug || r.Debug {
 		rr := r.RawRequest
 		rl := &RequestLog{Header: copyHeaders(rr.Header), Body: r.fmtBodyString(c.debugBodySizeLimit)}
 		if c.requestLog != nil {
@@ -290,7 +303,7 @@ func requestLogger(c *Client, r *Request) error {
 //_______________________________________________________________________
 
 func responseLogger(c *Client, res *Response) error {
-	if c.Debug {
+	if c.Debug || res.Request.Debug {
 		rl := &ResponseLog{Header: copyHeaders(res.Header()), Body: res.fmtBodyString(c.debugBodySizeLimit)}
 		if c.responseLog != nil {
 			if err := c.responseLog(rl); err != nil {
@@ -313,7 +326,7 @@ func responseLogger(c *Client, res *Response) error {
 		}
 		debugLog += "==============================================================================\n"
 
-		c.log.Debugf("%s", debugLog)
+		res.Request.log.Debugf("%s", debugLog)
 	}
 
 	return nil
@@ -321,6 +334,7 @@ func responseLogger(c *Client, res *Response) error {
 
 func parseResponseBody(c *Client, res *Response) (err error) {
 	if res.StatusCode() == http.StatusNoContent {
+		res.Request.Error = nil
 		return
 	}
 	// Handles only JSON or XML content type
@@ -521,20 +535,25 @@ func saveResponseIntoFile(c *Client, res *Response) error {
 func getBodyCopy(r *Request) (*bytes.Buffer, error) {
 	// If r.bodyBuf present, return the copy
 	if r.bodyBuf != nil {
-		return bytes.NewBuffer(r.bodyBuf.Bytes()), nil
+		bodyCopy := acquireBuffer()
+		if _, err := io.Copy(bodyCopy, bytes.NewReader(r.bodyBuf.Bytes())); err != nil {
+			// cannot use io.Copy(bodyCopy, r.bodyBuf) because io.Copy reset r.bodyBuf
+			return nil, err
+		}
+		return bodyCopy, nil
 	}
 
 	// Maybe body is `io.Reader`.
 	// Note: Resty user have to watchout for large body size of `io.Reader`
 	if r.RawRequest.Body != nil {
-		b, err := ioutil.ReadAll(r.RawRequest.Body)
+		b, err := io.ReadAll(r.RawRequest.Body)
 		if err != nil {
 			return nil, err
 		}
 
 		// Restore the Body
 		closeq(r.RawRequest.Body)
-		r.RawRequest.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+		r.RawRequest.Body = io.NopCloser(bytes.NewBuffer(b))
 
 		// Return the Body bytes
 		return bytes.NewBuffer(b), nil
