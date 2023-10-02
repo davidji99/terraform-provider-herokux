@@ -64,7 +64,12 @@ func parseRequestURL(c *Client, r *Request) error {
 			r.URL = "/" + r.URL
 		}
 
-		reqURL, err = url.Parse(c.HostURL + r.URL)
+		// TODO: change to use c.BaseURL only in v3.0.0
+		baseURL := c.BaseURL
+		if len(baseURL) == 0 {
+			baseURL = c.HostURL
+		}
+		reqURL, err = url.Parse(baseURL + r.URL)
 		if err != nil {
 			return err
 		}
@@ -111,27 +116,20 @@ func parseRequestURL(c *Client, r *Request) error {
 }
 
 func parseRequestHeader(c *Client, r *Request) error {
-	hdr := make(http.Header)
-	for k := range c.Header {
-		hdr[k] = append(hdr[k], c.Header[k]...)
+	for k, v := range c.Header {
+		if _, ok := r.Header[k]; ok {
+			continue
+		}
+		r.Header[k] = v[:]
 	}
 
-	for k := range r.Header {
-		hdr.Del(k)
-		hdr[k] = append(hdr[k], r.Header[k]...)
+	if IsStringEmpty(r.Header.Get(hdrUserAgentKey)) {
+		r.Header.Set(hdrUserAgentKey, hdrUserAgentValue)
 	}
 
-	if IsStringEmpty(hdr.Get(hdrUserAgentKey)) {
-		hdr.Set(hdrUserAgentKey, hdrUserAgentValue)
+	if ct := r.Header.Get(hdrContentTypeKey); IsStringEmpty(r.Header.Get(hdrAcceptKey)) && !IsStringEmpty(ct) && (IsJSONType(ct) || IsXMLType(ct)) {
+		r.Header.Set(hdrAcceptKey, r.Header.Get(hdrContentTypeKey))
 	}
-
-	ct := hdr.Get(hdrContentTypeKey)
-	if IsStringEmpty(hdr.Get(hdrAcceptKey)) && !IsStringEmpty(ct) &&
-		(IsJSONType(ct) || IsXMLType(ct)) {
-		hdr.Set(hdrAcceptKey, hdr.Get(hdrContentTypeKey))
-	}
-
-	r.Header = hdr
 
 	return nil
 }
@@ -166,8 +164,12 @@ func parseRequestBody(c *Client, r *Request) (err error) {
 
 CL:
 	// by default resty won't set content length, you can if you want to :)
-	if (c.setContentLength || r.setContentLength) && r.bodyBuf != nil {
-		r.Header.Set(hdrContentLengthKey, fmt.Sprintf("%d", r.bodyBuf.Len()))
+	if c.setContentLength || r.setContentLength {
+		if r.bodyBuf == nil {
+			r.Header.Set(hdrContentLengthKey, "0")
+		} else {
+			r.Header.Set(hdrContentLengthKey, fmt.Sprintf("%d", r.bodyBuf.Len()))
+		}
 	}
 
 	return
@@ -273,7 +275,7 @@ func addCredentials(c *Client, r *Request) error {
 }
 
 func requestLogger(c *Client, r *Request) error {
-	if c.Debug || r.Debug {
+	if r.Debug {
 		rr := r.RawRequest
 		rl := &RequestLog{Header: copyHeaders(rr.Header), Body: r.fmtBodyString(c.debugBodySizeLimit)}
 		if c.requestLog != nil {
@@ -303,7 +305,7 @@ func requestLogger(c *Client, r *Request) error {
 //_______________________________________________________________________
 
 func responseLogger(c *Client, res *Response) error {
-	if c.Debug || res.Request.Debug {
+	if res.Request.Debug {
 		rl := &ResponseLog{Header: copyHeaders(res.Header()), Body: res.fmtBodyString(c.debugBodySizeLimit)}
 		if c.responseLog != nil {
 			if err := c.responseLog(rl); err != nil {
@@ -357,7 +359,10 @@ func parseResponseBody(c *Client, res *Response) (err error) {
 			}
 
 			if res.Request.Error != nil {
-				err = Unmarshalc(c, ct, res.body, res.Request.Error)
+				unmarshalErr := Unmarshalc(c, ct, res.body, res.Request.Error)
+				if unmarshalErr != nil {
+					c.log.Warnf("Cannot unmarshal response body: %s", unmarshalErr)
+				}
 			}
 		}
 	}
