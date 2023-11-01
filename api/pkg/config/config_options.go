@@ -123,7 +123,7 @@ func KolkrabbiBaseURL(url string) Option {
 			return err
 		}
 
-		c.KolkrabbiURL = url
+		c.KolkrabbiBaseURL = url
 		return nil
 	}
 }
@@ -135,7 +135,19 @@ func SchedulerBaseURL(url string) Option {
 			return err
 		}
 
-		c.SchedulerURL = url
+		c.SchedulerBaseURL = url
+		return nil
+	}
+}
+
+// AddonsBaseURL allows for a custom Addons API URL.
+func AddonsBaseURL(url string) Option {
+	return func(c *Config) error {
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+
+		c.AddonsBaseURL = url
 		return nil
 	}
 }
