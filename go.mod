@@ -8,7 +8,7 @@ require (
 	github.com/davidji99/simpleresty v0.4.2
 	github.com/davidji99/tfph v0.1.3
 	github.com/elliotchance/orderedmap/v2 v2.2.0
-	github.com/go-resty/resty/v2 v2.11.0
+	github.com/go-resty/resty/v2 v2.12.0
 	github.com/google/go-github/v45 v45.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.31.0
 	github.com/mitchellh/go-homedir v1.1.0
