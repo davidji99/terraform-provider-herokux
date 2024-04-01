@@ -2,8 +2,6 @@ module github.com/davidji99/terraform-provider-herokux
 
 go 1.21
 
-toolchain go1.22.1
-
 require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
