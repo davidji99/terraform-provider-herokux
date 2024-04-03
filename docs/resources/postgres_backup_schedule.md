@@ -49,7 +49,7 @@ resource "herokux_postgres_backup_schedule" "foobar" {
 
 The following arguments are supported:
 
-* `postgres_id` - (Required) `<string>` The UUID for a Postgres database.
+* `postgres_id` - (Required) `<string>` The UUID or name for a Postgres database.
 * `hour` - (Required) `<integer>` Hour at which to run the backup. Acceptable values are between `0` & `23`.
 * `timezone` - (Optional) `<string>` The timezone in the [full TZ format](http://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (America/Los_Angeles).
 Except for `UTC`, this resource's underlying API requires the timezone to be in full TZ format. Defaults to `UTC` if not set.

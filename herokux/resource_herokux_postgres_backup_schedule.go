@@ -27,10 +27,9 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"hour": {
@@ -67,7 +66,7 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 func validateBackupScheduleTimezone(v interface{}, k string) (ws []string, errors []error) {
 	timezone := v.(string)
 	if !regexp.MustCompile(`^UTC|[a-zA-Z]+/[a-zA-Z_]+$`).MatchString(timezone) {
-		errors = append(errors, fmt.Errorf("Invalid timezone format. Timezone should be in full TZ format (Africa/Cairo) or UTC."))
+		errors = append(errors, fmt.Errorf("invalid timezone format. Timezone should be in full TZ format (Africa/Cairo) or UTC"))
 	}
 	return
 }
@@ -81,7 +80,7 @@ func resourceHerokuxPostgresBackupScheduleImport(ctx context.Context, d *schema.
 		return nil, listErr
 	}
 
-	// As of December 10th, 2020, it not possible to have more than one backup schedule for a database
+	// As of December 10th, 2020, it is not possible to have more than one backup schedule for a database,
 	// so we will just use the zero index element.
 	if len(schedule) != 1 {
 		return nil, fmt.Errorf("should only expect one backup schedule for postgres database %s, but got %d", postgresID,
