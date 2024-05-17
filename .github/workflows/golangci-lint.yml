@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.21
-      - uses: actions/checkout@v4.1.5
+      - uses: actions/checkout@v4.1.6
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4.0.0
         with:
