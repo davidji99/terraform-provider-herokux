@@ -2,11 +2,12 @@ package herokux
 
 import (
 	"context"
+	"log"
+
 	"github.com/davidji99/terraform-provider-herokux/api/redis"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
 )
 
 var (
@@ -32,10 +33,9 @@ func resourceHerokuxRedisConfig() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"redis_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"maxmemory_policy": {
