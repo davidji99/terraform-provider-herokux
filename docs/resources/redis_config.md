@@ -44,7 +44,7 @@ resource "herokux_redis_config" "foobar" {
 
 The following arguments are supported:
 
-* `redis_id` - (Required) `<string>` The UUID of a Heroku Redis instance.
+* `redis_id` - (Required) `<string>` The UUID or name of a Heroku Redis instance.
 * `maxmemory_policy` - (Optional) `<string>` Set the key eviction policy used when an instance reaches its storage limit.
   Heroku, by default, sets this to `noeviction`. Valid options are as follows:
     * `noeviction` will return errors when the memory limit is reached.
