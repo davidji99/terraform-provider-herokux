@@ -9,7 +9,7 @@ require (
 	github.com/davidji99/heroku-go/v5 v5.3.1-0.20210513060517-9373328e17f6
 	github.com/davidji99/simpleresty v0.4.2
 	github.com/davidji99/tfph v0.1.3
-	github.com/elliotchance/orderedmap/v2 v2.6.0
+	github.com/elliotchance/orderedmap/v2 v2.7.0
 	github.com/go-resty/resty/v2 v2.16.2
 	github.com/google/go-github/v45 v45.2.0
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.35.0
