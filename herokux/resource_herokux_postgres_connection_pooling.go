@@ -3,15 +3,16 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"regexp"
+	"time"
+
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
-	"time"
 )
 
 func resourceHerokuxPostgresConnectionPooling() *schema.Resource {
@@ -28,10 +29,9 @@ func resourceHerokuxPostgresConnectionPooling() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"app_id": {

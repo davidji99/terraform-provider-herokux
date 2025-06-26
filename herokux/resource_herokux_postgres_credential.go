@@ -3,17 +3,17 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
-	"strings"
-	"time"
 )
 
 const (
@@ -34,10 +34,9 @@ func resourceHerokuxPostgresCredential() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"name": {
