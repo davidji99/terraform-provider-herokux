@@ -63,7 +63,7 @@ resource "herokux_postgres_settings" "foobar" {
 
 The following arguments are supported:
 
-* `postgres_id` - (Required) `<string>` The UUID of a Heroku postgres addon.
+* `postgres_id` - (Required) `<string>` The UUID or name of a Heroku postgres addon.
 * `log_lock_waits` - `<boolean>` Enables logging when a session waits longer than 1 second
   to acquire a lock. This is useful in determining if lock waits are causing poor performance issues.
 * `log_connections` - `<boolean>` Enables logging of all attempted connection.

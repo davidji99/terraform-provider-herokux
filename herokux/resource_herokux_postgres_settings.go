@@ -3,12 +3,13 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"time"
 )
 
 func resourceHerokuxPostgresSettings() *schema.Resource {
@@ -26,10 +27,9 @@ func resourceHerokuxPostgresSettings() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"postgres_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 
 			"log_lock_waits": {

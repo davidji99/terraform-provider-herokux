@@ -47,7 +47,7 @@ resource "herokux_postgres_connection_pooling" "foobar" {
 
 The following arguments are supported:
 
-* `postgres_id` - (Required) `<string>` The UUID of the Postgres database.
+* `postgres_id` - (Required) `<string>` The UUID or name of the Postgres database.
 * `app_id` - (Required) `<string>` The UUID of the app.
 * `name` - (Optional) `<string>` Base name of the new config var. Must start with a letter and can only contain
   uppercase letters, numbers, and underscores. Default value is `DATABASE_CONNECTION_POOL`.

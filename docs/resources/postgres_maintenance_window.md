@@ -46,7 +46,7 @@ resource "herokux_postgres_maintenance_window" "foobar" {
 
 The following arguments are supported:
 
-* `postgres_id` - (Required) `<string>` The UUID of a Heroku postgres addon.
+* `postgres_id` - (Required) `<string>` The UUID or name of a Heroku postgres addon.
 * `window` - (Required) `<string>` The day-of-week and time (UTC) at which the window begins.
 For example: `Sundays 10:30`. Note: the `s` attached to the word `Sunday` is required.
 
