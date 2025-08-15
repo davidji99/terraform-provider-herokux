@@ -2,8 +2,9 @@ package customtime
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type TestArgs struct {
@@ -22,7 +23,7 @@ func TestHelloName_UTC(t *testing.T) {
 
 	marshalledData, marshallErr := json.Marshal(a.Time.String())
 	assert.Nil(t, marshallErr)
-	assert.Equal(t, "2024-07-31 01:15:11 +0000 +0000", string(marshalledData))
+	assert.Equal(t, `"2024-07-31 01:15:11 +0000 +0000"`, string(marshalledData))
 }
 
 func TestHelloName_JST(t *testing.T) {
@@ -37,5 +38,5 @@ func TestHelloName_JST(t *testing.T) {
 
 	marshalledData, marshallErr := json.Marshal(a.Time.String())
 	assert.Nil(t, marshallErr)
-	assert.Equal(t, "2024-07-31 01:15:11 +0900 JST", string(marshalledData))
+	assert.Equal(t, `"2024-07-31 01:15:11 +0900 JST"`, string(marshalledData))
 }
