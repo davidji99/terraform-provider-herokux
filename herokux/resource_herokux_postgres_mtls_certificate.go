@@ -3,14 +3,15 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"log"
-	"time"
 )
 
 const (
@@ -94,7 +95,7 @@ func resourceHerokuxPostgresMTLSCertificateImport(ctx context.Context, d *schema
 	d.Set("status", cert.GetStatus().ToString())
 	d.Set("private_key", cert.GetPrivateKey())
 	d.Set("certificate_with_chain", cert.GetCertificateWithChain())
-	d.Set("expiration_date", cert.GetExpiresAt().Format(CertExpirationDateFormat))
+	d.Set("expiration_date", cert.GetExpiresAt())
 	d.Set("cert_id", cert.GetID())
 
 	return []*schema.ResourceData{d}, nil
@@ -154,7 +155,7 @@ func resourceHerokuxPostgresMTLSCertificateRead(ctx context.Context, d *schema.R
 	d.Set("status", cert.GetStatus().ToString())
 	d.Set("private_key", cert.GetPrivateKey())
 	d.Set("certificate_with_chain", cert.GetCertificateWithChain())
-	d.Set("expiration_date", cert.GetExpiresAt().Format(CertExpirationDateFormat))
+	d.Set("expiration_date", cert.GetExpiresAt())
 	d.Set("cert_id", cert.GetID())
 
 	return nil

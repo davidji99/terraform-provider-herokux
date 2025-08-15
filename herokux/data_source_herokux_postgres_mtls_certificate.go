@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -70,7 +71,7 @@ func dataSourceHerokuxPostgresMTLSCertRead(ctx context.Context, d *schema.Resour
 	d.Set("status", cert.GetStatus().ToString())
 	d.Set("private_key", cert.GetPrivateKey())
 	d.Set("certificate_with_chain", cert.GetCertificateWithChain())
-	d.Set("expiration_date", cert.GetExpiresAt().Format(CertExpirationDateFormat))
+	d.Set("expiration_date", cert.GetExpiresAt())
 
 	return nil
 }

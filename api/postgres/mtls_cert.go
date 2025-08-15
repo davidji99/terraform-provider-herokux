@@ -2,16 +2,15 @@ package postgres
 
 import (
 	"github.com/davidji99/simpleresty"
-	"time"
 )
 
 // MTLSCert represents a MTLS certificate.
 type MTLSCert struct {
 	ID                   *string         `json:"id,omitempty"`
 	Name                 *string         `json:"name,omitempty"`
-	CreatedAt            *time.Time      `json:"created_at,omitempty"`
-	UpdatedAt            *time.Time      `json:"updated_at,omitempty"`
-	ExpiresAt            *time.Time      `json:"expires_at,omitempty"`
+	CreatedAt            *string         `json:"created_at,omitempty"`
+	UpdatedAt            *string         `json:"updated_at,omitempty"`
+	ExpiresAt            *string         `json:"expires_at,omitempty"`
 	Status               *MTLSCertStatus `json:"status,omitempty"`
 	PrivateKey           *string         `json:"private_key,omitempty"`
 	CertificateWithChain *string         `json:"certificate_with_chain,omitempty"`

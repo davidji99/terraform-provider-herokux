@@ -6,8 +6,8 @@ type MtlsIPRule struct {
 	CIDR        *string           `json:"cidr,omitempty"`
 	Description *string           `json:"description,omitempty"`
 	Status      *MTLSIPRuleStatus `json:"status,omitempty"`
-	//CreatedAt   *string           `json:"created_at,omitempty"`
-	//UpdatedAt   *string           `json:"updated_at,omitempty"`
+	CreatedAt   *string           `json:"created_at,omitempty"`
+	UpdatedAt   *string           `json:"updated_at,omitempty"`
 }
 
 // MTLSIPRuleRequest represents a request to create an IP rule.

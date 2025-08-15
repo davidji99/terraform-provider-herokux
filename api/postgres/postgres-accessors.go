@@ -755,17 +755,17 @@ func (m *MTLSCert) GetCertificateWithChain() string {
 }
 
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
-func (m *MTLSCert) GetCreatedAt() time.Time {
+func (m *MTLSCert) GetCreatedAt() string {
 	if m == nil || m.CreatedAt == nil {
-		return time.Time{}
+		return ""
 	}
 	return *m.CreatedAt
 }
 
 // GetExpiresAt returns the ExpiresAt field if it's non-nil, zero value otherwise.
-func (m *MTLSCert) GetExpiresAt() time.Time {
+func (m *MTLSCert) GetExpiresAt() string {
 	if m == nil || m.ExpiresAt == nil {
-		return time.Time{}
+		return ""
 	}
 	return *m.ExpiresAt
 }
@@ -803,9 +803,9 @@ func (m *MTLSCert) GetStatus() *MTLSCertStatus {
 }
 
 // GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
-func (m *MTLSCert) GetUpdatedAt() time.Time {
+func (m *MTLSCert) GetUpdatedAt() string {
 	if m == nil || m.UpdatedAt == nil {
-		return time.Time{}
+		return ""
 	}
 	return *m.UpdatedAt
 }

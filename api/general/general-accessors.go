@@ -13,6 +13,14 @@ func (m *MtlsIPRule) GetCIDR() string {
 	return *m.CIDR
 }
 
+// GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
+func (m *MtlsIPRule) GetCreatedAt() string {
+	if m == nil || m.CreatedAt == nil {
+		return ""
+	}
+	return *m.CreatedAt
+}
+
 // GetDescription returns the Description field if it's non-nil, zero value otherwise.
 func (m *MtlsIPRule) GetDescription() string {
 	if m == nil || m.Description == nil {
@@ -35,4 +43,12 @@ func (m *MtlsIPRule) GetStatus() *MTLSIPRuleStatus {
 		return nil
 	}
 	return m.Status
+}
+
+// GetUpdatedAt returns the UpdatedAt field if it's non-nil, zero value otherwise.
+func (m *MtlsIPRule) GetUpdatedAt() string {
+	if m == nil || m.UpdatedAt == nil {
+		return ""
+	}
+	return *m.UpdatedAt
 }
