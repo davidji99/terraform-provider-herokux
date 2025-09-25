@@ -15,7 +15,7 @@ type Kolkrabbi struct {
 
 // New constructs a client to interface with the Heroku Postgres APIs.
 func New(config *config2.Config) *Kolkrabbi {
-	k := &Kolkrabbi{http: simpleresty.NewWithBaseURL(config.KolkrabbiURL), config: config}
+	k := &Kolkrabbi{http: simpleresty.NewWithBaseURL(config.KolkrabbiBaseURL), config: config}
 	k.setHeaders()
 
 	return k

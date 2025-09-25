@@ -29,11 +29,14 @@ type Config struct {
 	// RegistryBaseURL is the base URL for the Heroku Registry.
 	RegistryBaseURL string
 
-	// KolkrabbiURL is the base URL for Heroku's Kolkrabbi API.
-	KolkrabbiURL string
+	// KolkrabbiBaseURL is the base URL for Heroku's Kolkrabbi API.
+	KolkrabbiBaseURL string
 
-	// SchedulerURL is the base URL for Heroku's Scheduler API.
-	SchedulerURL string
+	// SchedulerBaseURL is the base URL for Heroku's Scheduler API.
+	SchedulerBaseURL string
+
+	// AddonsBaseURL is the base URL for Heroku's Addons API.
+	AddonsBaseURL string
 
 	// UserAgent used when communicating with the Heroku API.
 	UserAgent string
