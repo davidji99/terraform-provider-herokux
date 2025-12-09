@@ -1,6 +1,6 @@
 module github.com/davidji99/terraform-provider-herokux
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.1
 
@@ -15,7 +15,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/stretchr/testify v1.11.1
-	golang.org/x/oauth2 v0.30.0
+	golang.org/x/oauth2 v0.34.0
 )
 
 require (
