@@ -300,6 +300,7 @@ func New() *schema.Provider {
 			"herokux_app_container_release":              resourceHerokuxAppContainerRelease(),
 			"herokux_app_github_integration":             resourceHerokuxAppGithubIntegration(),
 			"herokux_app_webhook":                        resourceHerokuxAppWebhook(),
+			"herokux_applink_connection":                 resourceHerokuxAppLinkConnection(),
 			"herokux_connect_mappings":                   resourceHerokuxConnectMappings(),
 			"herokux_data_connector":                     resourceHerokuxDataConnector(),
 			"herokux_formation_alert":                    resourceHerokuxFormationAlert(),
