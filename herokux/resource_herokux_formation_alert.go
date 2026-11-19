@@ -3,6 +3,7 @@ package herokux
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
@@ -115,7 +116,7 @@ func resourceHerokuxFormationAlertImport(ctx context.Context, d *schema.Resource
 
 	readErr := resourceHerokuxFormationAlertRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf(readErr[0].Summary)
+		return nil, errors.New(readErr[0].Summary)
 	}
 
 	return []*schema.ResourceData{d}, nil

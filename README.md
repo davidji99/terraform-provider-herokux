@@ -9,7 +9,9 @@ not available in the official [Heroku Terraform provider](https://github.com/her
 ## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) `v0.15+`
-- [Go](https://golang.org/doc/install) `v1.20+` (to build the provider plugin)
+- [Go](https://go.dev/doc/install) `v1.26.0+` (to build the provider plugin)
+
+Provider releases after v1.4.7 retire 32-bit Windows ARM. Windows builds are available for ARM64, AMD64, and 386.
 
 ## Usage
 
@@ -36,7 +38,7 @@ Please also view the `CONTRIBUTING.md` file for the general contribution policy.
 
 ## Development
 
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.14+ is *required*).
+To work on the provider, install the Go version listed under [Requirements](#requirements) or newer.
 
 ### Build the Provider
 

@@ -9,8 +9,6 @@ type CustomTime struct {
 	time.Time
 }
 
-const ctLayout = "2006/01/02|15:04:05"
-
 func parseFlexibleTime(s string) (time.Time, error) {
 	layouts := []string{
 		time.RFC3339,                // 2006-01-02T15:04:05Z07:00
@@ -50,8 +48,6 @@ func (ct *CustomTime) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(ct.Time.Format("2006-01-02 15:04:05 -0700"))
 }
-
-var nilTime = (time.Time{}).UnixNano()
 
 func (ct *CustomTime) IsSet() bool {
 	return !ct.IsZero()

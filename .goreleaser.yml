@@ -1,12 +1,10 @@
-before:
-  hooks:
-    - go mod tidy
+version: 2
 
 builds:
   - env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X version.ProviderVersion={{.Version}}
+      - -s -w -X github.com/davidji99/terraform-provider-herokux/version.ProviderVersion={{.Version}}
     goos:
       - freebsd
       - openbsd
@@ -22,9 +20,11 @@ builds:
     ignore:
       - goos: darwin
         goarch: '386'
+      - goos: windows
+        goarch: arm
     binary: '{{ .ProjectName }}_{{ .Tag }}'
 archives:
-  - format: zip
+  - formats: [zip]
     name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
@@ -44,5 +44,5 @@ signs:
 release:
   draft: false
 changelog:
-  skip: true
+  disable: true
 dist: target

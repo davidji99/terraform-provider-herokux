@@ -113,7 +113,7 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 	}
 
 	if dbInfo.Values[0] != "Available" {
-		return diag.Errorf(fmt.Sprintf("Connection pooling not available on database %s. Status is %s", postgresID, dbInfo.Values[0]))
+		return diag.Errorf("Connection pooling not available on database %s. Status is %s", postgresID, dbInfo.Values[0])
 	}
 
 	log.Printf("[DEBUG] Enabling postgres connection pooling on postgres %s", postgresID)

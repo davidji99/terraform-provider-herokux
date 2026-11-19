@@ -1,4 +1,4 @@
-TEST?=$$(go list ./... |grep -v 'vendor')
+TEST?=./...
 GOFMT_FILES?=$$(find . -name '*.go' |grep -v vendor)
 PKG_NAME=herokux
 WEBSITE_REPO=github.com/davidji99/${PKG_NAME}
@@ -26,9 +26,7 @@ release: fmtcheck
 	scripts/build-release
 
 test: fmtcheck
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | \
-		xargs -t -n4 go test -v $(TESTARGS) -timeout=30s -parallel=4
+	go test -v $(TESTARGS) -timeout=30s -parallel=4 $(TEST)
 
 testacc: fmtcheck
 	TF_ACC=1 go test $(TEST) -v $(TESTARGS) -timeout 240m -ldflags="-X=github.com/davidji99/terraform-provider-${PKG_NAME}/version.ProviderVersion=test"
