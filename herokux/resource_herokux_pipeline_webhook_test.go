@@ -91,8 +91,8 @@ func TestPipelineWebhookLifecycle(t *testing.T) {
 	}
 	plan := func() *terraform.InstanceDiff {
 		t.Helper()
-		diff, err := res.Diff(ctx, state, terraform.NewResourceConfigRaw(args), meta)
-		require.NoError(t, err)
+		diff, diffErr := res.Diff(ctx, state, terraform.NewResourceConfigRaw(args), meta)
+		require.NoError(t, diffErr)
 		return diff
 	}
 	apply := func(replace bool) {
