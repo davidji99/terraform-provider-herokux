@@ -4,10 +4,11 @@ on:
     branches: [master]
     paths:
       - 'api/**'
+      - 'helper/**'
       - 'herokux/**'
       - 'go.mod'
       - 'go.sum'
-      - 'vendor/**'
+      - 'GNUmakefile'
       - '.github/workflows/e2e.yml'
 env:
   GOTOOLCHAIN: local
@@ -26,4 +27,7 @@ jobs:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
           HEROKUX_ORGANIZATION: ${{ secrets.HEROKUX_ORGANIZATION }}
           HEROKUX_RUN_E2E_TESTS: 'true'
-        run: make testacc TEST="./herokux/" TESTARGS='-run=TestAccE2E'
+        run: |
+          : "${HEROKU_API_KEY:?Set the HEROKU_API_KEY Actions secret}"
+          : "${HEROKUX_ORGANIZATION:?Set the HEROKUX_ORGANIZATION Actions secret}"
+          make testacc TEST="./herokux/" TESTARGS='-run=TestAccE2E'
