@@ -319,6 +319,7 @@ func New() *schema.Provider {
 			"herokux_postgres_dataclip":                  resourceHerokuxPostgresDataclip(),
 			"herokux_postgres_dataclip_team_association": resourceHerokuxPostgresDataclipTeamAssociation(),
 			"herokux_postgres_dataclip_user_association": resourceHerokuxPostgresDataclipUserAssociation(),
+			"herokux_postgres_follower_pool":             resourceHerokuxPostgresFollowerPool(),
 			"herokux_postgres_maintenance_window":        resourceHerokuxPostgresMaintenanceWindow(),
 			"herokux_postgres_mtls":                      resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate":          resourceHerokuxPostgresMTLSCertificate(),
