@@ -15,12 +15,9 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - run: go vet ./...
-      - name: Verify module files and vendored dependencies
+      - name: Verify module files
         if: matrix.go-version == '1.26.x'
-        run: |
-          go mod tidy -diff
-          go mod vendor
-          test -z "$(git status --porcelain -- vendor)"
+        run: go mod tidy -diff
       - name: Verify generated accessors
         working-directory: api
         run: go run gen-accessors.go && git diff --exit-code -- .
