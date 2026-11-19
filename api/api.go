@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/davidji99/terraform-provider-herokux/api/applink"
 	"github.com/davidji99/terraform-provider-herokux/api/connect"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
@@ -72,6 +73,7 @@ type Client struct {
 	config *config2.Config
 
 	// API endpoints
+	AppLink          *applink.Client
 	Connect          *connect.Connect
 	Data             *data.Data
 	Kafka            *kafka.Kafka
@@ -116,6 +118,7 @@ func New(opts ...config2.Option) (*Client, error) {
 	// Construct new Client
 	client := &Client{
 		config:           config,
+		AppLink:          applink.New(config, nil),
 		Data:             data.New(config),
 		Kafka:            kafka.New(config),
 		Metrics:          metrics.New(config),

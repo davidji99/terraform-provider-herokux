@@ -73,3 +73,9 @@ Set `TF_ACC=1`, `HEROKU_API_KEY`, and `HEROKUX_POSTGRES_ADVANCED_ID` to opt in u
 The storage quota test temporarily takes ownership of the whole quota on that fixture. It saves the current policy before applying changes and restores it during test cleanup.
 
 Set `HEROKUX_POSTGRES_ADVANCED_FOLLOWER_LEVEL` to a supported compute level to opt in to the billable follower pool acceptance test. It provisions one instance and deletes the test pool on teardown.
+
+### AppLink connection tests
+
+Set `TF_ACC_TERRAFORM_PATH` to a Terraform 1.11+ executable and run `go test ./herokux -run '^TestAppLinkTerraformCLI$' -count=1` for the local Platform and AppLink integration test. It generates a disposable RSA key and checks the saved plan, state, logs, and diagnostics.
+
+For the opt-in live test, use a dedicated Heroku AppLink attachment and a Salesforce sandbox. Set `TF_ACC=1`, `HEROKU_API_KEY`, `HEROKUX_APPLINK_APP_ID`, `HEROKUX_APPLINK_ADDON_ID`, `HEROKUX_APPLINK_CLIENT_ID`, and `HEROKUX_APPLINK_USERNAME`. Supply the multiline PEM through the CI secret `TF_VAR_applink_test_key`. Run `go test ./herokux -run '^TestAccHerokuxAppLinkConnection$' -count=1 -timeout 30m`. The test creates, imports, and disconnects its own uniquely named sandbox connection.
