@@ -308,6 +308,8 @@ github.com/zclconf/go-cty/cty/gocty
 github.com/zclconf/go-cty/cty/internal/graphemes
 github.com/zclconf/go-cty/cty/json
 github.com/zclconf/go-cty/cty/set
+# go.opentelemetry.io/otel v1.47.0
+## explicit; go 1.26.0
 # go.yaml.in/yaml/v3 v3.0.5
 ## explicit; go 1.16
 go.yaml.in/yaml/v3
