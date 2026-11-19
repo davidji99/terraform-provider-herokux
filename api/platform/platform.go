@@ -22,30 +22,29 @@ const (
 //
 // The APIs under Platform almost exclusively consist of variants to the official Platform API.
 type Platform struct {
-	http   *simpleresty.Client
-	config *config2.Config
+	http     *simpleresty.Client
+	webhooks *simpleresty.Client
 }
 
 // New constructs a client to interface with the Heroku Platform APIs.
 func New(config *config2.Config) *Platform {
-	p := &Platform{http: simpleresty.NewWithBaseURL(config.PlatformBaseURL), config: config}
-	p.setHeaders()
-
-	return p
+	webhooks := newPlatformClient(config)
+	webhooks.SetHeader("Accept", WebhooksAcceptHeader)
+	return &Platform{http: newPlatformClient(config), webhooks: webhooks}
 }
 
-func (p *Platform) setHeaders() {
-	p.http.SetHeader("Content-type", p.config.ContentTypeHeader).
+func newPlatformClient(config *config2.Config) *simpleresty.Client {
+	client := simpleresty.NewWithBaseURL(config.PlatformBaseURL)
+	client.SetHeader("Content-type", config.ContentTypeHeader).
 		SetHeader("Accept", DefaultAcceptHeader).
-		SetHeader("User-Agent", p.config.UserAgent).
-		SetHeader("Authorization", fmt.Sprintf("Bearer %s", p.config.APIToken)).
+		SetHeader("User-Agent", config.UserAgent).
+		SetHeader("Authorization", fmt.Sprintf("Bearer %s", config.APIToken)).
 		SetTimeout(2 * time.Minute).
 		SetAllowGetMethodPayload(true)
 
 	// Set additional headers
-	if p.config.CustomHTTPHeaders != nil {
-		p.http.SetHeaders(p.config.CustomHTTPHeaders)
-	}
+	client.SetHeaders(config.CustomHTTPHeaders)
+	return client
 }
 
 // resetAcceptHeader sets the `Accept` header back to the default value.
