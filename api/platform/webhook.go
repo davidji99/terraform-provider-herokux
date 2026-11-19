@@ -39,85 +39,63 @@ type AppWebhookRequest struct {
 	// This value can never be retrieved again, so you must persist it immediately.
 	Secret string `json:"secret,omitempty"`
 
+	// Authorization is the optional header delivered to the webhook receiver.
+	Authorization string `json:"authorization,omitempty"`
+
 	// Webhook name
 	Name string `json:"name,omitempty"`
 }
 
 // ListAppWebhooks lists all webhooks for an app.
 func (p *Platform) ListAppWebhooks(appID string) ([]*AppWebhook, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result []*AppWebhook
-	urlStr := p.http.RequestURL("/apps/%s/webhooks", appID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", WebhooksAcceptHeader)
+	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks", appID)
 
 	// Execute the request
-	response, getErr := p.http.Get(urlStr, &result, nil)
+	response, getErr := p.webhooks.Get(urlStr, &result, nil)
 
 	return result, response, getErr
 }
 
 // GetAppWebhook retrieves a single webhook.
 func (p *Platform) GetAppWebhook(appID, webhookID string) (*AppWebhook, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result *AppWebhook
-	urlStr := p.http.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", WebhooksAcceptHeader)
+	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
 
 	// Execute the request
-	response, getErr := p.http.Get(urlStr, &result, nil)
+	response, getErr := p.webhooks.Get(urlStr, &result, nil)
 
 	return result, response, getErr
 }
 
 // CreateAppWebhook creates an app webhook.
 func (p *Platform) CreateAppWebhook(appID string, opts *AppWebhookRequest) (*AppWebhook, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result *AppWebhook
-	urlStr := p.http.RequestURL("/apps/%s/webhooks", appID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", WebhooksAcceptHeader)
+	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks", appID)
 
 	// Execute the request
-	response, getErr := p.http.Post(urlStr, &result, opts)
+	response, getErr := p.webhooks.Post(urlStr, &result, opts)
 
 	return result, response, getErr
 }
 
 // UpdateAppWebhook modifies an existing app webhook.
 func (p *Platform) UpdateAppWebhook(appID, webhookID string, opts *AppWebhookRequest) (*AppWebhook, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result *AppWebhook
-	urlStr := p.http.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", WebhooksAcceptHeader)
+	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
 
 	// Execute the request
-	response, getErr := p.http.Patch(urlStr, &result, opts)
+	response, getErr := p.webhooks.Patch(urlStr, &result, opts)
 
 	return result, response, getErr
 }
 
 // DeleteAppWebhook deletes an app webhook.
 func (p *Platform) DeleteAppWebhook(appID, webhookID string) (*simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
-	urlStr := p.http.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", WebhooksAcceptHeader)
+	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
 
 	// Execute the request
-	response, getErr := p.http.Delete(urlStr, nil, nil)
+	response, getErr := p.webhooks.Delete(urlStr, nil, nil)
 
 	return response, getErr
 }

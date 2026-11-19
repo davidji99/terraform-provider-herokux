@@ -304,6 +304,7 @@ func New() *schema.Provider {
 			"herokux_pipeline_ephemeral_apps_config":     resourceHerokuxPipelineEphemeralAppsConfig(),
 			"herokux_pipeline_github_integration":        resourceHerokuxPipelineGithubIntegration(),
 			"herokux_pipeline_member":                    resourceHerokuxPipelineMember(),
+			"herokux_pipeline_webhook":                   resourceHerokuxPipelineWebhook(),
 			"herokux_postgres_backup_schedule":           resourceHerokuxPostgresBackupSchedule(),
 			"herokux_postgres_connection_pooling":        resourceHerokuxPostgresConnectionPooling(),
 			"herokux_postgres_credential":                resourceHerokuxPostgresCredential(),
