@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -134,7 +135,7 @@ func resourceHerokuxOauthAuthorizationImport(ctx context.Context, d *schema.Reso
 
 	readErr := resourceHerokuxOauthAuthorizationRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf(readErr[0].Detail)
+		return nil, errors.New(readErr[0].Detail)
 	}
 
 	return []*schema.ResourceData{d}, nil

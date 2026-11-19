@@ -1,35 +1,32 @@
 name: goreleaser
-
 on:
   release:
     types: [published]
 
+env:
+  GOTOOLCHAIN: local
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      -
-        name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7.1.0
         with:
-          go-version: 1.21
-      -
-        name: Import GPG key
+          go-version-file: go.mod
+      - name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v6.3.0
+        uses: crazy-max/ghaction-import-gpg@v7.0.0
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-      -
-        name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v5.1.0
+      - uses: goreleaser/goreleaser-action@v7.3.0
         with:
-          version: v1.21
-          args: release --rm-dist
+          version: v2.20.2
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

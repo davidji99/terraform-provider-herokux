@@ -1,8 +1,7 @@
 name: Documentation Checks
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
     paths:
       - .markdownlinkcheck.json
@@ -10,27 +9,24 @@ on:
       - .github/workflows/documentation.yml
       - docs/**
 
-env:
-  GO_VERSION: "1.20.7"
-  GO111MODULE: on
-
 jobs:
   markdown-link-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
-      - uses: gaurav-nelson/github-action-markdown-link-check@1.0.17
+      - uses: actions/checkout@v7.0.1
         with:
-          check-modified-files-only: 'yes'
-          use-quiet-mode: 'yes'
-          use-verbose-mode: 'yes'
-          config-file: '.markdownlinkcheck.json'
-          folder-path: 'docs'
-          file-extension: '.md'
+          fetch-depth: 0
+      - name: Check links in changed Markdown files
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          git diff --name-only -z --diff-filter=ACMRT "$BASE" HEAD -- ':(glob)docs/**/*.md' |
+            xargs -0 -r npx --yes markdown-link-check@3.15.0 --quiet --verbose --config .markdownlinkcheck.json
   markdown-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v7.0.1
       - uses: avto-dev/markdown-lint@v1.5.0
         with:
           config: '.markdownlint.yml'

@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/davidji99/terraform-provider-herokux/api/metrics"
 	"github.com/davidji99/tfph"
@@ -122,7 +123,7 @@ func resourceHerokuxFormationAutoscalingImport(ctx context.Context, d *schema.Re
 
 	readErr := resourceHerokuxFormationAutoscalingRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf(readErr[0].Summary)
+		return nil, errors.New(readErr[0].Summary)
 	}
 
 	return []*schema.ResourceData{d}, nil
