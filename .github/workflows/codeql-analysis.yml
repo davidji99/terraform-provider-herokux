@@ -12,7 +12,7 @@ env:
 
 jobs:
   analyze:
-    name: Analyze
+    name: Analyze (go)
     runs-on: ubuntu-latest
     permissions:
       contents: read
