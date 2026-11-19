@@ -37,6 +37,13 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_METRICS_API_URL", api.DefaultMetricAPIBaseURL),
 			},
 
+			"postgres_advanced_api_url": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("HEROKUX_POSTGRES_ADVANCED_API_URL", api.DefaultPostgresAdvancedAPIBaseURL),
+				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
+			},
+
 			"postgres_api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -316,6 +323,7 @@ func New() *schema.Provider {
 			"herokux_postgres_mtls":                      resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate":          resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":               resourceHerokuxPostgresMTLSIPRule(),
+			"herokux_postgres_publication":               resourceHerokuxPostgresPublication(),
 			"herokux_postgres_settings":                  resourceHerokuxPostgresSettings(),
 			"herokux_privatelink":                        resourceHerokuxPrivatelink(),
 			"herokux_redis_config":                       resourceHerokuxRedisConfig(),

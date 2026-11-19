@@ -9,6 +9,7 @@ import (
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/davidji99/terraform-provider-herokux/api/postgres/advanced"
 	"github.com/davidji99/terraform-provider-herokux/api/redis"
 	"github.com/davidji99/terraform-provider-herokux/api/registry"
 	"github.com/davidji99/terraform-provider-herokux/api/scheduler"
@@ -23,6 +24,8 @@ const (
 
 	// DefaultPostgresAPIBaseURL is the default base URL for Postgres related APIs.
 	DefaultPostgresAPIBaseURL = "https://postgres-api.heroku.com"
+
+	DefaultPostgresAdvancedAPIBaseURL = "https://api.data.heroku.com"
 
 	// DefaultDataAPIBaseURL is the default base URL for the Data Graph APIs.
 	DefaultDataAPIBaseURL = "https://data-api.heroku.com"
@@ -69,38 +72,40 @@ type Client struct {
 	config *config2.Config
 
 	// API endpoints
-	Connect   *connect.Connect
-	Data      *data.Data
-	Kafka     *kafka.Kafka
-	Kolkrabbi *kolkrabbi.Kolkrabbi
-	Metrics   *metrics.Metrics
-	Platform  *platform.Platform
-	Postgres  *postgres.Postgres
-	Redis     *redis.Redis
-	Registry  *registry.Registry
-	Scheduler *scheduler.Scheduler
+	Connect          *connect.Connect
+	Data             *data.Data
+	Kafka            *kafka.Kafka
+	Kolkrabbi        *kolkrabbi.Kolkrabbi
+	Metrics          *metrics.Metrics
+	Platform         *platform.Platform
+	Postgres         *postgres.Postgres
+	PostgresAdvanced *advanced.Client
+	Redis            *redis.Redis
+	Registry         *registry.Registry
+	Scheduler        *scheduler.Scheduler
 }
 
 // New constructs a new client to interact with Heroku APIs.
 func New(opts ...config2.Option) (*Client, error) {
 	// Define baseline config values.
 	config := &config2.Config{
-		MetricsBaseURL:        DefaultMetricAPIBaseURL,
-		PostgresBaseURL:       DefaultPostgresAPIBaseURL,
-		KafkaBaseURL:          DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
-		DataBaseURL:           DefaultDataAPIBaseURL,
-		PlatformBaseURL:       DefaultPlatformAPIBaseURL,
-		RedisBaseURL:          DefaultRedisAPIBaseURL,
-		ConnectBaseURL:        DefaultConnectAPIBaseURL,
-		ConnectCentralBaseURL: DefaultConnectCentralBaseURL,
-		RegistryBaseURL:       DefaultRegistryBaseURL,
-		KolkrabbiURL:          DefaultKolkrabbiAPIBaseURL,
-		SchedulerURL:          DefaultSchedulerAPIBaseURL,
-		UserAgent:             DefaultUserAgent,
-		APIToken:              "",
-		BasicAuth:             "",
-		ContentTypeHeader:     DefaultContentTypeHeader,
-		AcceptHeader:          DefaultAcceptHeader,
+		MetricsBaseURL:          DefaultMetricAPIBaseURL,
+		PostgresBaseURL:         DefaultPostgresAPIBaseURL,
+		PostgresAdvancedBaseURL: DefaultPostgresAdvancedAPIBaseURL,
+		KafkaBaseURL:            DefaultPostgresAPIBaseURL, // The Kafka API endpoints use the same base URL as postgres endpoints.
+		DataBaseURL:             DefaultDataAPIBaseURL,
+		PlatformBaseURL:         DefaultPlatformAPIBaseURL,
+		RedisBaseURL:            DefaultRedisAPIBaseURL,
+		ConnectBaseURL:          DefaultConnectAPIBaseURL,
+		ConnectCentralBaseURL:   DefaultConnectCentralBaseURL,
+		RegistryBaseURL:         DefaultRegistryBaseURL,
+		KolkrabbiURL:            DefaultKolkrabbiAPIBaseURL,
+		SchedulerURL:            DefaultSchedulerAPIBaseURL,
+		UserAgent:               DefaultUserAgent,
+		APIToken:                "",
+		BasicAuth:               "",
+		ContentTypeHeader:       DefaultContentTypeHeader,
+		AcceptHeader:            DefaultAcceptHeader,
 	}
 
 	// Define any user custom Client settings
@@ -110,17 +115,18 @@ func New(opts ...config2.Option) (*Client, error) {
 
 	// Construct new Client
 	client := &Client{
-		config:    config,
-		Data:      data.New(config),
-		Kafka:     kafka.New(config),
-		Metrics:   metrics.New(config),
-		Platform:  platform.New(config),
-		Postgres:  postgres.New(config),
-		Redis:     redis.New(config),
-		Connect:   connect.New(config),
-		Registry:  registry.New(config),
-		Kolkrabbi: kolkrabbi.New(config),
-		Scheduler: scheduler.New(config),
+		config:           config,
+		Data:             data.New(config),
+		Kafka:            kafka.New(config),
+		Metrics:          metrics.New(config),
+		Platform:         platform.New(config),
+		Postgres:         postgres.New(config),
+		PostgresAdvanced: advanced.New(config),
+		Redis:            redis.New(config),
+		Connect:          connect.New(config),
+		Registry:         registry.New(config),
+		Kolkrabbi:        kolkrabbi.New(config),
+		Scheduler:        scheduler.New(config),
 	}
 
 	return client, nil
