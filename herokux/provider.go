@@ -37,6 +37,13 @@ func New() *schema.Provider {
 				DefaultFunc: schema.EnvDefaultFunc("HEROKUX_METRICS_API_URL", api.DefaultMetricAPIBaseURL),
 			},
 
+			"postgres_advanced_api_url": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				DefaultFunc:  schema.EnvDefaultFunc("HEROKUX_POSTGRES_ADVANCED_API_URL", api.DefaultPostgresAdvancedAPIBaseURL),
+				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
+			},
+
 			"postgres_api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -312,11 +319,14 @@ func New() *schema.Provider {
 			"herokux_postgres_dataclip":                  resourceHerokuxPostgresDataclip(),
 			"herokux_postgres_dataclip_team_association": resourceHerokuxPostgresDataclipTeamAssociation(),
 			"herokux_postgres_dataclip_user_association": resourceHerokuxPostgresDataclipUserAssociation(),
+			"herokux_postgres_follower_pool":             resourceHerokuxPostgresFollowerPool(),
 			"herokux_postgres_maintenance_window":        resourceHerokuxPostgresMaintenanceWindow(),
 			"herokux_postgres_mtls":                      resourceHerokuxPostgresMTLS(),
 			"herokux_postgres_mtls_certificate":          resourceHerokuxPostgresMTLSCertificate(),
 			"herokux_postgres_mtls_iprule":               resourceHerokuxPostgresMTLSIPRule(),
+			"herokux_postgres_publication":               resourceHerokuxPostgresPublication(),
 			"herokux_postgres_settings":                  resourceHerokuxPostgresSettings(),
+			"herokux_postgres_storage_quota":             resourceHerokuxPostgresStorageQuota(),
 			"herokux_privatelink":                        resourceHerokuxPrivatelink(),
 			"herokux_redis_config":                       resourceHerokuxRedisConfig(),
 			"herokux_redis_maintenance_window":           resourceHerokuxRedisMaintenanceWindow(),

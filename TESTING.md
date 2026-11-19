@@ -65,3 +65,11 @@ export HEROKU_API_KEY=...
 export HEROKUX_APP_ID=...
 $ make testacc TEST="./HerokuxFormationAutoscaling/" 2>&1 | tee test.log
 ```
+
+### Postgres Advanced acceptance tests
+
+Set `TF_ACC=1`, `HEROKU_API_KEY`, and `HEROKUX_POSTGRES_ADVANCED_ID` to opt in using a dedicated Advanced test database. The publication test requires publishing to be enabled and uses the existing `public` schema.
+
+The storage quota test temporarily takes ownership of the whole quota on that fixture. It saves the current policy before applying changes and restores it during test cleanup.
+
+Set `HEROKUX_POSTGRES_ADVANCED_FOLLOWER_LEVEL` to a supported compute level to opt in to the billable follower pool acceptance test. It provisions one instance and deletes the test pool on teardown.

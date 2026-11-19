@@ -82,7 +82,7 @@ as the Heroku provider to retrieve the API key. This will be the only common var
 
 ### Netrc
 
-Credentials can also be sourced from the [`.netrc`](https://everything.curl.dev/usingcurl/netrc)
+Credentials can also be sourced from the [`.netrc`](https://everything.curl.dev/usingcurl/netrc.html)
 file in your home directory:
 
 ```hcl
@@ -132,6 +132,8 @@ The following arguments are supported:
 
 * `postgres_api_url` - (Optional) Custom Postgres API url.
   Can also be sourced from the `HEROKUX_POSTGRES_API_URL` environment variable.
+
+* `postgres_advanced_api_url` (optional) overrides the Postgres Advanced API endpoint. Defaults to `https://api.data.heroku.com` and can be set with `HEROKUX_POSTGRES_ADVANCED_API_URL`.
 
 * `data_api_url` - (Optional) Custom Data API url.
   Can also be sourced from the `HEROKUX_DATA_API_URL` environment variable.

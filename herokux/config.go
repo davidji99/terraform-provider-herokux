@@ -55,15 +55,16 @@ type Config struct {
 	Headers     map[string]string
 
 	// Custom API URLs
-	platformURL       string
-	metricsURL        string
-	postgresURL       string
-	dataURL           string
-	redisURL          string
-	connectCentralURL string
-	registryURL       string
-	kolkrabbiURL      string
-	schedulerURL      string
+	platformURL         string
+	metricsURL          string
+	postgresAdvancedURL string
+	postgresURL         string
+	dataURL             string
+	redisURL            string
+	connectCentralURL   string
+	registryURL         string
+	kolkrabbiURL        string
+	schedulerURL        string
 
 	// Custom Timeouts
 	MTLSProvisionVerifyTimeout                    int64
@@ -131,6 +132,7 @@ func (c *Config) initializeAPI() error {
 		config.CustomHTTPHeaders(c.Headers),
 		config.UserAgent(UserAgent),
 		config.MetricsBaseURL(c.metricsURL),
+		config.PostgresAdvancedBaseURL(c.postgresAdvancedURL),
 		config.PostgresBaseURL(c.postgresURL),
 		config.PlatformBaseURL(c.platformURL),
 		config.RedisBaseURL(c.redisURL),
@@ -176,6 +178,8 @@ func (c *Config) applySchema(d *schema.ResourceData) (err error) {
 		vs := v.(string)
 		c.metricsURL = vs
 	}
+
+	c.postgresAdvancedURL = d.Get("postgres_advanced_api_url").(string)
 
 	if v, ok := d.GetOk("postgres_api_url"); ok {
 		vs := v.(string)

@@ -32,6 +32,20 @@ func PostgresBaseURL(url string) Option {
 	}
 }
 
+// PostgresAdvancedBaseURL overrides the Advanced data API endpoint.
+func PostgresAdvancedBaseURL(url string) Option {
+	return func(c *Config) error {
+		if url == "" {
+			return fmt.Errorf("Postgres Advanced API URL is empty")
+		}
+		if err := validateBaseURLOption(url); err != nil {
+			return err
+		}
+		c.PostgresAdvancedBaseURL = url
+		return nil
+	}
+}
+
 // KafkaBaseURL allows for a custom Kafka API URL.
 func KafkaBaseURL(url string) Option {
 	return func(c *Config) error {

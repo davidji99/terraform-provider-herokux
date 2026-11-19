@@ -8,6 +8,9 @@ type Config struct {
 	// PostgresBaseURL is the base URL for Heroku's postgres APIs.
 	PostgresBaseURL string
 
+	// PostgresAdvancedBaseURL is the Advanced data API endpoint.
+	PostgresAdvancedBaseURL string
+
 	// KafkaBaseURL is the base URL for Heroku's kafka APIs.
 	KafkaBaseURL string
 
