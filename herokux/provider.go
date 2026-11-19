@@ -325,6 +325,7 @@ func New() *schema.Provider {
 			"herokux_postgres_mtls_iprule":               resourceHerokuxPostgresMTLSIPRule(),
 			"herokux_postgres_publication":               resourceHerokuxPostgresPublication(),
 			"herokux_postgres_settings":                  resourceHerokuxPostgresSettings(),
+			"herokux_postgres_storage_quota":             resourceHerokuxPostgresStorageQuota(),
 			"herokux_privatelink":                        resourceHerokuxPrivatelink(),
 			"herokux_redis_config":                       resourceHerokuxRedisConfig(),
 			"herokux_redis_maintenance_window":           resourceHerokuxRedisMaintenanceWindow(),
