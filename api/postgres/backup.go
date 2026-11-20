@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/davidji99/simpleresty"
 )
 
@@ -34,9 +35,19 @@ func (p *Postgres) ListBackupSchedules(nameOrID string) ([]*BackupSchedule, *sim
 	urlStr := p.http.RequestURL("/client/v11/databases/%s/transfer-schedules", nameOrID)
 
 	// Execute the request
-	response, getErr := p.http.Get(urlStr, &result, nil)
-
-	return result, response, getErr
+	response, err := p.http.Get(urlStr, &result, nil)
+	if err != nil {
+		return nil, response, err
+	}
+	if result == nil {
+		return nil, response, fmt.Errorf("missing backup schedule list for %s", nameOrID)
+	}
+	for _, s := range result {
+		if s.GetID() == "" {
+			return nil, response, fmt.Errorf("backup schedule without an ID on %s", nameOrID)
+		}
+	}
+	return result, response, nil
 }
 
 // CreateBackupSchedule creates a backup schedule.
