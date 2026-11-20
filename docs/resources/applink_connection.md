@@ -39,7 +39,9 @@ Have your CI secret store set `TF_VAR_salesforce_jwt_key` to the multiline PEM o
 * `jwt_private_key_wo` is required for creation. Supply the unencrypted RSA private key in PEM format (PKCS#1 or PKCS#8).
 * `login_url` is the Salesforce HTTPS login URL for creation. The default is `https://login.salesforce.com`. For a sandbox, use `https://test.salesforce.com`.
 
-The provider discovers the attachment alias and uses the AppLink service at `https://applink-api.heroku.com`. Credential changes take effect the next time Terraform creates the connection. To rotate credentials, supply the new values and explicitly replace it:
+The provider reads the service hostname from the attachment’s `<alias>_API_URL` config var. It accepts `heroku-applink.heroku.com` and `applink-api.heroku.com` over HTTPS and sends connection requests to that hostname using the verified add-on UUID. [Heroku AppLink attachment config vars](https://devcenter.heroku.com/articles/working-with-heroku-applink#provision-heroku-applink)
+
+Credential changes take effect the next time Terraform creates the connection. To rotate credentials, supply the new values and explicitly replace it.
 
 ```shell
 terraform apply -replace=herokux_applink_connection.production

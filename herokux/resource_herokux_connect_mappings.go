@@ -4,20 +4,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"net/http"
+	"reflect"
+	"slices"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api/connect"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"maps"
-	"net/http"
-	"slices"
-	"time"
 )
 
+const emptyConnectMappings = `{"mappings":[]}`
+
 func resourceHerokuxConnectMappings() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
+		SchemaVersion: 1,
 		CreateContext: applyConnectMappings,
 		ReadContext:   resourceHerokuxConnectMappingsRead,
 		UpdateContext: applyConnectMappings,
@@ -28,8 +32,16 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 		},
 
 		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
-			if !d.Get("ownership_recorded").(bool) {
-				return d.SetNew("ownership_recorded", true)
+			if d.NewValueKnown("mappings") {
+				old, next := d.GetChange("mappings")
+				if equivalentConnectMappings(old.(string), next.(string)) {
+					return nil
+				}
+			}
+			for _, key := range []string{"ownership_recorded", "mapping_data", "mapping_object_names", "mapping_ids"} {
+				if err := d.SetNewComputed(key); err != nil {
+					return err
+				}
 			}
 			return nil
 		},
@@ -51,10 +63,12 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 			},
 
 			"mappings": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ValidateFunc:     validation.StringIsJSON,
-				DiffSuppressFunc: mappingsDiffSuppress,
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.StringIsJSON,
+				DiffSuppressFunc: func(_ string, old, next string, _ *schema.ResourceData) bool {
+					return equivalentConnectMappings(old, next)
+				},
 			},
 
 			"ownership_recorded": {Type: schema.TypeBool, Computed: true},
@@ -81,30 +95,38 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 			},
 		},
 	}
+	// V0 and V1 have the same attributes. Only the meaning of recorded ownership changes.
+	r.StateUpgraders = []schema.StateUpgrader{{
+		Version: 0,
+		Type:    r.CoreConfigSchema().ImpliedType(),
+		Upgrade: func(_ context.Context, state map[string]any, _ any) (map[string]any, error) {
+			if state["ownership_recorded"] != true {
+				delete(state, "mapping_data")
+				delete(state, "mapping_object_names")
+				delete(state, "mapping_ids")
+			}
+			state["ownership_recorded"] = false
+			state["mappings"] = emptyConnectMappings
+			return state, nil
+		},
+	}}
+	return r
 }
 
-// mappingsDiffSuppress makes sure the provider does a diff check without being affected by spacing or indentation.
-func mappingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	log.Printf("This is old %v", old)
-	log.Printf("This is k %v", k)
-	log.Printf("This is new %v", new)
-
-	in := []byte(old)
-	var raw map[string]interface{}
-	json.Unmarshal(in, &raw)
-	out, _ := json.Marshal(raw)
-
-	in2 := []byte(new)
-	var raw2 map[string]interface{}
-	json.Unmarshal(in2, &raw2)
-	out2, _ := json.Marshal(raw2)
-
-	log.Println(string(out))
-	log.Println(string(out2))
-
-	log.Printf("this is the result of the diff suppress comparison: %v", string(out) == string(out2))
-
-	return string(out) == string(out2)
+func equivalentConnectMappings(old, new string) bool {
+	if old == new {
+		return true
+	}
+	var before, after map[string]any
+	if json.Unmarshal([]byte(old), &before) != nil || json.Unmarshal([]byte(new), &after) != nil {
+		return false
+	}
+	oldRows, oldOK := before["mappings"].([]any)
+	newRows, newOK := after["mappings"].([]any)
+	if oldOK && newOK && len(oldRows) == 0 && len(newRows) == 0 {
+		return true
+	}
+	return reflect.DeepEqual(before, after)
 }
 
 func resourceHerokuxConnectMappingsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -164,7 +186,7 @@ func configuredMappingNames(document string) (map[string]string, error) {
 }
 
 func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// An unsuccessful adoption must not persist the planned ownership marker alongside legacy IDs.
+	// Keep the prior ownership and document if reconciliation fails partway.
 	if d.Id() != "" {
 		d.Partial(true)
 	}
@@ -184,12 +206,15 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 	oldRecorded, _ := d.GetChange("ownership_recorded")
-	owned := map[string]interface{}{}
-	if oldRecorded == true {
-		owned = d.Get("mapping_data").(map[string]interface{})
+	if oldRecorded != true && len(desired) == 0 {
+		d.SetId(id)
+		d.Partial(false)
+		return unownedConnectMappingState(d)
 	}
+	prior, _ := d.GetChange("mapping_data")
+	priorIDs := prior.(map[string]interface{})
 	for name := range desired {
-		if oldID, ok := owned[name]; ok && before[name] != "" && before[name] != oldID {
+		if oldID, ok := priorIDs[name]; ok && before[name] != "" && before[name] != oldID {
 			return diag.Errorf("Connect mapping %q was replaced externally; verify the replacement and reimport before adopting it", name)
 		}
 	}
@@ -220,24 +245,27 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 		}
 		desired[name] = current[name]
 	}
-	for name, oldID := range owned {
-		if _, keep := desired[name]; !keep && oldID == current[name] {
-			if err := deleteOwnedMapping(client, current[name]); err != nil {
-				return diag.FromErr(err)
+	// An upgraded state's IDs can detect replacements, but cannot authorize deletions.
+	if oldRecorded == true {
+		for name, oldID := range priorIDs {
+			if _, keep := desired[name]; !keep && oldID == current[name] {
+				if err := deleteOwnedMapping(client, current[name]); err != nil {
+					return diag.FromErr(err)
+				}
 			}
 		}
 	}
 	if err := setConnectMappingOwnership(d, desired); err != nil {
 		return diag.FromErr(err)
 	}
+	if ds := readConnectMappingExport(d, client, current); ds.HasError() {
+		return ds
+	}
 	if err := d.Set("ownership_recorded", true); err != nil {
 		return diag.FromErr(err)
 	}
-	ds := readConnectMappingExport(d, client, current)
-	if !ds.HasError() {
-		d.Partial(false)
-	}
-	return ds
+	d.Partial(false)
+	return nil
 }
 
 func setConnectMappingOwnership(d *schema.ResourceData, owned map[string]string) error {
@@ -255,6 +283,19 @@ func setConnectMappingOwnership(d *schema.ResourceData, owned map[string]string)
 	return d.Set("mapping_ids", ids)
 }
 
+func unownedConnectMappingState(d *schema.ResourceData) diag.Diagnostics {
+	if _, ok := d.GetOk("mapping_data"); !ok {
+		if err := setConnectMappingOwnership(d, nil); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	// Terraform reuses this value as the plan when mappings is ignored.
+	if err := d.Set("mappings", emptyConnectMappings); err != nil {
+		return diag.FromErr(err)
+	}
+	return diag.FromErr(d.Set("ownership_recorded", false))
+}
+
 func resourceHerokuxConnectMappingsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client, err := meta.(*Config).API.Connect.ForConnection(getAppID(d), getConnectID(d))
 	if err != nil {
@@ -265,10 +306,7 @@ func resourceHerokuxConnectMappingsRead(_ context.Context, d *schema.ResourceDat
 		return diag.FromErr(err)
 	}
 	if !d.Get("ownership_recorded").(bool) {
-		// Older state and bare imports contain a connection-wide export with no ownership information.
-		if err := setConnectMappingOwnership(d, nil); err != nil {
-			return diag.FromErr(err)
-		}
+		return unownedConnectMappingState(d)
 	}
 	return readConnectMappingExport(d, client, current)
 }
@@ -286,21 +324,19 @@ func readConnectMappingExport(d *schema.ResourceData, client *connect.Connect, c
 	if !ok {
 		return diag.Errorf("Connect export is missing its mappings array")
 	}
-	if d.Get("ownership_recorded").(bool) {
-		owned := d.Get("mapping_data").(map[string]interface{})
-		filtered := make([]interface{}, 0, len(owned))
-		for _, raw := range rows {
-			row, _ := raw.(map[string]interface{})
-			name, _ := row["object_name"].(string)
-			if name == "" {
-				return diag.Errorf("Connect export includes a mapping without an object_name")
-			}
-			if id, ok := owned[name]; ok && current[name] == id {
-				filtered = append(filtered, raw)
-			}
+	owned := d.Get("mapping_data").(map[string]interface{})
+	filtered := make([]interface{}, 0, len(owned))
+	for _, raw := range rows {
+		row, _ := raw.(map[string]interface{})
+		name, _ := row["object_name"].(string)
+		if name == "" {
+			return diag.Errorf("Connect export includes a mapping without an object_name")
 		}
-		(*export)["mappings"] = filtered
+		if id, ok := owned[name]; ok && current[name] == id {
+			filtered = append(filtered, raw)
+		}
 	}
+	(*export)["mappings"] = filtered
 	value, err := export.ToString()
 	if err != nil {
 		return diag.FromErr(err)

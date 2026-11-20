@@ -55,7 +55,7 @@ func newAppLinkFixture(t *testing.T) *appLinkFixture {
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 	f := &appLinkFixture{key: string(pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})),
-		apiURL: "https://applink-api.heroku.com/addons/" + linkAddon, serviceType: "heroku-applink", orgType: "SalesforceOrg", afterCreate: "connected"}
+		apiURL: "https://heroku-applink.heroku.com/addons/" + linkAddon, serviceType: "heroku-applink", orgType: "SalesforceOrg", afterCreate: "connected"}
 	platform := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		f.Lock()
 		defer f.Unlock()
@@ -159,15 +159,16 @@ func newAppLinkFixture(t *testing.T) *appLinkFixture {
 	serviceURL, err := url.Parse(service.URL)
 	require.NoError(t, err)
 	transport := appLinkTransport(func(r *http.Request) (*http.Response, error) {
-		if r.URL.Host == "applink-api.heroku.com" && r.URL.Scheme == "https" {
-			r = r.Clone(r.Context())
-			r.URL.Host = serviceURL.Host
-			return service.Client().Transport.RoundTrip(r)
-		}
 		if r.URL.Scheme+"://"+r.URL.Host == platform.URL {
 			return platform.Client().Transport.RoundTrip(r)
 		}
-		return nil, errors.New("unexpected outbound host")
+		attachment, err := url.Parse(f.apiURL)
+		if err != nil || r.URL.Scheme != "https" || !strings.EqualFold(r.URL.Hostname(), attachment.Hostname()) || (r.URL.Port() != "" && r.URL.Port() != "443") {
+			return nil, errors.New("outbound request did not use the attachment origin")
+		}
+		r = r.Clone(r.Context())
+		r.URL.Host = serviceURL.Host
+		return service.Client().Transport.RoundTrip(r)
 	})
 	client := applink.New(&config.Config{PlatformBaseURL: platform.URL, APIToken: "platform-test", AcceptHeader: api.DefaultAcceptHeader, UserAgent: "herokux-test", CustomHTTPHeaders: map[string]string{"X-Platform-Only": "test"}}, transport)
 	f.meta = &Config{API: &api.Client{AppLink: client}}
@@ -215,7 +216,12 @@ func TestAppLinkIdentityAndErrors(t *testing.T) {
 
 func TestAppLinkTrustedEndpoint(t *testing.T) {
 	f := newAppLinkFixture(t)
-	for _, invalid := range []string{"http://applink-api.heroku.com", "https://applink-api.heroku.com.evil.example", "https://user@applink-api.heroku.com", "https://applink-api.heroku.com:444", "https://untrusted.example"} {
+	for _, invalid := range []string{
+		"http://applink-api.heroku.com", "http://heroku-applink.heroku.com",
+		"https://applink-api.heroku.com.evil.example", "https://untrusted.example",
+		"https://user@applink-api.heroku.com", "https://user@heroku-applink.heroku.com",
+		"https://applink-api.heroku.com:444", "https://heroku-applink.heroku.com:444",
+	} {
 		f.apiURL = invalid
 		_, err := f.meta.API.AppLink.Session(t.Context(), linkApp, linkAddon)
 		require.ErrorContains(t, err, "trusted AppLink origin")
@@ -231,4 +237,22 @@ func TestAppLinkTrustedEndpoint(t *testing.T) {
 	_, err = s.Create(t.Context(), linkName, "consumer", "user", appLinkLoginURL, f.key)
 	require.ErrorContains(t, err, "307")
 	require.Zero(t, f.creates)
+}
+
+func TestAppLinkAttachmentRouting(t *testing.T) {
+	for _, host := range []string{"heroku-applink.heroku.com", "AppLink-API.Heroku.Com:443"} {
+		t.Run(host, func(t *testing.T) {
+			f := newAppLinkFixture(t)
+			f.apiURL = "https://" + host + "/addons/" + linkAddon
+			s, err := f.meta.API.AppLink.Session(t.Context(), linkApp, linkAddon)
+			require.NoError(t, err)
+			created, err := s.Create(t.Context(), linkName, "consumer", "user", appLinkLoginURL, f.key)
+			require.NoError(t, err)
+			conn, err := s.Get(t.Context(), linkName)
+			require.NoError(t, err)
+			require.Equal(t, created.ID, conn.ID)
+			require.NoError(t, s.Disconnect(t.Context(), linkName))
+			require.Equal(t, 1, f.deletes)
+		})
+	}
 }

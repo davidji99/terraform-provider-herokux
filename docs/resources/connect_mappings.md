@@ -63,7 +63,9 @@ to manage mappings as described in this section's first paragraph.
 ### Resource Behavior
 Apply manages the Salesforce objects named in the configured JSON. Terraform records each object's mapping ID. Removing an object from HCL or destroying the resource deletes only a matching recorded ID. Other mappings on the connection remain available. If someone recreates a managed mapping under the same name, verify the new mapping before adopting it through import and a configured apply.
 
-After upgrading from an older provider or importing a connection, review the configured object list and run a normal apply to establish ownership. An immediate destroy preserves all remote mappings when ownership has not yet been established.
+After import, `ownership_recorded` is false and the `mappings` state value contains `{"mappings":[]}`. Review the object names in your configured JSON and run a normal apply to establish ownership. With `lifecycle { ignore_changes = [mappings] }`, the resource stays unowned. Remove the ignore rule and apply when you want Terraform to manage the declared objects.
+
+Upgrading from the old resource schema, including provider v1.8.0 and v1.9.0, requires this same one-time apply even if state previously showed `ownership_recorded = true`. An earlier adoption could have recorded objects from the entire connection. Previously recorded IDs serve only to detect a same-name replacement during reconfirmation. Destroying the resource before reconfirmation preserves every remote mapping, including when using `-refresh=false`.
 
 ### Resource Delay
 This resource will wait a given amount of time after creating or updating mappings. This delay is to address a likely
@@ -139,7 +141,7 @@ EOF
 }
 ```
 
-Using Terraform's `file` function:
+When reading mappings from a file, use the configured object names as `for_each` keys for downstream resources. Terraform knows those names at plan time. A lookup such as `mapping_data["Account"]` resolves to the verified Heroku ID during the same adoption apply.
 
 ```hcl-terraform
 resource "heroku_app" "foobar" {
@@ -156,10 +158,20 @@ resource "heroku_addon" "connect" {
   plan = "heroku-shield:free"
 }
 
+locals {
+  mapping_json = file("${path.module}/mappings.json")
+  object_names = toset([for mapping in jsondecode(local.mapping_json).mappings : mapping.object_name])
+}
+
 resource "herokux_connect_mappings" "foobar" {
-  app_id = heroku_app.foobar.uuid
+  app_id     = heroku_app.foobar.uuid
   connect_id = heroku_addon.connect.id
-  mappings = file("test-fixtures/path_to_mappings.json")
+  mappings   = local.mapping_json
+}
+
+resource "terraform_data" "mapping" {
+  for_each = local.object_names
+  input    = herokux_connect_mappings.foobar.mapping_data[each.key]
 }
 ```
 

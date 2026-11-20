@@ -16,18 +16,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestConnectMappingOwnership(t *testing.T) {
-	const app = "6fae1ee0-c034-4775-a798-890bc64f98eb"
-	const conn = "38b6e411-1361-4adf-ace6-734c9a95513d"
+const (
+	connectFixtureApp = "6fae1ee0-c034-4775-a798-890bc64f98eb"
+	connectFixtureID  = "38b6e411-1361-4adf-ace6-734c9a95513d"
+)
+
+type connectMappingFixture struct {
+	ids        map[string]string
+	writes     []string
+	failImport bool
+	meta       *Config
+}
+
+func newConnectMappingFixture(t *testing.T, ids map[string]string) *connectMappingFixture {
+	t.Helper()
+	f := &connectMappingFixture{ids: ids}
+	const app, conn = connectFixtureApp, connectFixtureID
 	prefix := "/api/v3/connections/" + conn
-	ids := map[string]string{}
-	writes := []string{}
-	var failImport bool
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		rows := []map[string]string{}
-		for _, name := range slices.Sorted(maps.Keys(ids)) {
-			rows = append(rows, map[string]string{"object_name": name, "id": ids[name]})
+		for _, name := range slices.Sorted(maps.Keys(f.ids)) {
+			rows = append(rows, map[string]string{"object_name": name, "id": f.ids[name]})
 		}
 		switch {
 		case r.URL.Path == "/auth/"+app:
@@ -40,7 +50,7 @@ func TestConnectMappingOwnership(t *testing.T) {
 			}
 			_ = json.NewEncoder(w).Encode(map[string]any{"mappings": rows})
 		case r.URL.Path == prefix+"/actions/import":
-			if failImport {
+			if f.failImport {
 				w.WriteHeader(422)
 				return
 			}
@@ -51,18 +61,18 @@ func TestConnectMappingOwnership(t *testing.T) {
 			}
 			for _, m := range body.Mappings {
 				name := m["object_name"]
-				writes = append(writes, "import "+name)
-				if ids[name] == "" {
-					ids[name] = "id-" + name
+				f.writes = append(f.writes, "import "+name)
+				if f.ids[name] == "" {
+					f.ids[name] = "id-" + name
 				}
 			}
 			fmt.Fprint(w, "{}")
 		case r.Method == "DELETE" && strings.HasPrefix(r.URL.Path, "/api/v3/mappings/"):
 			id := strings.TrimPrefix(r.URL.Path, "/api/v3/mappings/")
-			writes = append(writes, "delete "+id)
-			for k, v := range ids {
+			f.writes = append(f.writes, "delete "+id)
+			for k, v := range f.ids {
 				if v == id {
-					delete(ids, k)
+					delete(f.ids, k)
 				}
 			}
 			fmt.Fprint(w, "{}")
@@ -71,10 +81,17 @@ func TestConnectMappingOwnership(t *testing.T) {
 			w.WriteHeader(400)
 		}
 	}))
-	defer srv.Close()
+	t.Cleanup(srv.Close)
 	client, err := api.New(config.ConnectCentralBaseURL(srv.URL))
 	require.NoError(t, err)
-	meta := &Config{API: client}
+	f.meta = &Config{API: client}
+	return f
+}
+
+func TestConnectMappingOwnership(t *testing.T) {
+	const app, conn = connectFixtureApp, connectFixtureID
+	f := newConnectMappingFixture(t, map[string]string{})
+	meta := f.meta
 	r := resourceHerokuxConnectMappings()
 	var state *terraform.InstanceState
 	apply := func(wantError bool, names ...string) {
@@ -91,9 +108,7 @@ func TestConnectMappingOwnership(t *testing.T) {
 		require.False(t, diff.Empty(), "expected adoption or mapping change")
 		next, ds := r.Apply(t.Context(), state, diff, meta)
 		require.Equal(t, wantError, ds.HasError(), "%v", ds)
-		if !wantError {
-			state = next
-		}
+		state = next
 	}
 	refresh := func() {
 		t.Helper()
@@ -117,39 +132,47 @@ func TestConnectMappingOwnership(t *testing.T) {
 	}
 
 	apply(false, "Account", "Lead")
-	ids["Contact"] = "external"
+	f.ids["Contact"] = "external"
 	refresh()
 	require.NotContains(t, state.Attributes["mappings"], "Contact")
-	failImport = true
+	f.failImport = true
 	apply(true, "Account")
-	failImport = false
-	require.Contains(t, ids, "Lead")
+	f.failImport = false
+	require.Contains(t, f.ids, "Lead")
 	apply(false, "Account")
-	require.NotContains(t, ids, "Lead")
-	require.Contains(t, ids, "Contact")
+	require.NotContains(t, f.ids, "Lead")
+	require.Contains(t, f.ids, "Contact")
 	destroy()
-	require.Equal(t, map[string]string{"Contact": "external"}, ids)
+	require.Equal(t, map[string]string{"Contact": "external"}, f.ids)
 
 	adopt()
-	apply(false, "Contact") // The export already matches HCL. Adoption still needs an apply.
+	require.JSONEq(t, emptyConnectMappings, state.Attributes["mappings"])
+	f.failImport = true
+	apply(true, "Contact")
+	require.NotEqual(t, "true", state.Attributes["ownership_recorded"])
+	destroy()
+	require.Equal(t, "external", f.ids["Contact"])
+	f.failImport = false
+	adopt()
+	apply(false, "Contact")
 	require.Equal(t, "external", state.Attributes["mapping_data.Contact"])
 	state = nil
 
-	ids["Account"] = "old"
+	f.ids["Account"] = "old"
 	adopt()
 	destroy()
-	require.Contains(t, ids, "Account")
+	require.Contains(t, f.ids, "Account")
 	adopt()
 	apply(false, "Account")
 	require.Equal(t, "old", state.Attributes["mapping_data.Account"])
-	ids["Account"] = "replacement"
+	f.ids["Account"] = "replacement"
 	refresh()
-	writes = nil
+	f.writes = nil
 	apply(true, "Account")
-	require.Empty(t, writes)
+	require.Empty(t, f.writes)
 	destroy()
-	require.Empty(t, writes)
-	require.Equal(t, "replacement", ids["Account"])
+	require.Empty(t, f.writes)
+	require.Equal(t, "replacement", f.ids["Account"])
 
 	adopt()
 	// Emulate an upgraded instance whose computed map used to include every remote mapping.
@@ -158,11 +181,23 @@ func TestConnectMappingOwnership(t *testing.T) {
 	state.Attributes["mapping_data.Contact"] = "external"
 	state.Attributes["mapping_data.Account"] = "replacement"
 	legacy := state.DeepCopy()
+	// An ID retained for reconfirmation can reject a same-name replacement,
+	// but the failed adoption must not give destroy authority over either ID.
+	state.Attributes["mapping_data.Account"] = "old"
+	refresh()
+	apply(true, "Account")
+	require.NotEqual(t, "true", state.Attributes["ownership_recorded"])
 	destroy()
-	require.Empty(t, writes)
+	require.Empty(t, f.writes)
 	state = legacy
 	refresh()
 	apply(false, "Account")
 	destroy()
-	require.Equal(t, map[string]string{"Contact": "external"}, ids)
+	require.Equal(t, map[string]string{"Contact": "external"}, f.ids)
+
+	apply(false, "Lead")
+	f.writes = nil
+	apply(false) // Removing the last owned mapping must still delete it.
+	require.Equal(t, []string{"delete id-Lead"}, f.writes)
+	require.Equal(t, map[string]string{"Contact": "external"}, f.ids)
 }

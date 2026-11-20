@@ -24,7 +24,7 @@ func TestAccHerokuxConnectMapping_importBasic(t *testing.T) {
 				ImportStateId:           fmt.Sprintf("%s:%s", appID, connectID),
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"ownership_recorded", "mapping_ids", "mapping_object_names", "mapping_data"},
+				ImportStateVerifyIgnore: []string{"mappings", "ownership_recorded", "mapping_ids", "mapping_object_names", "mapping_data"},
 			},
 		},
 	})

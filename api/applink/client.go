@@ -18,8 +18,6 @@ import (
 	"github.com/hashicorp/go-uuid"
 )
 
-const origin = "https://applink-api.heroku.com"
-
 var ErrNotFound = errors.New("AppLink connection not found")
 
 type Client struct {
@@ -80,8 +78,23 @@ func (c *Client) request(ctx context.Context, method, endpoint string, headers h
 
 type Session struct {
 	client  *Client
+	origin  string
 	addonID string
 	headers http.Header
+}
+
+func trustedOrigin(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil || u.Scheme != "https" || u.User != nil {
+		return ""
+	}
+	host := strings.ToLower(strings.TrimSuffix(u.Host, ":443"))
+	switch host {
+	case "heroku-applink.heroku.com", "applink-api.heroku.com":
+		return "https://" + host
+	default:
+		return ""
+	}
 }
 
 // Session resolves the attachment on the chosen app. Its headers belong only to the AppLink origin.
@@ -109,9 +122,9 @@ func (c *Client) Session(ctx context.Context, appID, addonID string) (*Session, 
 	if _, err = c.request(ctx, http.MethodGet, appURL+"/config-vars", headers, nil, &vars, false); err != nil {
 		return nil, err
 	}
-	u, err := url.Parse(vars[alias+"_API_URL"])
-	if err != nil || u.Scheme != "https" || u.User != nil || !strings.EqualFold(u.Hostname(), "applink-api.heroku.com") || (u.Port() != "" && u.Port() != "443") {
-		return nil, fmt.Errorf("attachment %s must identify the trusted AppLink origin %s", alias, origin)
+	origin := trustedOrigin(vars[alias+"_API_URL"])
+	if origin == "" {
+		return nil, fmt.Errorf("attachment %s must identify a trusted AppLink origin", alias)
 	}
 	token := vars[alias+"_TOKEN"]
 	if token == "" {
@@ -134,7 +147,7 @@ func (c *Client) Session(ctx context.Context, appID, addonID string) (*Session, 
 	serviceHeaders.Set("Authorization", "Bearer "+token)
 	serviceHeaders.Set("X-App-UUID", appID)
 	serviceHeaders.Set("X-Addon-SSO", base64.StdEncoding.EncodeToString(data))
-	return &Session{client: c, addonID: addonID, headers: serviceHeaders}, nil
+	return &Session{client: c, origin: origin, addonID: addonID, headers: serviceHeaders}, nil
 }
 
 func (c *Client) attachmentAlias(ctx context.Context, appURL, appID, addonID string, headers http.Header) (string, error) {
@@ -174,7 +187,7 @@ type Connection struct {
 }
 
 func (s *Session) path() string {
-	return origin + "/addons/" + url.PathEscape(s.addonID) + "/connections/"
+	return s.origin + "/addons/" + url.PathEscape(s.addonID) + "/connections/"
 }
 
 func (s *Session) Create(ctx context.Context, name, clientID, username, loginURL, key string) (Connection, error) {
