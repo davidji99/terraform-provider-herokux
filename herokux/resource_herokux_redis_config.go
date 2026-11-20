@@ -45,7 +45,7 @@ func resourceHerokuxRedisConfig() *schema.Resource {
 		DeleteContext: resourceHerokuxRedisConfigDelete,
 
 		Importer: &schema.ResourceImporter{
-			StateContext: resourceHerokuxRedisConfigImport,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Timeouts: resourceTimeouts(),
@@ -89,23 +89,6 @@ func resourceHerokuxRedisConfig() *schema.Resource {
 			},
 		},
 	}
-}
-
-func resourceHerokuxRedisConfigImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	client := meta.(*Config).API
-
-	c, _, getErr := client.Redis.GetConfig(d.Id())
-	if getErr != nil {
-		return nil, getErr
-	}
-
-	d.SetId(d.Id())
-	d.Set("redis_id", d.Id())
-	d.Set("maxmemory_policy", c.GetMaxmemoryPolicy().GetValue())
-	d.Set("notify_keyspace_events", c.GetNotifyKeyspaceEvents().GetValue())
-	d.Set("timeout", c.GetTimeout().GetValue())
-
-	return nil, nil
 }
 
 func resourceHerokuxRedisConfigUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

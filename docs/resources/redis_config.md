@@ -81,7 +81,7 @@ N/A
 
 ## Import
 
-Existing redis configurations can be imported using the Heroku Redis instance UUID.
+Import an existing Redis configuration using the instance UUID. Terraform reads the current settings during import. Use the same values in your configuration for an empty first plan.
 
 For example:
 
