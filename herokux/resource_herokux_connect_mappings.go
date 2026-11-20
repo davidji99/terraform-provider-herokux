@@ -215,7 +215,8 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	oldRecorded, _ := d.GetChange("ownership_recorded")
 	priorPending, _ := d.GetChange("pending_mapping_ids")
-	for name, id := range priorPending.(map[string]any) {
+	pendingIDs := priorPending.(map[string]any)
+	for name, id := range pendingIDs {
 		_, requested := desired[name]
 		if id == "" || !requested || before[name] != id {
 			return interruptedConnectImport(d.Id())
@@ -228,9 +229,16 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 	prior, _ := d.GetChange("mapping_data")
 	priorIDs := prior.(map[string]interface{})
+	pending := make(map[string]string)
 	for name := range desired {
-		if oldID, ok := priorIDs[name]; ok && before[name] != "" && before[name] != oldID {
+		liveID := before[name]
+		oldID, tracked := priorIDs[name]
+		if tracked && liveID != "" && liveID != oldID && liveID != pendingIDs[name] {
 			return diag.Errorf("Connect mapping %q was replaced externally; verify the replacement and reimport before adopting it", name)
+		}
+		// A missing or newly requested mapping needs its own post-import verification.
+		if oldRecorded != true || liveID == "" || liveID != oldID {
+			pending[name] = liveID
 		}
 	}
 
@@ -240,17 +248,11 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 		if importErr != nil && response != nil && response.StatusCode >= 400 && response.StatusCode < 500 {
 			return diag.FromErr(importErr)
 		}
-		if oldRecorded != true {
-			for name := range desired {
-				desired[name] = before[name]
-			}
+		if len(pending) > 0 {
 			d.SetId(id)
 			defer func() {
 				if diags.HasError() {
-					d.Partial(false)
-					diags = append(diags, diag.FromErr(d.Set("pending_mapping_ids", desired))...)
-					diags = append(diags, unownedConnectMappingState(d)...)
-					diags = append(diags, interruptedConnectImport(id)...)
+					diags = append(diags, recordInterruptedConnectImport(d, pending)...)
 				}
 			}()
 		}
@@ -278,6 +280,9 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 			return diag.Errorf("Connect mapping %q changed identity during import", name)
 		}
 		desired[name] = current[name]
+		if _, unconfirmed := pending[name]; unconfirmed {
+			pending[name] = current[name]
+		}
 	}
 	// An upgraded state's IDs can detect replacements, but cannot authorize deletions.
 	if oldRecorded == true {
@@ -331,6 +336,20 @@ func unownedConnectMappingState(d *schema.ResourceData) diag.Diagnostics {
 		return diag.FromErr(err)
 	}
 	return diag.FromErr(d.Set("ownership_recorded", false))
+}
+
+// Partial mode would discard the pending IDs. Restore the confirmed state explicitly.
+func recordInterruptedConnectImport(d *schema.ResourceData, pending map[string]string) diag.Diagnostics {
+	d.Partial(false)
+	diags := diag.FromErr(d.Set("pending_mapping_ids", pending))
+	for _, key := range []string{"mapping_data", "mapping_ids", "mapping_object_names", "ownership_recorded", "mappings"} {
+		previous, _ := d.GetChange(key)
+		if key == "mappings" && previous == "" {
+			previous = emptyConnectMappings
+		}
+		diags = append(diags, diag.FromErr(d.Set(key, previous))...)
+	}
+	return append(diags, interruptedConnectImport(d.Id())...)
 }
 
 func interruptedConnectImport(id string) diag.Diagnostics {

@@ -149,20 +149,42 @@ const connectMappingsV0StateFormat = `{
 }`
 
 func TestConnectInterruptedImportTerraformCLI(t *testing.T) {
+	t.Run("create", func(t *testing.T) { testInterruptedConnectImport(t, false) })
+	t.Run("update", func(t *testing.T) { testInterruptedConnectImport(t, true) })
+}
+
+func testInterruptedConnectImport(t *testing.T, update bool) {
 	f := newConnectMappingFixture(t, map[string]string{"Account": "account-id", "Contact": "external"})
 	dir := t.TempDir()
 	run := localTerraformCLI(t, dir, f.meta)
 	const addr = "herokux_connect_mappings.test"
-	source := fmt.Sprintf(`terraform {
+	writeConfig := func(names ...string) {
+		t.Helper()
+		var rows []map[string]string
+		for _, name := range names {
+			rows = append(rows, map[string]string{"object_name": name})
+		}
+		document, err := json.Marshal(map[string]any{"mappings": rows})
+		require.NoError(t, err)
+		source := fmt.Sprintf(`terraform {
   required_providers { herokux = { source = "davidji99/herokux" } }
 }
 resource "herokux_connect_mappings" "test" {
   app_id = %q
   connect_id = %q
-  mappings = jsonencode({mappings = [{object_name="Account"},{object_name="Lead"}]})
-}`, connectFixtureApp, connectFixtureID)
-	require.NoError(t, os.WriteFile(filepath.Join(dir, "main.tf"), []byte(source), 0600))
+  mappings = %q
+}`, connectFixtureApp, connectFixtureID, string(document))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "main.tf"), []byte(source), 0600))
+	}
+	if update {
+		writeConfig("Account")
+		run(0, "apply", "-auto-approve")
+	}
+	writeConfig("Account", "Lead")
+	f.mu.Lock()
+	f.writes = nil
 	f.afterImportInventoryBody = `{}`
+	f.mu.Unlock()
 	require.Contains(t, string(run(1, "apply", "-auto-approve", "-no-color")), "interrupted import")
 	require.Equal(t, []string{"import Account", "import Lead"}, f.writes)
 	var state struct {
@@ -175,11 +197,24 @@ resource "herokux_connect_mappings" "test" {
 	require.NoError(t, json.Unmarshal(raw, &state))
 	attrs := state.Resources[0].Instances[0].Attributes
 	require.Equal(t, connectFixtureID, attrs["id"])
-	require.Equal(t, map[string]any{"Account": "account-id", "Lead": ""}, attrs["pending_mapping_ids"])
+	pending := map[string]any{"Lead": ""}
+	if update {
+		require.Equal(t, true, attrs["ownership_recorded"])
+		require.Equal(t, map[string]any{"Account": "account-id"}, attrs["mapping_data"])
+		require.Equal(t, []any{"account-id"}, attrs["mapping_ids"])
+		require.Equal(t, []any{"Account"}, attrs["mapping_object_names"])
+		require.JSONEq(t, `{"mappings":[{"object_name":"Account"}]}`, attrs["mappings"].(string))
+	} else {
+		pending["Account"] = "account-id"
+	}
+	require.Equal(t, pending, attrs["pending_mapping_ids"])
 	f.mu.Lock()
 	f.inventoryBody, f.afterImportInventoryBody = "", ""
 	f.ids["Lead"] = "other-id"
 	f.mu.Unlock()
+	if update {
+		require.Contains(t, string(run(1, "apply", "-refresh=false", "-auto-approve", "-no-color")), "interrupted import")
+	}
 	require.Contains(t, string(run(1, "destroy", "-auto-approve", "-no-color")), "interrupted import")
 	require.Equal(t, addr, strings.TrimSpace(string(run(0, "state", "list"))))
 	require.Equal(t, []string{"import Account", "import Lead"}, f.writes)
