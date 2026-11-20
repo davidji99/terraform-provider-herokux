@@ -25,21 +25,26 @@ type Platform struct {
 	http      *simpleresty.Client
 	webhooks  *simpleresty.Client
 	teamOAuth *simpleresty.Client
+	space     *simpleresty.Client
+	pipelines *simpleresty.Client
+	formation *simpleresty.Client
 }
 
 // New constructs a client to interface with the Heroku Platform APIs.
 func New(config *config2.Config) *Platform {
-	webhooks := newPlatformClient(config)
-	webhooks.SetHeader("Accept", WebhooksAcceptHeader)
-	teamOAuth := newPlatformClient(config)
-	teamOAuth.SetHeader("Accept", "application/vnd.heroku+json; version=3.sdk")
-	return &Platform{http: newPlatformClient(config), webhooks: webhooks, teamOAuth: teamOAuth}
+	return &Platform{
+		http:      newPlatformClient(config, DefaultAcceptHeader),
+		webhooks:  newPlatformClient(config, WebhooksAcceptHeader),
+		teamOAuth: newPlatformClient(config, "application/vnd.heroku+json; version=3.sdk"),
+		space:     newPlatformClient(config, DogwoodAcceptHeader),
+		pipelines: newPlatformClient(config, PipelineCollaboratorsAcceptHeader),
+		formation: newPlatformClient(config, DockerReleasesAcceptHeader),
+	}
 }
 
-func newPlatformClient(config *config2.Config) *simpleresty.Client {
+func newPlatformClient(config *config2.Config, accept string) *simpleresty.Client {
 	client := simpleresty.NewWithBaseURL(config.PlatformBaseURL)
 	client.SetHeader("Content-type", config.ContentTypeHeader).
-		SetHeader("Accept", DefaultAcceptHeader).
 		SetHeader("User-Agent", config.UserAgent).
 		SetHeader("Authorization", fmt.Sprintf("Bearer %s", config.APIToken)).
 		SetTimeout(2 * time.Minute).
@@ -47,10 +52,6 @@ func newPlatformClient(config *config2.Config) *simpleresty.Client {
 
 	// Set additional headers
 	client.SetHeaders(config.CustomHTTPHeaders)
+	client.SetHeader("Accept", accept)
 	return client
-}
-
-// resetAcceptHeader sets the `Accept` header back to the default value.
-func (p *Platform) resetAcceptHeader() {
-	p.http.SetHeader("Accept", DefaultAcceptHeader)
 }

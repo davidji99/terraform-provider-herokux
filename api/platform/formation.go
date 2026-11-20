@@ -45,17 +45,12 @@ type FormationDockerUpdateOpts struct {
 // Reference: https://devcenter.heroku.com/articles/container-registry-and-runtime#api
 func (p *Platform) FormationContainerBatchUpdate(appIdOrName string, opts *FormationDockerBatchUpdateOpts) (
 	[]*Formation, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result []*Formation
 
-	urlStr := p.http.RequestURL("/apps/%s/formation", appIdOrName)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", DockerReleasesAcceptHeader)
+	urlStr := p.formation.RequestURL("/apps/%s/formation", appIdOrName)
 
 	// Execute the request
-	response, updateErr := p.http.Patch(urlStr, &result, opts)
+	response, updateErr := p.formation.Patch(urlStr, &result, opts)
 
 	return result, response, updateErr
 }
@@ -65,15 +60,10 @@ func (p *Platform) FormationContainerBatchUpdate(appIdOrName string, opts *Forma
 // To destroy an existing process type's container, pass in `nil` for the `docker_image` field in the request body.
 func (p *Platform) FormationContainerUpdate(appIdOrName string, processType string, opts *FormationDockerUpdateOpts) (
 	*simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
-	urlStr := p.http.RequestURL("/apps/%s/formation/%s", appIdOrName, processType)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", DockerReleasesAcceptHeader)
+	urlStr := p.formation.RequestURL("/apps/%s/formation/%s", appIdOrName, processType)
 
 	// Execute the request
-	response, updateErr := p.http.Patch(urlStr, nil, opts)
+	response, updateErr := p.formation.Patch(urlStr, nil, opts)
 
 	return response, updateErr
 }
