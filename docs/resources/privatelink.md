@@ -20,6 +20,8 @@ To use this resource, the Amazon VPC Endpoint you create must be provisioned in 
 that is in the same region as your Apache Kafka on Heroku add-on. New PrivateLink endpoints typically take
 between 5 and 10 minutes to become available.
 
+When replacing allowed accounts, Terraform adds the new accounts and waits for Heroku to report each one as `Active` before removing the old accounts. Both sets can have access briefly. If adding an account or checking its activation fails, the old accounts retain access. An update that only revokes access sends the removal immediately.
+
 ### Resource Timeouts
 During creation and deletion, this resource checks the status of the privatelink provisioning/deprovisioning
 as well as allowlisting AWS account IDs. All the aforementioned timeouts can be customized
@@ -73,6 +75,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `status` - The status of privatelink configuration.
+* `pending_account_additions` - Account IDs from an interrupted swap whose activation Terraform has yet to confirm. Terraform checks these IDs again when retrying the swap.
 * `service_name` - The privatelink endpoint service name.
 
 ## Import
