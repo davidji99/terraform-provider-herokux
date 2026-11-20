@@ -67,19 +67,9 @@ func validateConnectionPoolingName(v interface{}, k string) (ws []string, errors
 }
 
 func resourceHerokuxPostgresConnectionPoolingImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	client := meta.(*Config).PlatformAPI
-
-	attachment, listErr := client.AddOnAttachmentInfo(context.TODO(), d.Id())
-	if listErr != nil {
-		return nil, listErr
+	if ds := resourceHerokuxPostgresConnectionPoolingRead(ctx, d, meta); ds.HasError() {
+		return nil, fmt.Errorf("import connection pool: %s", ds[0].Summary)
 	}
-
-	d.SetId(attachment.ID)
-	d.Set("postgres_id", attachment.Addon.ID)
-	d.Set("app_id", attachment.App.ID)
-	d.Set("name", attachment.Name)
-	d.Set("config_var", fmt.Sprintf("%s_URL", attachment.Name))
-
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -170,18 +160,28 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 	return resourceHerokuxPostgresConnectionPoolingRead(ctx, d, meta)
 }
 
-func resourceHerokuxPostgresConnectionPoolingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	client := meta.(*Config).PlatformAPI
+func getPoolingAttachment(ctx context.Context, client *heroku.Service, id string) (*heroku.AddOnAttachment, error) {
+	attachment, err := client.AddOnAttachmentInfo(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if attachment.ID != id || attachment.Namespace == nil || *attachment.Namespace != "connection-pooling:default" || attachment.Addon.ID == "" {
+		return nil, fmt.Errorf("attachment %s is not a verified default-credential connection pool; check the attachment ID before managing it", id)
+	}
+	addon, err := client.AddOnInfo(ctx, attachment.Addon.ID)
+	if err != nil {
+		return nil, err
+	}
+	if addon.AddonService.Name != "heroku-postgresql" {
+		return nil, fmt.Errorf("attachment %s belongs to %q, expected heroku-postgresql", id, addon.AddonService.Name)
+	}
+	return attachment, nil
+}
 
-	attachment, getErr := client.AddOnAttachmentInfo(context.TODO(), d.Id())
-	if getErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to retrieve attachment %s", d.Id()),
-			Detail:   getErr.Error(),
-		})
-		return diags
+func resourceHerokuxPostgresConnectionPoolingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	attachment, err := getPoolingAttachment(ctx, meta.(*Config).PlatformAPI, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	d.Set("postgres_id", attachment.Addon.ID)
@@ -199,7 +199,11 @@ func resourceHerokuxPostgresConnectionPoolingDelete(ctx context.Context, d *sche
 
 	log.Printf("[DEBUG] Deleting postgres connection pooling %s", d.Id())
 
-	_, deleteErr := client.AddOnAttachmentDelete(context.TODO(), d.Id())
+	if _, err := getPoolingAttachment(ctx, client, d.Id()); err != nil {
+		return diag.FromErr(err)
+	}
+
+	_, deleteErr := client.AddOnAttachmentDelete(ctx, d.Id())
 	if deleteErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
