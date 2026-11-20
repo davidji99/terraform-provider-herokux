@@ -135,9 +135,9 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 	wait := &resource.StateChangeConf{
 		Target: []string{"attached"},
 		Refresh: func() (any, string, error) {
-			a, err := getPoolingAttachment(ctx, platformAPI, d.Id())
-			if err != nil || a == nil {
-				return nil, "", err
+			a, lookupErr := getPoolingAttachment(ctx, platformAPI, d.Id())
+			if lookupErr != nil || a == nil {
+				return nil, "", lookupErr
 			}
 			return a, "attached", nil
 		},

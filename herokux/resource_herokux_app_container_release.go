@@ -166,11 +166,11 @@ func observedContainerFormation(ctx context.Context, d *schema.ResourceData, cfg
 	formation, resp, err := cfg.API.Platform.GetContainerFormation(ctx, app, process)
 	if resp != nil && resp.StatusCode() == http.StatusNotFound {
 		// Heroku can also return 404 when the caller has lost access to the app.
-		parent, err := cfg.PlatformAPI.AppInfo(ctx, app)
-		if err == nil && parent.ID != app {
+		parent, lookupErr := cfg.PlatformAPI.AppInfo(ctx, app)
+		if lookupErr == nil && parent.ID != app {
 			return nil, "", fmt.Errorf("could not verify parent app %s after formation lookup", app)
 		}
-		return nil, "", err
+		return nil, "", lookupErr
 	}
 	if err != nil {
 		return nil, "", err
