@@ -46,6 +46,8 @@ type appLinkFixture struct {
 	redirect                  bool
 	serviceType               string
 	remoteID, status, orgType string
+	replaceBeforeDelete       bool
+	replaceAfterDelete        bool
 	afterCreate               string
 	creates, deletes          int
 }
@@ -135,8 +137,11 @@ func newAppLinkFixture(t *testing.T) *appLinkFixture {
 			f.status = f.afterCreate
 			return
 		}
-		assert.Equal(t, "/addons/"+linkAddon+"/connections/"+linkName, r.URL.Path)
-		if f.remoteID == "" {
+		lookup := strings.TrimPrefix(r.URL.Path, "/addons/"+linkAddon+"/connections/")
+		if r.Method == http.MethodDelete && f.replaceBeforeDelete {
+			f.remoteID, f.status = "replacement", "connected"
+		}
+		if f.remoteID == "" || (lookup != linkName && lookup != f.remoteID) {
 			w.WriteHeader(404)
 			_, _ = w.Write([]byte(`{"id":"record_not_found"}`))
 			return
@@ -150,6 +155,9 @@ func newAppLinkFixture(t *testing.T) *appLinkFixture {
 		case "DELETE":
 			f.deletes++
 			f.status = "disconnecting"
+			if f.replaceAfterDelete {
+				f.remoteID, f.status = "replacement", "connected"
+			}
 			w.WriteHeader(204)
 		default:
 			http.Error(w, "unexpected method", 400)
@@ -209,9 +217,41 @@ func TestAppLinkIdentityAndErrors(t *testing.T) {
 	_, err = res.Importer.StateContext(t.Context(), d, f.meta)
 	require.Error(t, err)
 	f.orgType = "SalesforceOrg"
+	f.status = "disconnected"
+	_, err = res.Importer.StateContext(t.Context(), d, f.meta)
+	require.ErrorContains(t, err, "disconnected")
+	for _, status := range []string{"connecting", "disconnecting", "failed"} {
+		f.status = status
+		require.Empty(t, res.ReadContext(t.Context(), d, f.meta))
+		require.Equal(t, linkID, d.Id())
+	}
 	f.remoteID = ""
 	require.Empty(t, res.ReadContext(t.Context(), d, f.meta))
 	require.Empty(t, d.Id())
+}
+
+func TestAppLinkConcurrentNameReuse(t *testing.T) {
+	for _, phase := range []string{"before DELETE", "after DELETE"} {
+		t.Run(phase, func(t *testing.T) {
+			f := newAppLinkFixture(t)
+			f.remoteID, f.status = "original", "connected"
+			f.replaceBeforeDelete = phase == "before DELETE"
+			f.replaceAfterDelete = phase == "after DELETE"
+			res := resourceHerokuxAppLinkConnection()
+			d := schema.TestResourceDataRaw(t, res.Schema, nil)
+			d.SetId(linkID)
+			_, err := res.Importer.StateContext(t.Context(), d, f.meta)
+			require.NoError(t, err)
+			require.Empty(t, res.DeleteContext(t.Context(), d, f.meta))
+			require.Equal(t, "replacement", f.remoteID)
+			require.Equal(t, "connected", f.status)
+			if f.replaceBeforeDelete {
+				require.Zero(t, f.deletes)
+			} else {
+				require.Equal(t, 1, f.deletes)
+			}
+		})
+	}
 }
 
 func TestAppLinkTrustedEndpoint(t *testing.T) {

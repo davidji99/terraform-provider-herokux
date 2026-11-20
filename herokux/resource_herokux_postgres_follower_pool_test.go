@@ -85,6 +85,26 @@ func TestPostgresFollowerPoolProtectsLeader(t *testing.T) {
 	}
 }
 
+func TestFollowerPoolIncompleteInventory(t *testing.T) {
+	f := newAdvancedTestResource(t, "herokux_postgres_follower_pool")
+	d := f.resource.Data(nil)
+	const id = advancedTestDB + ":pool-1"
+	d.SetId(id)
+	for _, body := range []string{
+		`{}`, `{"pools":null}`, `{"pools":[null]}`,
+		`{"pools":[{"id":"pool-1","name":"analytics"},{"name":"unknown"}]}`,
+	} {
+		f.expect("GET", "/info", "", 200, body)
+		require.True(t, f.resource.ReadContext(t.Context(), d, f.meta).HasError())
+		f.expect("GET", "/info", "", 200, body)
+		require.True(t, f.resource.DeleteContext(t.Context(), d, f.meta).HasError())
+		require.Equal(t, id, d.Id())
+	}
+	f.expect("GET", "/info", "", 200, `{"pools":[]}`)
+	require.Empty(t, f.resource.ReadContext(t.Context(), d, f.meta))
+	require.Empty(t, d.Id())
+}
+
 func TestAccHerokuxPostgresFollowerPool(t *testing.T) {
 	db := advancedAcceptanceDB(t)
 	level := os.Getenv("HEROKUX_POSTGRES_ADVANCED_FOLLOWER_LEVEL")

@@ -47,7 +47,7 @@ Credential changes take effect the next time Terraform creates the connection. T
 terraform apply -replace=herokux_applink_connection.production
 ```
 
-Replacement disconnects the existing org before connecting again and can interrupt publishing. Destroy disconnects the named connection. An unavailable connection prevents publishing to that org. [Heroku connection lifecycle](https://devcenter.heroku.com/articles/working-with-heroku-applink#remove-your-connections)
+Replacement disconnects the existing org before connecting again and can interrupt publishing. Destroy verifies the connection identity and disconnects its recorded UUID. If the org is disconnected outside Terraform, the next normal apply recreates the connection using the configured creation credentials. An unavailable connection prevents publishing to that org. [Heroku connection lifecycle](https://devcenter.heroku.com/articles/working-with-heroku-applink#remove-your-connections)
 
 ## Attributes
 
@@ -62,4 +62,4 @@ Import a Salesforce connection by app UUID, add-on UUID, and connection name. On
 terraform import herokux_applink_connection.production '6588f886-4e0a-463d-adbc-efeedd0e0001:97d4b501-03da-4eec-955c-efeedd0e0002:production_org'
 ```
 
-If another connection takes the same name, Terraform reports the remote ID mismatch. Verify the new connection in Heroku before removing the old state entry and importing its replacement.
+Reconnect a disconnected org before import. If another connection takes the same name, Terraform reports the remote ID mismatch. Verify the new connection in Heroku before removing the old state entry and importing its replacement.

@@ -25,17 +25,12 @@ type PipelineMembershipRequestOpts struct {
 
 // ListPipelineMembers returns all members added to a pipeline.
 func (p *Platform) ListPipelineMembers(pipelineID string) ([]*PipelineMembership, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result []*PipelineMembership
 
-	urlStr := p.http.RequestURL("/pipelines/%s/ephemeral-app-collaborators", pipelineID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/pipelines/%s/ephemeral-app-collaborators", pipelineID)
 
 	// Execute the request
-	response, addErr := p.http.Get(urlStr, &result, nil)
+	response, addErr := p.pipelines.Get(urlStr, &result, nil)
 
 	return result, response, addErr
 }
@@ -60,31 +55,21 @@ func (p *Platform) FindPipelineMembersByEmail(pipelineID, email string) (*Pipeli
 
 // AddPipelineMember adds a member to a pipeline.
 func (p *Platform) AddPipelineMember(opts *PipelineMembershipRequestOpts) (*PipelineMembership, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result PipelineMembership
 
-	urlStr := p.http.RequestURL("/ephemeral-app-collaborators")
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/ephemeral-app-collaborators")
 
 	// Execute the request
-	response, addErr := p.http.Post(urlStr, &result, opts)
+	response, addErr := p.pipelines.Post(urlStr, &result, opts)
 
 	return &result, response, addErr
 }
 
 // UpdatePipelineMemberPermissions modifies a pipeline member's permissions.
 func (p *Platform) UpdatePipelineMemberPermissions(membershipID string, permissions []string) (*PipelineMembership, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result PipelineMembership
 
-	urlStr := p.http.RequestURL("/ephemeral-app-collaborators/%s", membershipID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/ephemeral-app-collaborators/%s", membershipID)
 
 	opts := struct {
 		Permissions []string `json:"permissions"`
@@ -93,22 +78,17 @@ func (p *Platform) UpdatePipelineMemberPermissions(membershipID string, permissi
 	}
 
 	// Execute the request
-	response, addErr := p.http.Patch(urlStr, &result, opts)
+	response, addErr := p.pipelines.Patch(urlStr, &result, opts)
 
 	return &result, response, addErr
 }
 
 // RemovePipelineMember remove a member to a pipeline.
 func (p *Platform) RemovePipelineMember(membershipID string) (*simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
-	urlStr := p.http.RequestURL("/ephemeral-app-collaborators/%s", membershipID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/ephemeral-app-collaborators/%s", membershipID)
 
 	// Execute the request
-	response, addErr := p.http.Delete(urlStr, nil, nil)
+	response, addErr := p.pipelines.Delete(urlStr, nil, nil)
 
 	return response, addErr
 }

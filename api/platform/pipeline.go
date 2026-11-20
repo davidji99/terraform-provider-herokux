@@ -39,31 +39,21 @@ type PipelineEphemeralAppsConfigUpdateOpts struct {
 //
 // This method also returns basic information about the pipeline itself.
 func (p *Platform) GetPipelineEphemeralAppsConfig(pipelineID string) (*Pipeline, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result Pipeline
 
-	urlStr := p.http.RequestURL("/pipelines/%s", pipelineID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/pipelines/%s", pipelineID)
 
 	// Execute the request
-	response, updateErr := p.http.Get(urlStr, &result, nil)
+	response, updateErr := p.pipelines.Get(urlStr, &result, nil)
 
 	return &result, response, updateErr
 }
 
 // UpdatePipelineEphemeralAppsConfig updates an existing pipeline permission configuration.
 func (p *Platform) UpdatePipelineEphemeralAppsConfig(pipelineID string, opts *PipelineEphemeralAppsConfigUpdateOpts) (*Pipeline, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
-
 	var result Pipeline
 
-	urlStr := p.http.RequestURL("/pipelines/%s", pipelineID)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", PipelineCollaboratorsAcceptHeader)
+	urlStr := p.pipelines.RequestURL("/pipelines/%s", pipelineID)
 
 	// Construct request body
 	o := struct {
@@ -73,7 +63,7 @@ func (p *Platform) UpdatePipelineEphemeralAppsConfig(pipelineID string, opts *Pi
 	}
 
 	// Execute the request
-	response, updateErr := p.http.Patch(urlStr, &result, o)
+	response, updateErr := p.pipelines.Patch(urlStr, &result, o)
 
 	return &result, response, updateErr
 }

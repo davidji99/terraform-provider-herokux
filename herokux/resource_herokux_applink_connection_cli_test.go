@@ -118,6 +118,11 @@ func TestAppLinkTerraformCLI(t *testing.T) {
 	run(0, "plan", "-input=false", "-detailed-exitcode", "-no-color")
 	require.Equal(t, 1, f.creates)
 
+	validKey := key
+	key = strings.Replace(key, "PRIVATE KEY", "INVALID KEY", 1)
+	require.Contains(t, run(1, "plan", "-replace="+instance, "-input=false", "-no-color"), "unencrypted RSA private key")
+	require.Zero(t, f.deletes)
+	key = validKey
 	key += "\n" // a different write-only value cannot cause a reconnect
 	run(0, "plan", "-input=false", "-detailed-exitcode", "-no-color")
 	args["client_id"] = "next-consumer"
@@ -141,20 +146,39 @@ func TestAppLinkTerraformCLI(t *testing.T) {
 	require.Contains(t, run(1, "plan", "-replace="+instance, "-input=false", "-no-color"), "required to create")
 	setCredentials()
 	key = rotationKey
+	f.Lock()
 	f.key = key
+	f.Unlock()
 	run(0, "apply", "-auto-approve", "-input=false", "-replace="+instance, "-no-color")
 	require.Equal(t, 2, f.creates)
 	require.Equal(t, 1, f.deletes)
 	require.Contains(t, run(0, "state", "show", "-no-color", instance), "remote-2")
 
+	f.Lock()
+	f.status = "disconnected"
+	f.Unlock()
+	delete(args, "jwt_private_key_wo")
+	require.Contains(t, run(1, "plan", "-input=false", "-no-color"), "required to create")
+	setCredentials()
+	run(0, "apply", "-auto-approve", "-input=false", "-no-color")
+	require.Equal(t, 3, f.creates)
+	require.Equal(t, 1, f.deletes)
+	require.Contains(t, run(0, "state", "show", "-no-color", instance), "remote-3")
+
+	f.Lock()
 	f.serviceStatus = 403
+	f.Unlock()
 	require.Contains(t, run(1, "plan", "-input=false", "-no-color"), "HTTP 403")
+	f.Lock()
 	f.serviceStatus = 0
+	f.Unlock()
 	run(0, "destroy", "-auto-approve", "-input=false", "-no-color")
 	require.Equal(t, 2, f.deletes)
+	f.Lock()
 	f.afterCreate = "failed"
+	f.Unlock()
 	require.Contains(t, run(1, "apply", "-auto-approve", "-input=false", "-no-color"), "failed")
-	require.Contains(t, run(0, "state", "show", "-no-color", instance), "remote-3")
+	require.Contains(t, run(0, "state", "show", "-no-color", instance), "remote-4")
 	run(0, "destroy", "-auto-approve", "-input=false", "-no-color")
 	require.Equal(t, 3, f.deletes)
 	for _, name := range []string{"terraform.tfstate", "terraform.tfstate.backup", "provider.log", "sdk.log", "terraform.log"} {

@@ -1,6 +1,9 @@
 package postgres
 
 import (
+	"context"
+	"net/http"
+
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
 )
@@ -62,13 +65,17 @@ func (p *Postgres) CreatePrivatelink(addonID string, opts *PrivatelinkRequest) (
 
 // GetPrivatelink gets information about a privatelink for a Heroku postgres, redis, or kafka addon.
 func (p *Postgres) GetPrivatelink(addonID string) (*Privatelink, *simpleresty.Response, error) {
+	return p.GetPrivatelinkContext(context.Background(), addonID)
+}
+
+// GetPrivatelinkContext applies the caller's deadline to the HTTP request.
+func (p *Postgres) GetPrivatelinkContext(ctx context.Context, addonID string) (*Privatelink, *simpleresty.Response, error) {
 	var result *Privatelink
-	urlStr := p.http.RequestURL("/private-link/v0/databases/%s", addonID)
-
-	// Execute the request
-	response, getErr := p.http.Get(urlStr, &result, nil)
-
-	return result, response, getErr
+	req := p.http.R().SetContext(ctx).SetResult(&result)
+	req.Method = http.MethodGet
+	req.URL = p.http.RequestURL("/private-link/v0/databases/%s", addonID)
+	resp, err := p.http.Dispatch(req)
+	return result, resp, err
 }
 
 // DeletePrivatelink deletes a privatelink for a Heroku postgres, redis, or kafka addon.

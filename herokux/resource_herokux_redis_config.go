@@ -3,6 +3,7 @@ package herokux
 import (
 	"context"
 	"log"
+	"maps"
 	"regexp"
 	"strings"
 
@@ -22,19 +23,16 @@ var (
 
 // Redis can reorder flags and abbreviate the standard event classes as A.
 func equivalentRedisNotificationFlags(a, b string) bool {
-	expand := func(flags string) string {
-		if flags == redis.DisableNotifyKeyspaceEvents {
-			return ""
+	classes := func(flags string) map[rune]bool {
+		set := make(map[rune]bool)
+		if flags != redis.DisableNotifyKeyspaceEvents {
+			for _, flag := range strings.ReplaceAll(flags, "A", "g$lshztxe") {
+				set[flag] = true
+			}
 		}
-		return strings.ReplaceAll(flags, "A", "g$lshztxe")
+		return set
 	}
-	a, b = expand(a), expand(b)
-	for _, flag := range "KEg$lshztxem" {
-		if strings.ContainsRune(a, flag) != strings.ContainsRune(b, flag) {
-			return false
-		}
-	}
-	return true
+	return maps.Equal(classes(a), classes(b))
 }
 
 func resourceHerokuxRedisConfig() *schema.Resource {
@@ -164,7 +162,12 @@ func resourceHerokuxRedisConfigRead(ctx context.Context, d *schema.ResourceData,
 		nke = c.GetNotifyKeyspaceEvents().GetValue()
 	}
 
-	d.Set("notify_keyspace_events", nke)
+	if planned := d.Get("notify_keyspace_events").(string); planned != "" && equivalentRedisNotificationFlags(planned, nke) {
+		nke = planned
+	}
+	if err := d.Set("notify_keyspace_events", nke); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return diags
 }

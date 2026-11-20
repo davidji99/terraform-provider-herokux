@@ -33,13 +33,23 @@ func (c *Client) GetFollowerPool(ctx context.Context, db, id string) (*Pool, err
 	if info.Pools == nil {
 		return nil, fmt.Errorf("Heroku returned database info without the pools list")
 	}
-	for _, pool := range info.Pools {
+	var match *Pool
+	seen := make(map[string]bool, len(info.Pools))
+	for i := range info.Pools {
+		pool := &info.Pools[i]
+		if strings.TrimSpace(pool.ID) == "" || seen[pool.ID] {
+			return nil, fmt.Errorf("Heroku returned a missing or duplicate pool ID in the pools list")
+		}
+		seen[pool.ID] = true
 		if pool.ID == id {
 			if pool.Name == "" || strings.EqualFold(pool.Name, "leader") {
 				return nil, fmt.Errorf("pool %q is not an identifiable follower (name %q)", id, pool.Name)
 			}
-			return &pool, nil
+			match = pool
 		}
+	}
+	if match != nil {
+		return match, nil
 	}
 	return nil, ErrNotFound
 }
