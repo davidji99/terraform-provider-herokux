@@ -134,9 +134,15 @@ func resourceHerokuxPostgresDataclipUserAssociationRead(ctx context.Context, d *
 		return diags
 	}
 
+	if dataclip.GetID() != d.Get("dataclip_id").(string) || dataclip.UserShares == nil {
+		return diag.Errorf("incomplete user share list for dataclip %s", dataclipSlug)
+	}
 	var userShare *data.PostgresDataclipUserShare
 
 	for _, user := range dataclip.UserShares {
+		if user.GetID() == "" {
+			return diag.Errorf("dataclip %s returned a user share without an ID", dataclipSlug)
+		}
 		if user.GetID() == d.Id() {
 			userShare = user
 			break
@@ -144,12 +150,11 @@ func resourceHerokuxPostgresDataclipUserAssociationRead(ctx context.Context, d *
 	}
 
 	if userShare == nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to find dataclip usershare ID %s postgres dataclip %s", d.Id(), dataclip.GetID()),
-			Detail:   "this occurred during state refresh of the [herokux_postgres_dataclip_user_association] resource",
-		})
-		return diags
+		if d.IsNewResource() {
+			return diag.Errorf("new user share %s not found on dataclip %s", d.Id(), dataclipSlug)
+		}
+		d.SetId("")
+		return nil
 	}
 
 	d.Set("dataclip_slug", dataclipSlug)
