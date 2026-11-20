@@ -49,6 +49,8 @@ The following arguments are supported:
 * `window` - (Required) `<string>` The day-of-week and time (UTC) at which the window begins.
 For example: `Sundays 10:30`. Note: the `s` attached to the word `Sunday` is required.
 
+The provider resolves the add-on name or UUID through the Platform API and manages the UTC window through the [Data Maintenance API](https://devcenter.heroku.com/articles/data-maintenance-cli-commands). Existing resource and import IDs retain the identifier you supplied. If you use a custom Data REST endpoint, set `postgres_advanced_api_url` on the provider. Its default is `https://api.data.heroku.com`.
+
 ## Import
 
 An existing maintenance window can be imported using the redis ID.
