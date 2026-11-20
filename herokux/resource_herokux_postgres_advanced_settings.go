@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/davidji99/terraform-provider-herokux/api/postgres/advanced"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -17,26 +18,40 @@ func resourceHerokuxPostgresAdvancedSettings() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: applyAdvancedSettings, UpdateContext: applyAdvancedSettings,
 		ReadContext: readAdvancedSettings, DeleteContext: schema.NoopContext,
-		Importer: &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
-		Timeouts: resourceTimeouts(),
+		Importer:                       &schema.ResourceImporter{StateContext: schema.ImportStatePassthroughContext},
+		Timeouts:                       resourceTimeouts(),
+		ValidateRawResourceConfigFuncs: []schema.ValidateRawResourceConfigFunc{validateAdvancedSettings},
 		Schema: map[string]*schema.Schema{
 			"postgres_id": advancedDatabaseIDSchema(),
-			"settings": {
-				Type: schema.TypeMap, Required: true, Elem: &schema.Schema{Type: schema.TypeString},
-				ValidateFunc: validateAdvancedSettings,
-			},
+			"settings":    {Type: schema.TypeMap, Required: true, Elem: &schema.Schema{Type: schema.TypeString}},
 		},
 	}
 }
 
-func validateAdvancedSettings(v any, _ string) ([]string, []error) {
-	var errs []error
-	for name, value := range v.(map[string]any) {
-		if err := advanced.ValidateSetting(name, fmt.Sprint(value)); err != nil {
-			errs = append(errs, err)
+// Validate the raw map so a known key can be checked while its value is still unknown.
+func validateAdvancedSettings(_ context.Context, req schema.ValidateResourceConfigFuncRequest, resp *schema.ValidateResourceConfigFuncResponse) {
+	if req.RawConfig.IsNull() {
+		return
+	}
+	settings := req.RawConfig.GetAttr("settings")
+	if settings.IsNull() || !settings.IsKnown() {
+		return
+	}
+	for it := settings.ElementIterator(); it.Next(); {
+		key, value := it.Element()
+		name := key.AsString()
+		var err error
+		if value.IsKnown() && !value.IsNull() {
+			err = advanced.ValidateSetting(name, value.AsString())
+		} else {
+			err = advanced.ValidateSettingName(name)
+		}
+		if err != nil {
+			resp.Diagnostics = append(resp.Diagnostics, diag.Diagnostic{
+				Severity: diag.Error, Summary: err.Error(), AttributePath: cty.GetAttrPath("settings").Index(key),
+			})
 		}
 	}
-	return nil, errs
 }
 
 // Keep the configured spelling when the API returns a boolean for a CLI alias.
