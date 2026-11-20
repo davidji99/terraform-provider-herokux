@@ -479,6 +479,25 @@ func (d *DataConnectorTopic) GetTopicName() string {
 	return *d.TopicName
 }
 
+// GetExcludedColumns returns the ExcludedColumns field if it's non-nil, zero value otherwise.
+func (d *DataConnectSettings) GetExcludedColumns() []string {
+	if d == nil || d.ExcludedColumns == nil {
+		return nil
+	}
+	return *d.ExcludedColumns
+}
+
+// HasTables checks if DataConnectSettings has any Tables.
+func (d *DataConnectSettings) HasTables() bool {
+	if d == nil || d.Tables == nil {
+		return false
+	}
+	if len(d.Tables) == 0 {
+		return false
+	}
+	return true
+}
+
 // GetCreatedAt returns the CreatedAt field if it's non-nil, zero value otherwise.
 func (d *DataLink) GetCreatedAt() time.Time {
 	if d == nil || d.CreatedAt == nil {

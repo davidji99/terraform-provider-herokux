@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 	"reflect"
+	"slices"
 	"time"
 )
 
@@ -48,7 +49,6 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			"tables": {
 				Type:        schema.TypeSet,
 				Required:    true,
-				ForceNew:    true,
 				MinItems:    1,
 				Description: "Tables to connect",
 				Elem: &schema.Schema{
@@ -76,7 +76,6 @@ func resourceHerokuxDataConnector() *schema.Resource {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
-				ForceNew: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -85,6 +84,7 @@ func resourceHerokuxDataConnector() *schema.Resource {
 			"settings": {
 				Type:     schema.TypeMap,
 				Optional: true,
+				Computed: true,
 				Elem:     schema.TypeString,
 			},
 
@@ -241,13 +241,15 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 		// We only need to trigger a Pause action if the "state" attribute is set to "Paused"
 		// after initial resource creation.
 		if v.(string) == postgres.DataConnectorStatuses.PAUSED.ToString() {
-			pauseResumeDataConnector(ctx, d, meta)
+			if ds := pauseResumeDataConnector(ctx, d, meta); ds.HasError() {
+				return ds
+			}
 		}
 	}
 
 	// Update Data connector settings
-	if _, ok := d.GetOk("settings"); ok {
-		err := updateSettingsDataConnector(ctx, d, meta)
+	if settings, ok := d.GetOk("settings"); ok {
+		err := applyDataConnectorConfig(ctx, d, meta, &postgres.DataConnectSettings{Settings: settings.(map[string]interface{})})
 		if err.HasError() {
 			return err
 		}
@@ -297,73 +299,77 @@ func resourceHerokuxDataConnectorUpdate(ctx context.Context, d *schema.ResourceD
 		}
 	}
 
-	if d.HasChange("settings") {
-		err := updateSettingsDataConnector(ctx, d, meta)
-		if err.HasError() {
-			return err
+	if d.HasChanges("tables", "excluded_columns", "settings") {
+		changes := &postgres.DataConnectSettings{}
+		if d.HasChange("tables") {
+			changes.Tables = connectorStrings(d.Get("tables").(*schema.Set))
+		}
+		if d.HasChange("excluded_columns") {
+			columns := connectorStrings(d.Get("excluded_columns").(*schema.Set))
+			changes.ExcludedColumns = &columns
+		}
+		if d.HasChange("settings") {
+			changes.Settings = d.Get("settings").(map[string]interface{})
+		}
+		if ds := applyDataConnectorConfig(ctx, d, meta, changes); ds.HasError() {
+			d.Partial(true)
+			return ds
 		}
 	}
-
 	return resourceHerokuxDataConnectorRead(ctx, d, meta)
 }
 
-func updateSettingsDataConnector(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	config := meta.(*Config)
-	client := config.API
-
-	settings := d.Get("settings").(map[string]interface{})
-
-	log.Printf("[DEBUG] Data Connector settings %v", settings)
-
-	log.Printf("[DEBUG] Updating Data Connector settings %s", d.Id())
-
-	_, _, settingsErr := client.Postgres.UpdateDataConnectorSettings(d.Id(), &postgres.DataConnectSettings{Settings: settings})
-	if settingsErr != nil {
-		return diag.FromErr(settingsErr)
+func connectorStrings(set *schema.Set) []string {
+	result := make([]string, 0, set.Len())
+	for _, v := range set.List() {
+		result = append(result, v.(string))
 	}
+	slices.Sort(result)
+	return result
+}
 
-	log.Printf("[DEBUG] Checking if Data Connector settings were updated")
-
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"updating"},
-		Target:       []string{"updated"},
-		Refresh:      DataConnectorSettingsUpdateRefreshFunc(client, d.Id(), settings),
-		Timeout:      time.Duration(config.DataConnectorSettingsUpdateVerifyTimeout) * time.Minute,
+func applyDataConnectorConfig(ctx context.Context, d *schema.ResourceData, meta interface{}, changes *postgres.DataConnectSettings) diag.Diagnostics {
+	cfg := meta.(*Config)
+	_, _, err := cfg.API.Postgres.UpdateDataConnectorSettings(d.Id(), changes)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	wait := resource.StateChangeConf{
+		Pending: []string{"updating"}, Target: []string{"updated"},
+		Refresh:      dataConnectorConfigRefresh(cfg.API, d.Id(), changes),
+		Timeout:      time.Duration(cfg.DataConnectorSettingsUpdateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
-
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for Data Connector settings to be updated %s: %s", d.Id(), err.Error())
+	if _, err = wait.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
-
-	log.Printf("[DEBUG] Data Connector settings %s", d.Id())
-
 	return nil
 }
 
 func DataConnectorSettingsUpdateRefreshFunc(client *api.Client, connectorID string, settings map[string]interface{}) resource.StateRefreshFunc {
+	return dataConnectorConfigRefresh(client, connectorID, &postgres.DataConnectSettings{Settings: settings})
+}
+
+func dataConnectorConfigRefresh(client *api.Client, id string, changes *postgres.DataConnectSettings) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		dc, _, getErr := client.Postgres.GetDataConnector(connectorID)
-		if getErr != nil {
-			return nil, "", getErr
+		dc, _, err := client.Postgres.GetDataConnector(id)
+		if err != nil {
+			return nil, "", err
 		}
-
-		// The API endpoint does not provide any information that the settings are still being updated. One could
-		// try to make the same update request again and if the response code is 422, then the data connector settings
-		// are still being updated. This is not ideal. Instead, this resource checks if the values from the
-		//`settings` attribute and the remote `settings` are the same.
-		//
-		// The one flaw to this approach is that if certain settings are removed from the terraform configuration,
-		// check for equivalence may never become true as removed settings cannot be removed via the API. Those settings
-		// can only be manually changed to be their default value.
-		isUpdated := reflect.DeepEqual(settings, dc.Settings)
-
-		if isUpdated {
-			log.Printf("[DEBUG] Still waiting for data connector settings to be updated")
-			return dc, "updated", nil
+		slices.Sort(dc.Tables)
+		slices.Sort(dc.ExcludedColumns)
+		if changes.Tables != nil && !slices.Equal(dc.Tables, changes.Tables) {
+			return dc, "updating", nil
 		}
-
-		return dc, "updating", nil
+		if changes.ExcludedColumns != nil && !slices.Equal(dc.ExcludedColumns, *changes.ExcludedColumns) {
+			return dc, "updating", nil
+		}
+		for key, want := range changes.Settings {
+			if !reflect.DeepEqual(dc.Settings[key], want) {
+				return dc, "updating", nil
+			}
+		}
+		return dc, "updated", nil
 	}
 }
 

@@ -83,7 +83,9 @@ type dataConnectorRequest struct {
 
 // DataConnectSettings represents properties associated with your connector.
 type DataConnectSettings struct {
-	Settings map[string]interface{} `json:"settings"`
+	Settings        map[string]interface{} `json:"settings,omitempty"`
+	Tables          []string               `json:"tables,omitempty"`
+	ExcludedColumns *[]string              `json:"excluded_columns,omitempty"`
 }
 
 // ListDataConnectors retrieves all data connectors for an app.
