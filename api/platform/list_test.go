@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 
@@ -62,4 +63,37 @@ func TestInventoryCancellationDuringRateLimit(t *testing.T) {
 	require.ErrorIs(t, err, context.Canceled)
 	require.Less(t, time.Since(start), 2*time.Second)
 	require.Equal(t, 1, calls)
+}
+
+func TestConcurrentInventoryWithProxy(t *testing.T) {
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Errorf("loopback inventory request sent to proxy: %s", r.URL.Path)
+		w.WriteHeader(http.StatusBadGateway)
+	}))
+	defer proxy.Close()
+	t.Setenv("HTTPS_PROXY", proxy.URL)
+	t.Setenv("NO_PROXY", "localhost")
+	t.Setenv("no_proxy", "")
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `[{"id":"one"}]`)
+	}))
+	defer origin.Close()
+	p := New(&config.Config{PlatformBaseURL: origin.URL})
+	var wg sync.WaitGroup
+	for range 4 {
+		wg.Go(func() {
+			apps, err := p.ListApps(t.Context())
+			if err != nil || len(apps) != 1 {
+				t.Errorf("apps: %v, %v", apps, err)
+			}
+		})
+		wg.Go(func() {
+			addons, err := p.ListAddons(t.Context(), "")
+			if err != nil || len(addons) != 1 {
+				t.Errorf("add-ons: %v, %v", addons, err)
+			}
+		})
+	}
+	wg.Wait()
 }

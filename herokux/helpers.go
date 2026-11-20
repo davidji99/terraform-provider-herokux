@@ -9,7 +9,12 @@ import (
 	"math/rand"
 	"regexp"
 	"strconv"
+	"strings"
 )
+
+func suppressCaseOnlyDiff(_ string, old, new string, _ *schema.ResourceData) bool {
+	return strings.EqualFold(old, new)
+}
 
 // getAppID extracts the app ID attribute generically from a HerokuX resource.
 func getAppID(d *schema.ResourceData) string {

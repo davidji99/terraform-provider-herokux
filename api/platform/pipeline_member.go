@@ -3,6 +3,7 @@ package platform
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/davidji99/simpleresty"
@@ -40,7 +41,7 @@ func (p *Platform) FindPipelineMembersByEmail(pipelineID, email string) (*Pipeli
 	}
 
 	for _, m := range members {
-		if m.GetUser().GetEmail() == "" || m.GetID() == "" || m.GetPipeline() == nil || m.GetPipeline().Pipeline == nil || m.GetPipeline().ID != pipelineID {
+		if m.GetUser().GetEmail() == "" || m.GetID() == "" || m.GetPipeline() == nil || m.GetPipeline().Pipeline == nil || !strings.EqualFold(m.GetPipeline().ID, pipelineID) {
 			return nil, listResponse, fmt.Errorf("invalid membership on pipeline %s", pipelineID)
 		}
 		if m.GetUser().GetEmail() == email {

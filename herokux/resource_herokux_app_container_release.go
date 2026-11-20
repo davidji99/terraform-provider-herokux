@@ -47,10 +47,11 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"app_id": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IsUUID,
+				Type:             schema.TypeString,
+				Required:         true,
+				ForceNew:         true,
+				ValidateFunc:     validation.IsUUID,
+				DiffSuppressFunc: suppressCaseOnlyDiff,
 			},
 
 			"process_type": {
@@ -64,7 +65,7 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ValidateFunc:     validateImageID,
-				DiffSuppressFunc: func(_ string, old, new string, _ *schema.ResourceData) bool { return strings.EqualFold(old, new) },
+				DiffSuppressFunc: suppressCaseOnlyDiff,
 			},
 
 			"last_applied_image_id": {Type: schema.TypeString, Computed: true},
@@ -141,8 +142,10 @@ func readContainerRelease(ctx context.Context, d *schema.ResourceData, cfg *Conf
 			return diag.FromErr(err)
 		}
 	}
-	if err := d.Set("app_id", *formation.App.ID); err != nil {
-		return diag.FromErr(err)
+	if !strings.EqualFold(d.Get("app_id").(string), *formation.App.ID) {
+		if err := d.Set("app_id", *formation.App.ID); err != nil {
+			return diag.FromErr(err)
+		}
 	}
 	if err := d.Set("process_type", formation.GetType()); err != nil {
 		return diag.FromErr(err)
@@ -167,7 +170,7 @@ func observedContainerFormation(ctx context.Context, d *schema.ResourceData, cfg
 	if resp != nil && resp.StatusCode() == http.StatusNotFound {
 		// Heroku can also return 404 when the caller has lost access to the app.
 		parent, lookupErr := cfg.PlatformAPI.AppInfo(ctx, app)
-		if lookupErr == nil && parent.ID != app {
+		if lookupErr == nil && !strings.EqualFold(parent.ID, app) {
 			return nil, "", fmt.Errorf("could not verify parent app %s after formation lookup", app)
 		}
 		return nil, "", lookupErr
@@ -175,7 +178,7 @@ func observedContainerFormation(ctx context.Context, d *schema.ResourceData, cfg
 	if err != nil {
 		return nil, "", err
 	}
-	if formation.GetType() != process || formation.App.ID == nil || *formation.App.ID != app {
+	if formation.GetType() != process || formation.App.ID == nil || !strings.EqualFold(*formation.App.ID, app) {
 		return nil, "", fmt.Errorf("Heroku returned an unexpected formation for %s/%s", app, process)
 	}
 	if digest := formation.GetDockerImage().GetID(); digest != "" && !fullContainerDigest.MatchString(digest) {
@@ -240,12 +243,17 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 		Timeout: time.Duration(config.AppContainerReleaseVerifyTimeout) * time.Minute,
 	}
 
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
+	matchedRelease, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
 		return diag.Errorf("waiting for %s container release on app %s: %s", process, appID, err)
 	}
 
 	if err := d.Set("last_applied_image_id", image); err != nil {
 		return diag.FromErr(err)
+	}
+	// A successful matching release confirms ownership even if the next GET fails.
+	if matchedRelease == true {
+		d.Partial(false)
 	}
 	log.Printf("[DEBUG] Released %s container on app %s", process, appID)
 
@@ -265,22 +273,22 @@ func containerReleaseStateRefreshFunc(ctx context.Context, client *heroku.Servic
 			if err != nil {
 				return nil, ReleaseStatusError, err
 			}
-			return r, r.Status, nil
+			return true, r.Status, nil
 		}
 		releases, err := client.ReleaseList(ctx, appID, &heroku.ListRange{Field: "version", Descending: true, Max: 20})
 		if err != nil {
 			return nil, ReleaseStatusError, err
 		}
-		// container:release also succeeds when PATCH produced no new release.
-		if (len(releases) == 0 && previous == 0) || (len(releases) > 0 && releases[0].Version == previous) {
-			return releases, ReleaseStatusSucceeded, nil
-		}
+		unchanged := len(releases) > 0 && releases[0].Version == previous
 		for _, r := range releases {
-			if r.Version > previous && r.Description == desc {
+			if r.Description == desc && (r.Version > previous || unchanged) {
 				releaseID = r.ID
-				return r, r.Status, nil
+				return true, r.Status, nil
 			}
 		}
-		return releases, ReleaseStatusUnknown, nil
+		if unchanged || (len(releases) == 0 && previous == 0) {
+			return false, ReleaseStatusSucceeded, nil
+		}
+		return false, ReleaseStatusUnknown, nil
 	}
 }

@@ -132,23 +132,30 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 		return diag.Errorf("Heroku returned no attachment ID after enabling pooling on %s", postgresID)
 	}
 	d.SetId(attachment.ID)
-	wait := &resource.StateChangeConf{
-		Target: []string{"attached"},
+	result, err := poolingAttachmentWait(ctx, platformAPI, attachment.ID).WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("waiting for connection pool attachment %s: %s", d.Id(), err)
+	}
+	return setPoolingAttachment(d, result.(*heroku.AddOnAttachment))
+}
+
+func poolingAttachmentWait(ctx context.Context, client *heroku.Service, id string) *resource.StateChangeConf {
+	return &resource.StateChangeConf{
+		Pending: []string{"pending"},
+		Target:  []string{"attached"},
 		Refresh: func() (any, string, error) {
-			a, lookupErr := getPoolingAttachment(ctx, platformAPI, d.Id())
-			if lookupErr != nil || a == nil {
+			a, lookupErr := getPoolingAttachment(ctx, client, id)
+			if lookupErr != nil {
 				return nil, "", lookupErr
+			}
+			if a == nil {
+				return id, "pending", nil
 			}
 			return a, "attached", nil
 		},
 		Timeout:      20 * time.Minute,
 		PollInterval: 5 * time.Second,
 	}
-	result, err := wait.WaitForStateContext(ctx)
-	if err != nil {
-		return diag.Errorf("waiting for connection pool attachment %s: %s", d.Id(), err)
-	}
-	return setPoolingAttachment(d, result.(*heroku.AddOnAttachment))
 }
 
 func getPoolingAttachment(ctx context.Context, client *heroku.Service, id string) (*heroku.AddOnAttachment, error) {

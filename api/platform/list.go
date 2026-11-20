@@ -31,14 +31,18 @@ func listPages[T any](ctx context.Context, client *simpleresty.Client, path stri
 	for next := ""; ; {
 		var page []T
 		req := client.R().SetContext(ctx).SetResult(&page)
-		req.Method, req.URL = http.MethodGet, path
 		if next != "" {
 			req.SetHeader("Range", next)
 		}
-		resp, err := client.Dispatch(req)
-		// simpleresty treats 206 as an error even when it decoded the page successfully.
-		if err != nil && (resp == nil || resp.StatusCode != http.StatusPartialContent) {
-			return nil, resp, err
+		raw, err := req.Get(path)
+		if err != nil {
+			return nil, nil, err
+		}
+		// The public list methods expose simpleresty response metadata to callers.
+		requestURL, _ := url.QueryUnescape(req.URL)
+		resp := &simpleresty.Response{
+			Resp: raw, Status: raw.Status(), StatusCode: raw.StatusCode(), Body: string(raw.Body()),
+			Request: req, RequestMethod: req.Method, RequestURL: requestURL, RequestBody: "null",
 		}
 		if (resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusPartialContent) || page == nil {
 			return nil, resp, fmt.Errorf("invalid list response from %s (HTTP %d)", path, resp.StatusCode)
