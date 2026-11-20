@@ -9,7 +9,7 @@ description: |-
 # herokux\_postgres\_settings
 
 This resource manages the [settings](https://devcenter.heroku.com/articles/heroku-postgres-settings)
-of a Heroku postgres database.
+of a classic Heroku Postgres database. For Advanced plans, use `herokux_postgres_advanced_settings`.
 
 -> **IMPORTANT!**
 It is not possible to delete a postgres database's settings, so the resource will just be removed from state upon deletion.
