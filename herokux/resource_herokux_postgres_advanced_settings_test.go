@@ -81,10 +81,10 @@ func TestPostgresAdvancedSettingsValidation(t *testing.T) {
 	})).Diagnostics)
 
 	d := validate(cty.MapVal(map[string]cty.Value{
-		"log_statment": unknown, "track_functions": cty.StringVal("sometimes"), "log_statement": unknown,
+		"log_statements": unknown, "track_functions": cty.StringVal("sometimes"), "log_statement": unknown,
 	})).Diagnostics
 	require.Len(t, d, 2)
-	require.Equal(t, cty.GetAttrPath("settings").IndexString("log_statment"), d[0].AttributePath)
+	require.Equal(t, cty.GetAttrPath("settings").IndexString("log_statements"), d[0].AttributePath)
 	require.Contains(t, d[0].Summary, "supported settings")
 	require.Equal(t, cty.GetAttrPath("settings").IndexString("track_functions"), d[1].AttributePath)
 	require.Contains(t, d[1].Summary, "none, pl, all")

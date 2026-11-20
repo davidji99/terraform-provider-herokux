@@ -57,7 +57,7 @@ func TestValidateSetting(t *testing.T) {
 	}
 	require.ElementsMatch(t, tested, slices.Collect(maps.Keys(settingRules)))
 	slices.Sort(tested)
-	for _, name := range []string{"log_statment", "auto_explain.log-format", "log_statement,track_functions"} {
+	for _, name := range []string{"log_statements", "auto_explain.log-format", "log_statement,track_functions"} {
 		err := ValidateSetting(name, "all")
 		require.ErrorContains(t, err, name)
 		require.ErrorContains(t, err, strings.Join(tested, ", "))
