@@ -20,10 +20,11 @@ func TestAccHerokuxConnectMapping_importBasic(t *testing.T) {
 				Config: testAccCheckHerokuxConnectMappings_basic(appID, connectID, TestConnectMappingBasic),
 			},
 			{
-				ResourceName:      "herokux_connect_mappings.foobar",
-				ImportStateId:     fmt.Sprintf("%s:%s", appID, connectID),
-				ImportState:       true,
-				ImportStateVerify: true,
+				ResourceName:            "herokux_connect_mappings.foobar",
+				ImportStateId:           fmt.Sprintf("%s:%s", appID, connectID),
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ownership_recorded", "mapping_ids", "mapping_object_names", "mapping_data"},
 			},
 		},
 	})

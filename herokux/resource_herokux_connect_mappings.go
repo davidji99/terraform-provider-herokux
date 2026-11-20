@@ -4,27 +4,35 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/connect"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"maps"
+	"net/http"
+	"slices"
 	"time"
 )
 
 func resourceHerokuxConnectMappings() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceHerokuxConnectMappingsCreate,
+		CreateContext: applyConnectMappings,
 		ReadContext:   resourceHerokuxConnectMappingsRead,
-		UpdateContext: resourceHerokuxConnectMappingsUpdate,
+		UpdateContext: applyConnectMappings,
 		DeleteContext: resourceHerokuxConnectMappingsDelete,
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceHerokuxConnectMappingsImport,
 		},
 
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+			if !d.Get("ownership_recorded").(bool) {
+				return d.SetNew("ownership_recorded", true)
+			}
+			return nil
+		},
 		Timeouts: resourceTimeouts(),
 
 		Schema: map[string]*schema.Schema{
@@ -49,6 +57,7 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 				DiffSuppressFunc: mappingsDiffSuppress,
 			},
 
+			"ownership_recorded": {Type: schema.TypeBool, Computed: true},
 			"mapping_ids": {
 				Type: schema.TypeList,
 				Elem: &schema.Schema{
@@ -99,303 +108,234 @@ func mappingsDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
 }
 
 func resourceHerokuxConnectMappingsImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	config := meta.(*Config)
-	client := config.API
-
-	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
-	if parseErr != nil {
-		return nil, parseErr
+	ids, err := tfph.ParseCompositeID(d.Id(), 2)
+	if err != nil {
+		return nil, err
 	}
-
-	appID := result[0]
-	connectID := result[1]
-
-	d.Set("app_id", appID)
-	d.Set("connect_id", connectID)
-	d.SetId(connectID)
-
-	setupClientErr := setupConnectAPIClient(client, appID, connectID)
-	if setupClientErr != nil {
-		return nil, fmt.Errorf("unable to setup API client")
+	if err = d.Set("app_id", ids[0]); err != nil {
+		return nil, err
 	}
-
-	readErr := resourceHerokuxConnectMappingsRead(ctx, d, meta)
-	if readErr.HasError() {
-		return nil, fmt.Errorf("unable to import existing connect mapping: %v", readErr[0])
+	if err = d.Set("connect_id", ids[1]); err != nil {
+		return nil, err
 	}
-
+	d.SetId(ids[1])
+	if ds := resourceHerokuxConnectMappingsRead(ctx, d, meta); ds.HasError() {
+		return nil, fmt.Errorf("import Connect mappings: %s", ds[0].Summary)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
-func setupConnectAPIClient(client *api.Client, appID, connectID string) diag.Diagnostics {
-	var diags diag.Diagnostics
-
-	setRootURLErr := client.Connect.SetRootAPIBaseURL(appID, connectID)
-	if setRootURLErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable determine and set the root API URL for your Heroku Connect connection",
-			Detail:   setRootURLErr.Error(),
-		})
-		return diags
+func connectMappingIDs(client *connect.Connect, id string) (map[string]string, error) {
+	conn, _, err := client.GetConnection(id, connect.ConnectionGetQueryParams{Deep: true})
+	if err != nil {
+		return nil, err
 	}
-
-	return diags
+	if conn == nil {
+		return nil, fmt.Errorf("empty response for Connect connection %s", id)
+	}
+	ids := make(map[string]string, len(conn.Mappings))
+	for _, m := range conn.Mappings {
+		name, id := m.GetObjectName(), m.GetID()
+		if name == "" || id == "" || ids[name] != "" {
+			return nil, fmt.Errorf("invalid or duplicate mapping identity for %q", name)
+		}
+		ids[name] = id
+	}
+	return ids, nil
 }
 
-func resourceHerokuxConnectMappingsCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	config := meta.(*Config)
-	client := config.API
-	appID := getAppID(d)
-	connectID := getConnectID(d)
-
-	setupClientErr := setupConnectAPIClient(client, appID, connectID)
-	if setupClientErr != nil {
-		return setupClientErr
+func configuredMappingNames(document string) (map[string]string, error) {
+	var export connect.MappingsExport
+	if err := json.Unmarshal([]byte(document), &export); err != nil {
+		return nil, err
 	}
-
-	var mappings []byte
-	if v, ok := d.GetOk("mappings"); ok {
-		vs := v.(string)
-		log.Printf("[DEBUG] mappings: %s", vs)
-		mappings = []byte(vs)
+	if export.Mappings == nil {
+		return nil, fmt.Errorf("mappings must contain an array of objects")
 	}
-
-	log.Printf("[DEBUG] Creating mappings on connection %s", getConnectID(d))
-
-	_, createErr := client.Connect.ImportMappings(getConnectID(d), mappings)
-	if createErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to create mappings",
-			Detail:   createErr.Error(),
-		})
-		return diags
+	names := make(map[string]string, len(export.Mappings))
+	for _, m := range export.Mappings {
+		name := m.GetObjectName()
+		if _, exists := names[name]; name == "" || exists {
+			return nil, fmt.Errorf("empty or duplicate mapping object_name %q", name)
+		}
+		names[name] = ""
 	}
-
-	log.Printf("[DEBUG] Created mappings on connection %s", getConnectID(d))
-
-	// Set resource ID to connect ID
-	d.SetId(getConnectID(d))
-
-	// Arbitrary sleep before reading state.
-	time.Sleep(time.Duration(config.ConnectMappingModifyDelay) * time.Second)
-
-	return resourceHerokuxConnectMappingsRead(ctx, d, meta)
+	return names, nil
 }
 
-func resourceHerokuxConnectMappingsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	client := meta.(*Config).API
-	appID := getAppID(d)
-	connectID := getConnectID(d)
-
-	setupClientErr := setupConnectAPIClient(client, appID, connectID)
-	if setupClientErr != nil {
-		return setupClientErr
+func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// An unsuccessful adoption must not persist the planned ownership marker alongside legacy IDs.
+	if d.Id() != "" {
+		d.Partial(true)
 	}
-
-	connection, _, getErr := client.Connect.GetConnection(d.Id(), connect.ConnectionGetQueryParams{Deep: true})
-	if getErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to retrieve mappings from connection %s", getConnectID(d)),
-			Detail:   getErr.Error(),
-		})
-		return diags
+	cfg := meta.(*Config)
+	id := getConnectID(d)
+	client, err := cfg.API.Connect.ForConnection(getAppID(d), id)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-
-	d.Set("app_id", connection.GetAppID())
-	d.Set("connect_id", connection.GetAddonID())
-
-	// Extract all mapping IDs and object names to store in computed attribute `mapping_ids` & `mapping_object_names`.
-	// Set the computed attribute `mapping_data` to be a map of key=object_name and value=mapping_id
-	mappingIDs := make([]string, 0, len(connection.Mappings))
-	mappingObjectNames := make([]string, 0, len(connection.Mappings))
-	mappingData := make(map[string]string)
-	for _, m := range connection.Mappings {
-		mappingIDs = append(mappingIDs, m.GetID())
-		mappingObjectNames = append(mappingObjectNames, m.GetObjectName())
-		mappingData[m.GetObjectName()] = m.GetID()
+	document := d.Get("mappings").(string)
+	desired, err := configuredMappingNames(document)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-	d.Set("mapping_ids", mappingIDs)
-	d.Set("mapping_object_names", mappingObjectNames)
-	d.Set("mapping_data", mappingData)
-
-	// Set the resource's 'mapping' attribute to whatever the Export API returns
-	mappingExport, _, exportErr := client.Connect.ExportMappings(d.Id())
-	if exportErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to export mappings from connection %s", getConnectID(d)),
-			Detail:   exportErr.Error(),
-		})
-		return diags
+	before, err := connectMappingIDs(client, id)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-
-	// Prior to converting the mappingExport to a string, delete the 'connection' key as it's not needed
-	// and messes with diff checking.
-	delete(*mappingExport, "connection")
-
-	mappingExportStr, strConvErr := mappingExport.ToString()
-	if strConvErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to convert mappings export to string format for connection %s", getConnectID(d)),
-			Detail:   strConvErr.Error(),
-		})
-		return diags
+	oldRecorded, _ := d.GetChange("ownership_recorded")
+	owned := map[string]interface{}{}
+	if oldRecorded == true {
+		owned = d.Get("mapping_data").(map[string]interface{})
 	}
-	d.Set("mappings", mappingExportStr)
-
-	return diags
-}
-
-func resourceHerokuxConnectMappingsUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	config := meta.(*Config)
-	client := config.API
-	appID := getAppID(d)
-	connectID := getConnectID(d)
-
-	setupClientErr := setupConnectAPIClient(client, appID, connectID)
-	if setupClientErr != nil {
-		return setupClientErr
-	}
-
-	var oldMapping, newMapping connect.MappingsExport
-	objectNamesToDelete := make([]string, 0)
-
-	// Get the diff to see what existing mappings were removed.
-	if d.HasChange("mappings") {
-		o, n := d.GetChange("mappings")
-
-		// Get list of old and new mapping object names
-		unmarshallErrO := json.Unmarshal([]byte(o.(string)), &oldMapping)
-		if unmarshallErrO != nil {
-			return diag.Errorf("unable to unmarshall old mappings")
+	for name := range desired {
+		if oldID, ok := owned[name]; ok && before[name] != "" && before[name] != oldID {
+			return diag.Errorf("Connect mapping %q was replaced externally; verify the replacement and reimport before adopting it", name)
 		}
-		log.Printf("[DEBUG] Here's the old mappings %v", oldMapping)
+	}
 
-		unmarshallErrN := json.Unmarshal([]byte(n.(string)), &newMapping)
-		if unmarshallErrN != nil {
-			return diag.Errorf("unable to unmarshall old mappings")
+	if len(desired) > 0 {
+		if _, err = client.ImportMappings(id, []byte(document)); err != nil {
+			return diag.FromErr(err)
 		}
-		log.Printf("[DEBUG] Here's the new mappings %v", newMapping)
-
-		oldMappingObjNames := make([]string, 0, len(oldMapping.Mappings))
-		for _, n := range oldMapping.Mappings {
-			oldMappingObjNames = append(oldMappingObjNames, n.GetObjectName())
+	}
+	d.SetId(id)
+	if delay := time.Duration(cfg.ConnectMappingModifyDelay) * time.Second; delay > 0 {
+		select {
+		case <-ctx.Done():
+			return diag.FromErr(ctx.Err())
+		case <-time.After(delay):
 		}
-		log.Printf("[DEBUG] Here's the old mapping object names %v", oldMappingObjNames)
-
-		newMappingObjNames := make([]string, 0, len(newMapping.Mappings))
-		for _, n := range newMapping.Mappings {
-			newMappingObjNames = append(newMappingObjNames, n.GetObjectName())
+	}
+	current, err := connectMappingIDs(client, id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	for name := range desired {
+		if current[name] == "" {
+			return diag.Errorf("Connect mapping %q is not present after import", name)
 		}
-		log.Printf("[DEBUG] Here's the new mapping object names %v", newMappingObjNames)
-
-		// Determine which object names were removed by checking which of the old mapping object names
-		// no longer exist in the new mapping object name list.
-		for _, n := range oldMappingObjNames {
-			if !ContainsString(newMappingObjNames, n) {
-				objectNamesToDelete = append(objectNamesToDelete, n)
+		if prior := before[name]; prior != "" && current[name] != prior {
+			return diag.Errorf("Connect mapping %q changed identity during import", name)
+		}
+		desired[name] = current[name]
+	}
+	for name, oldID := range owned {
+		if _, keep := desired[name]; !keep && oldID == current[name] {
+			if err := deleteOwnedMapping(client, current[name]); err != nil {
+				return diag.FromErr(err)
 			}
 		}
-		log.Printf("[DEBUG] List of object names to be removed %v", objectNamesToDelete)
 	}
-
-	// If there are objectNamesToDelete elements, construct a new slice to stare their mapping IDs for deletion
-	// by doing a lookup with the computed attribute `mapping_data`. Then, delete those removed mappings first.
-	if len(objectNamesToDelete) > 0 {
-		log.Printf("Begin deleting removed object names/mappings")
-		md := d.Get("mapping_data").(map[string]interface{})
-
-		for _, n := range objectNamesToDelete {
-			mappingID := md[n].(string)
-
-			log.Printf("Updating connection mappings by deleting mapping %s (%s)", mappingID, n)
-
-			_, deleteErr := client.Connect.DeleteMapping(mappingID)
-			if deleteErr != nil {
-				diags = append(diags, diag.Diagnostic{
-					Severity: diag.Error,
-					Summary:  fmt.Sprintf("unable to delete mapping %s (%s)", mappingID, n),
-					Detail:   deleteErr.Error(),
-				})
-				return diags
-			}
-
-			log.Printf("Updated connection mappings by deleting mapping %s (%s)", mappingID, n)
-		}
+	if err := setConnectMappingOwnership(d, desired); err != nil {
+		return diag.FromErr(err)
 	}
-
-	// Then 'update' the mappings by doing the same thing as the CREATE method
-	log.Printf("Updated mappings on connect %s", getConnectID(d))
-
-	_, update := client.Connect.ImportMappings(getConnectID(d), getConnectMappings(d))
-	if update != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to update mappings",
-			Detail:   update.Error(),
-		})
-		return diags
+	if err := d.Set("ownership_recorded", true); err != nil {
+		return diag.FromErr(err)
 	}
-
-	log.Printf("Updated mappings on connect %s", getConnectID(d))
-
-	// Arbitrary sleep before reading state.
-	time.Sleep(time.Duration(config.ConnectMappingModifyDelay) * time.Second)
-
-	return resourceHerokuxConnectMappingsRead(ctx, d, meta)
+	ds := readConnectMappingExport(d, client, current)
+	if !ds.HasError() {
+		d.Partial(false)
+	}
+	return ds
 }
 
-func resourceHerokuxConnectMappingsDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	client := meta.(*Config).API
-	appID := getAppID(d)
-	connectID := getConnectID(d)
-
-	setupClientErr := setupConnectAPIClient(client, appID, connectID)
-	if setupClientErr != nil {
-		return setupClientErr
+func setConnectMappingOwnership(d *schema.ResourceData, owned map[string]string) error {
+	names := slices.Sorted(maps.Keys(owned))
+	ids := make([]string, 0, len(names))
+	for _, name := range names {
+		ids = append(ids, owned[name])
 	}
-
-	log.Printf("[DEBUG] Deleting all tracked mappings on connection %s", getConnectID(d))
-
-	mappingIDs := d.Get("mapping_ids").([]interface{})
-
-	if len(mappingIDs) == 0 {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Error deleting all tracked mappings",
-			Detail:   fmt.Sprintf("Expected at least more than one mapping ID for deletion, got %d", len(mappingIDs)),
-		})
+	if err := d.Set("mapping_data", owned); err != nil {
+		return err
 	}
+	if err := d.Set("mapping_object_names", names); err != nil {
+		return err
+	}
+	return d.Set("mapping_ids", ids)
+}
 
-	// Delete all mappings managed by the resource by iterating through mapping_ids attribute.
-	for _, i := range d.Get("mapping_ids").([]interface{}) {
-		mappingID := i.(string)
-		log.Printf("[DEBUG] Deleting mapping %s on connection %s", mappingID, getConnectID(d))
-
-		_, deleteErr := client.Connect.DeleteMapping(mappingID)
-		if deleteErr != nil {
-			diags = append(diags, diag.Diagnostic{
-				Severity: diag.Error,
-				Summary:  fmt.Sprintf("unable to delete mapping %s on connection %s", mappingID, getConnectID(d)),
-				Detail:   deleteErr.Error(),
-			})
+func resourceHerokuxConnectMappingsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client, err := meta.(*Config).API.Connect.ForConnection(getAppID(d), getConnectID(d))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	current, err := connectMappingIDs(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !d.Get("ownership_recorded").(bool) {
+		// Older state and bare imports contain a connection-wide export with no ownership information.
+		if err := setConnectMappingOwnership(d, nil); err != nil {
+			return diag.FromErr(err)
 		}
-		log.Printf("[DEBUG] Deleted mapping %s on connection %s", mappingID, getConnectID(d))
 	}
+	return readConnectMappingExport(d, client, current)
+}
 
-	if diags != nil {
-		return diags
+func readConnectMappingExport(d *schema.ResourceData, client *connect.Connect, current map[string]string) diag.Diagnostics {
+	export, _, err := client.ExportMappings(d.Id())
+	if err != nil {
+		return diag.FromErr(err)
 	}
+	if export == nil {
+		return diag.Errorf("empty Connect export for %s", d.Id())
+	}
+	delete(*export, "connection")
+	rows, ok := (*export)["mappings"].([]interface{})
+	if !ok {
+		return diag.Errorf("Connect export is missing its mappings array")
+	}
+	if d.Get("ownership_recorded").(bool) {
+		owned := d.Get("mapping_data").(map[string]interface{})
+		filtered := make([]interface{}, 0, len(owned))
+		for _, raw := range rows {
+			row, _ := raw.(map[string]interface{})
+			name, _ := row["object_name"].(string)
+			if name == "" {
+				return diag.Errorf("Connect export includes a mapping without an object_name")
+			}
+			if id, ok := owned[name]; ok && current[name] == id {
+				filtered = append(filtered, raw)
+			}
+		}
+		(*export)["mappings"] = filtered
+	}
+	value, err := export.ToString()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	return diag.FromErr(d.Set("mappings", value))
+}
 
+func deleteOwnedMapping(client *connect.Connect, id string) error {
+	resp, err := client.DeleteMapping(id)
+	if resp != nil && resp.StatusCode == http.StatusNotFound {
+		return nil
+	}
+	return err
+}
+
+func resourceHerokuxConnectMappingsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if !d.Get("ownership_recorded").(bool) {
+		d.SetId("")
+		return diag.Diagnostics{{Severity: diag.Warning, Summary: "Preserved Connect mappings because their ownership had not been established by a configured apply."}}
+	}
+	client, err := meta.(*Config).API.Connect.ForConnection(getAppID(d), getConnectID(d))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	current, err := connectMappingIDs(client, d.Id())
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	for name, id := range d.Get("mapping_data").(map[string]interface{}) {
+		if current[name] != "" && current[name] == id {
+			if err := deleteOwnedMapping(client, current[name]); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+	}
 	d.SetId("")
-
 	return nil
 }

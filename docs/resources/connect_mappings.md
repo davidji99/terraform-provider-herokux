@@ -61,17 +61,9 @@ to create a single mapping, this provider's author designed the workflow to fit 
 to manage mappings as described in this section's first paragraph.
 
 ### Resource Behavior
-This resource uses the Connect API's mapping import endpoint as means of creating mapping(s). The behavior of the import
-endpoint functions similar to a `PATCH` request. Should a user have mappings created outside of Terraform
-for the same target Connect instance, those mappings will not be affected by this resource's lifecycle.
+Apply manages the Salesforce objects named in the configured JSON. Terraform records each object's mapping ID. Removing an object from HCL or destroying the resource deletes only a matching recorded ID. Other mappings on the connection remain available. If someone recreates a managed mapping under the same name, verify the new mapping before adopting it through import and a configured apply.
 
-This resource will delete all mappings known to the resource should the resource be removed in its entirety
-from a Terraform configuration.
-
--> **IMPORTANT!**
-DO NOT make modifications (creation or deletion) to mappings via the UI or CLI once Terraform manages them.
-This will cause configuration drift, which will have unintended consequences should the mappings be subsequently modified
-via Terraform after being manually changed in the UI or CLI.
+After upgrading from an older provider or importing a connection, review the configured object list and run a normal apply to establish ownership. An immediate destroy preserves all remote mappings when ownership has not yet been established.
 
 ### Resource Delay
 This resource will wait a given amount of time after creating or updating mappings. This delay is to address a likely
@@ -220,6 +212,7 @@ between Heroku and Salesforce.
 
 The following attributes are exported:
 
+* `ownership_recorded` - True after a configured apply has established ownership of the declared mappings.
 * `mapping_ids` - List of all Connect mapping IDs currently managed by this resource.
 * `mapping_object_names` - List of all Connect mapping object names currently managed by this resource.
 * `mapping_data` - Map of the mappings where the key is the mapping object name, and the value is the map UUID.
