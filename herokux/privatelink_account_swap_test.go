@@ -111,8 +111,8 @@ func TestPrivatelinkAccountSwaps(t *testing.T) {
 			cfg := terraform.NewResourceConfigRaw(map[string]any{"addon_id": addon, "allowed_accounts": desired})
 			apply := func(wantError bool) {
 				t.Helper()
-				diff, err := r.Diff(t.Context(), state, cfg, meta)
-				require.NoError(t, err)
+				diff, planErr := r.Diff(t.Context(), state, cfg, meta)
+				require.NoError(t, planErr)
 				require.False(t, diff.Empty())
 				if scenario == "activation lookup fails then retries" && wantError {
 					// The protocol preserves a planned, known set even on errors. The retry marker must be unknown here.
@@ -120,8 +120,8 @@ func TestPrivatelinkAccountSwaps(t *testing.T) {
 					require.NotNil(t, change)
 					require.True(t, change.NewComputed)
 				}
-				next, ds := r.Apply(t.Context(), state, diff, meta)
-				require.Equal(t, wantError, ds.HasError(), "%v", ds)
+				next, applyDiags := r.Apply(t.Context(), state, diff, meta)
+				require.Equal(t, wantError, applyDiags.HasError(), "%v", applyDiags)
 				require.NotNil(t, next)
 				state = next
 			}
