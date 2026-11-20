@@ -54,3 +54,7 @@ resource "herokux_redis_maintenance_window" "foobar" {
 }
 `, redisID, window)
 }
+
+func TestRedisStructuredMaintenanceWindow(t *testing.T) {
+	testStructuredMaintenanceWindow(t, resourceHerokuxRedisMaintenanceWindow(), "redis_id", "heroku-redis")
+}
