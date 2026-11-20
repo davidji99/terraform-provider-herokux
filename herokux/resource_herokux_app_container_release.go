@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -34,6 +35,9 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 
 		CustomizeDiff: func(_ context.Context, diff *schema.ResourceDiff, _ any) error {
 			if diff.HasChange("image_id") {
+				if err := diff.SetNewComputed("pending_image_id"); err != nil {
+					return err
+				}
 				return diff.SetNewComputed("last_applied_image_id")
 			}
 			return nil
@@ -69,6 +73,7 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 			},
 
 			"last_applied_image_id": {Type: schema.TypeString, Computed: true},
+			"pending_image_id":      {Type: schema.TypeString, Computed: true},
 		},
 	}
 }
@@ -121,7 +126,7 @@ func resourceHerokuxAppContainerReleaseRead(ctx context.Context, d *schema.Resou
 }
 
 func readContainerRelease(ctx context.Context, d *schema.ResourceData, cfg *Config, expected string) diag.Diagnostics {
-	formation, _, err := observedContainerFormation(ctx, d, cfg)
+	formation, _, err := observedContainerFormation(ctx, d.Id(), cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -132,13 +137,17 @@ func readContainerRelease(ctx context.Context, d *schema.ResourceData, cfg *Conf
 		d.SetId("")
 		return nil
 	}
-	// Legacy state held only the last deployed or imported image_id.
-	if d.Get("last_applied_image_id") == "" {
-		legacy := d.Get("image_id").(string)
-		if !fullContainerDigest.MatchString(legacy) {
-			return diag.Errorf("release state has no verified image digest; verify and reimport the deployment")
-		}
-		if err := d.Set("last_applied_image_id", legacy); err != nil {
+	digest := formation.GetDockerImage().GetID()
+	pending := d.Get("pending_image_id").(string)
+	owned := containerImageOwner(d, digest)
+	if owned == "" && pending == "" {
+		return diag.Errorf("release state has no verified image digest; verify and reimport the deployment")
+	}
+	if err := d.Set("last_applied_image_id", owned); err != nil {
+		return diag.FromErr(err)
+	}
+	if pending != "" && strings.EqualFold(digest, pending) {
+		if err := d.Set("pending_image_id", ""); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -150,7 +159,6 @@ func readContainerRelease(ctx context.Context, d *schema.ResourceData, cfg *Conf
 	if err := d.Set("process_type", formation.GetType()); err != nil {
 		return diag.FromErr(err)
 	}
-	digest := formation.GetDockerImage().GetID()
 	if digest == "" {
 		return diag.Diagnostics{{Severity: diag.Warning, Summary: "Heroku did not report the deployed image digest", Detail: "Image drift cannot be verified for " + d.Id() + ". Terraform retains the recorded digest."}}
 	}
@@ -160,8 +168,26 @@ func readContainerRelease(ctx context.Context, d *schema.ResourceData, cfg *Conf
 	return diag.FromErr(d.Set("image_id", digest))
 }
 
-func observedContainerFormation(ctx context.Context, d *schema.ResourceData, cfg *Config) (*platform.Formation, string, error) {
-	ids, err := tfph.ParseCompositeID(d.Id(), 2)
+// An accepted PATCH can outlive a failed status lookup. Only its full deployed digest confirms ownership.
+func containerImageOwner(d *schema.ResourceData, deployed string) string {
+	owned := d.Get("last_applied_image_id").(string)
+	if pending := d.Get("pending_image_id").(string); pending != "" {
+		if strings.EqualFold(pending, deployed) {
+			return pending
+		}
+		return owned
+	}
+	if owned == "" {
+		// Older state only recorded the deployed or imported image_id.
+		if legacy := d.Get("image_id").(string); fullContainerDigest.MatchString(legacy) {
+			return legacy
+		}
+	}
+	return owned
+}
+
+func observedContainerFormation(ctx context.Context, id string, cfg *Config) (*platform.Formation, string, error) {
+	ids, err := tfph.ParseCompositeID(id, 2)
 	if err != nil {
 		return nil, "", err
 	}
@@ -189,7 +215,7 @@ func observedContainerFormation(ctx context.Context, d *schema.ResourceData, cfg
 
 func resourceHerokuxAppContainerReleaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*Config)
-	formation, etag, err := observedContainerFormation(ctx, d, cfg)
+	formation, etag, err := observedContainerFormation(ctx, d.Id(), cfg)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -199,10 +225,7 @@ func resourceHerokuxAppContainerReleaseDelete(ctx context.Context, d *schema.Res
 		if current == "" {
 			return diag.Errorf("cannot remove %s/%s because Heroku did not report its deployed image digest", app, process)
 		}
-		owned := d.Get("last_applied_image_id").(string)
-		if owned == "" {
-			owned = d.Get("image_id").(string)
-		}
+		owned := containerImageOwner(d, current)
 		if !strings.EqualFold(current, owned) {
 			return diag.Errorf("preserved %s/%s: deployed image %s differs from recorded image %s. Verify the deployment and explicitly reimport it or remove this entry from state", app, process, current, owned)
 		}
@@ -239,15 +262,21 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{ReleaseStatusPending, ReleaseStatusUnknown},
 		Target:  []string{ReleaseStatusSucceeded},
-		Refresh: containerReleaseStateRefreshFunc(ctx, platformAPI, appID, image, process, previous),
+		Refresh: containerReleaseStateRefreshFunc(ctx, config, appID, image, process, previous),
 		Timeout: time.Duration(config.AppContainerReleaseVerifyTimeout) * time.Minute,
 	}
 
 	matchedRelease, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		return diag.Errorf("waiting for %s container release on app %s: %s", process, appID, err)
+		ds := diag.Errorf("waiting for %s container release on app %s: %s", process, appID, err)
+		var terminal *resource.UnexpectedStateError
+		failed := errors.As(err, &terminal) && terminal.State == "failed"
+		return append(ds, recordContainerReleaseFailure(d, image, failed)...)
 	}
 
+	if err := d.Set("pending_image_id", ""); err != nil {
+		return diag.FromErr(err)
+	}
 	if err := d.Set("last_applied_image_id", image); err != nil {
 		return diag.FromErr(err)
 	}
@@ -258,36 +287,90 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 	log.Printf("[DEBUG] Released %s container on app %s", process, appID)
 
 	ds := readContainerRelease(ctx, d, config, image)
-	if !ds.HasError() {
-		d.Partial(false)
+	if ds.HasError() && matchedRelease != true {
+		return append(ds, recordContainerReleaseFailure(d, image, false)...)
 	}
+	d.Partial(false)
 	return ds
 }
 
-func containerReleaseStateRefreshFunc(ctx context.Context, client *heroku.Service, appID, imageID, process string, previous int) resource.StateRefreshFunc {
+func recordContainerReleaseFailure(d *schema.ResourceData, image string, failed bool) diag.Diagnostics {
+	// Partial mode would discard the accepted image. Restore the last observation explicitly.
+	previous, _ := d.GetChange("image_id")
+	owned, _ := d.GetChange("last_applied_image_id")
+	priorPending, _ := d.GetChange("pending_image_id")
+	if owned == "" && priorPending == "" {
+		owned = previous
+	}
+	d.Partial(false)
+	if previous != "" {
+		if err := d.Set("image_id", previous); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if err := d.Set("last_applied_image_id", owned); err != nil {
+		return diag.FromErr(err)
+	}
+	pending := image
+	if failed {
+		pending = priorPending.(string)
+		if strings.EqualFold(pending, image) {
+			pending = ""
+		}
+		if owned == "" && pending == "" {
+			d.SetId("")
+		}
+	}
+	return diag.FromErr(d.Set("pending_image_id", pending))
+}
+
+func containerReleaseStateRefreshFunc(ctx context.Context, cfg *Config, appID, imageID, process string, previous int) resource.StateRefreshFunc {
 	desc := fmt.Sprintf("Deployed %s (%s)", process, strings.ToLower(strings.TrimPrefix(imageID, "sha256:")[:12]))
 	var releaseID string
 	return func() (interface{}, string, error) {
 		if releaseID != "" {
-			r, err := client.ReleaseInfo(ctx, appID, releaseID)
+			r, err := cfg.PlatformAPI.ReleaseInfo(ctx, appID, releaseID)
 			if err != nil {
 				return nil, ReleaseStatusError, err
 			}
 			return true, r.Status, nil
 		}
-		releases, err := client.ReleaseList(ctx, appID, &heroku.ListRange{Field: "version", Descending: true, Max: 20})
+		releases, err := cfg.PlatformAPI.ReleaseList(ctx, appID, &heroku.ListRange{Field: "version", Descending: true, Max: 20})
 		if err != nil {
 			return nil, ReleaseStatusError, err
 		}
+		if len(releases) == 0 && previous == 0 {
+			return false, ReleaseStatusSucceeded, nil
+		}
 		unchanged := len(releases) > 0 && releases[0].Version == previous
+		historicalFailure := false
 		for _, r := range releases {
-			if r.Description == desc && (r.Version > previous || unchanged) {
+			if r.Description != desc {
+				continue
+			}
+			if r.Version > previous || r.Status == ReleaseStatusPending || (unchanged && r.Version == previous) {
 				releaseID = r.ID
 				return true, r.Status, nil
 			}
+			// A later release may have deployed this image in a multi-process update.
+			historicalFailure = r.Status == "failed"
+			break
 		}
-		if unchanged || (len(releases) == 0 && previous == 0) {
+		if unchanged && !historicalFailure {
+			// The final formation read verifies the requested image for a no-op PATCH.
 			return false, ReleaseStatusSucceeded, nil
+		}
+
+		// An unrelated or multi-process release can advance the app version without changing this process.
+		formation, _, lookupErr := observedContainerFormation(ctx, appID+":"+process, cfg)
+		if lookupErr != nil {
+			return nil, ReleaseStatusError, lookupErr
+		}
+		if strings.EqualFold(formation.GetDockerImage().GetID(), imageID) {
+			return true, ReleaseStatusSucceeded, nil
+		}
+		if unchanged {
+			return nil, ReleaseStatusError, fmt.Errorf("cannot verify the requested image %s on %s/%s after an earlier failed release", imageID, appID, process)
 		}
 		return false, ReleaseStatusUnknown, nil
 	}

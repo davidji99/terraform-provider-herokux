@@ -191,13 +191,15 @@ func TestContainerReleaseWaitsForNewMatchingRelease(t *testing.T) {
 	defer srv.Close()
 	c := heroku.NewService(srv.Client())
 	c.URL = srv.URL
-	poll := containerReleaseStateRefreshFunc(t.Context(), c, "app", "sha256:"+strings.Repeat("a", 64), "web", 10)
-	_, status, err := poll()
-	require.NoError(t, err)
-	require.Equal(t, "pending", status)
-	_, status, err = poll()
-	require.NoError(t, err)
-	require.Equal(t, "failed", status)
+	for _, previous := range []int{10, 11} {
+		poll := containerReleaseStateRefreshFunc(t.Context(), &Config{PlatformAPI: c}, "app", "sha256:"+strings.Repeat("a", 64), "web", previous)
+		_, status, err := poll()
+		require.NoError(t, err)
+		require.Equal(t, "pending", status)
+		_, status, err = poll()
+		require.NoError(t, err)
+		require.Equal(t, "failed", status)
+	}
 }
 
 func TestSensitiveProviderAndSpaceFields(t *testing.T) {
@@ -272,7 +274,7 @@ func TestContainerReleaseUnchangedVersion(t *testing.T) {
 			defer srv.Close()
 			c := heroku.NewService(srv.Client())
 			c.URL = srv.URL
-			poll := containerReleaseStateRefreshFunc(t.Context(), c, "app", "sha256:"+strings.Repeat("a", 64), "web", 10)
+			poll := containerReleaseStateRefreshFunc(t.Context(), &Config{PlatformAPI: c}, "app", "sha256:"+strings.Repeat("a", 64), "web", 10)
 			_, status, err := poll()
 			require.NoError(t, err)
 			require.Equal(t, tc.status, status)

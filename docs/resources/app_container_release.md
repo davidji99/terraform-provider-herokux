@@ -19,6 +19,8 @@ Destroy removes the process type from the app. Terraform checks that the deploye
 
 If Heroku omits the image digest, refresh warns and keeps the recorded value. Import requires a matching digest, and destroy requires both a matching digest and an ETag.
 
+If another deployment advances the app's release version or a later release may have superseded a failure, Terraform checks the image digest on the target process. A matching pending release is followed to completion.
+
 ### Resource Timeouts
 This resource checks the status of an app container release modification. The default timeout is 20 minutes,
 which can be customized via the `timeouts.app_container_release_verify_timeout` attributes in your `provider` block.
@@ -91,6 +93,7 @@ For more information regarding how to retrieve this value, visit [this article](
 The following attributes are exported:
 
 * `last_applied_image_id` records the image digest Terraform last deployed or imported.
+* `pending_image_id` records an accepted image change when release verification is interrupted. Refresh confirms ownership when Heroku reports that full digest for the process.
 
 ## Import
 
