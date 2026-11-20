@@ -63,7 +63,7 @@ The following attributes are exported:
 ## Import
 
 An existing Postgres connection pooling can be imported using the connection pooling ID, which is also
-the addon attachment ID.
+the add-on attachment ID. The provider verifies the Postgres service and `connection-pooling:default` attachment namespace on import, refresh and before detaching. A custom alias is supported. If an older state entry points to an ordinary attachment, remove that entry from Terraform state before importing the correct pool.
 
 For example:
 
