@@ -100,8 +100,7 @@ for a list of valid properties that can be set for this attribute. Please also n
       please set its value to the default value as mentioned in the article above and keep the setting in your configuration.
 
 -> **IMPORTANT!**
-The only updatable attributes are `settings` and `state`. All other attribute modifications will result
-in destruction and recreation.
+`tables`, `excluded_columns`, `settings` and `state` update the existing connector in place. Set `excluded_columns = []` to clear all exclusions. Changing `source_id`, `store_id` or `name` replaces the connector.
 
 ## Attributes Reference
 
