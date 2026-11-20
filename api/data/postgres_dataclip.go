@@ -110,8 +110,10 @@ type postgresDataclipGetResponse struct {
 
 // GetPostgresDataclip returns a single dataclip.
 func (d *Data) GetPostgresDataclip(slug string) (*PostgresDataclip, *simpleresty.Response, error) {
-	resp := postgresDataclipGetResponse{}
-	respBody := &graphql.Response{Data: &resp}
+	var result struct {
+		Data postgresDataclipGetResponse `json:"data"`
+		graphql.ErrorResponse
+	}
 
 	urlStr, queryErr := d.http.RequestURLWithQueryParams("/graphql",
 		graphql.GetQueryParam{Query: postgresDataclipGetKey, Variables: fmt.Sprintf("{\"slug\": \"%s\"}", slug)})
@@ -119,16 +121,18 @@ func (d *Data) GetPostgresDataclip(slug string) (*PostgresDataclip, *simpleresty
 		return nil, nil, queryErr
 	}
 
-	response, getErr := d.http.Get(urlStr, &respBody, nil)
+	response, getErr := d.http.Get(urlStr, &result, nil)
 	if getErr != nil {
 		return nil, response, getErr
 	}
 
-	if resp.Clip == nil {
-		return nil, nil, errors.New(response.Body)
+	if len(result.Errors) > 0 {
+		return nil, response, &result.ErrorResponse
 	}
-
-	return resp.Clip, response, nil
+	if result.Data.Clip == nil {
+		return nil, response, fmt.Errorf("dataclip %s missing from GraphQL response", slug)
+	}
+	return result.Data.Clip, response, nil
 }
 
 // PostgresDataclipCreateRequest represents a request to create a postgres dataclip.
