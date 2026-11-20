@@ -68,7 +68,7 @@ The following arguments are supported:
 * `region` - (Required) `<string>` [Heroku region name](https://devcenter.heroku.com/articles/regions#viewing-available-regions).
   Valid options: `dublin`, `frankfurt`, `oregon`, `sydney`, `tokyo`, `virginia`.
 * `log_drain` - (Required) `<string>` Direct log drain url. Must be a HTTPS url.
-* `team_id` - (Required) `<string>` The UUID of the Heroku Team which will own the Shield Private Space.
+* `team_id` - (Required) `<string>` The owning Heroku team's UUID. Changing this value transfers the existing space and its apps to the destination team and preserves the space UUID. Both teams must belong to the same Enterprise Account. The caller must be an admin of both teams or have the Enterprise Account's `manage` permission. [Heroku space transfers](https://devcenter.heroku.com/articles/working-with-private-spaces#transfer-a-private-space)
 * `cidr` - (Optional) `<string>` The RFC-1918 CIDR the Private Space will use.
   It must be a /16 in `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16`.
 * `data_cidr` - (Optional) `<string>` The RFC-1918 CIDR that the Private Space will use for the Heroku-managed peering connection
