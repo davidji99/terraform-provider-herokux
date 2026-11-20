@@ -2,11 +2,18 @@ package postgres
 
 import "github.com/davidji99/simpleresty"
 
+// StringSetting contains the value returned for a string-valued Postgres setting.
+type StringSetting struct {
+	Value *string `json:"value,omitempty"`
+}
+
 // Settings represents the available settings for a Heroku postgres database.
 type Settings struct {
 	LogLockWaits            *LogLockWaits            `json:"log_lock_waits,omitempty"`
 	LogConnections          *LogConnections          `json:"log_connections,omitempty"`
 	LogMinDurationStatement *LogMinDurationStatement `json:"log_min_duration_statement,omitempty"`
+	LogMinErrorStatement    StringSetting            `json:"log_min_error_statement,omitzero"`
+	TrackFunctions          StringSetting            `json:"track_functions,omitzero"`
 	LogStatement            *LogStatement            `json:"log_statement,omitempty"`
 }
 
@@ -68,6 +75,9 @@ type SettingsRequest struct {
 	// - mod: Includes all statements from ddl as well as data-modifying statements such as INSERT, UPDATE, DELETE, TRUNCATE, COPY
 	// - all: All statements are logged`,
 	LogStatement string `json:"log_statement,omitempty"`
+
+	LogMinErrorStatement string `json:"log_min_error_statement,omitempty"`
+	TrackFunctions       string `json:"track_functions,omitempty"`
 }
 
 // GetSettings returns all settings for a postgres database.

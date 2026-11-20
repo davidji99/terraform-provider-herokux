@@ -51,6 +51,20 @@ func resourceHerokuxPostgresSettings() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(-1),
 			},
 
+			"log_min_error_statement": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"error", "log", "fatal", "panic"}, false),
+			},
+
+			"track_functions": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringInSlice([]string{"none", "pl", "all"}, false),
+			},
+
 			"log_statement": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -100,6 +114,13 @@ func resourceHerokuxPostgresSettingsCreate(ctx context.Context, d *schema.Resour
 		log.Printf("[DEBUG] settings log_min_duration_statement is : %v", opts.LogMinDurationStatement)
 	}
 
+	if v, ok := d.GetOk("log_min_error_statement"); ok {
+		opts.LogMinErrorStatement = v.(string)
+	}
+	if v, ok := d.GetOk("track_functions"); ok {
+		opts.TrackFunctions = v.(string)
+	}
+
 	if v, ok := d.GetOk("log_statement"); ok {
 		opts.LogStatement = v.(string)
 		log.Printf("[DEBUG] settings log_statement is : %v", opts.LogStatement)
@@ -129,11 +150,21 @@ func resourceHerokuxPostgresSettingsRead(ctx context.Context, d *schema.Resource
 		return diag.FromErr(getErr)
 	}
 
+	if s == nil {
+		return diag.Errorf("empty settings response for Postgres database %s", d.Id())
+	}
+
 	d.Set("postgres_id", d.Id())
 	d.Set("log_lock_waits", s.GetLogLockWaits().GetValue())
 	d.Set("log_connections", s.GetLogConnections().GetValue())
 	d.Set("log_min_duration_statement", s.GetLogMinDurationStatement().GetValue())
 	d.Set("log_statement", s.GetLogStatement().GetValue())
+	if err := d.Set("log_min_error_statement", s.LogMinErrorStatement.Value); err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("track_functions", s.TrackFunctions.Value); err != nil {
+		return diag.FromErr(err)
+	}
 
 	return nil
 }
@@ -160,6 +191,13 @@ func resourceHerokuxPostgresSettingsUpdate(ctx context.Context, d *schema.Resour
 		duration := d.Get("log_min_duration_statement").(int)
 		opts.LogMinDurationStatement = &duration
 		log.Printf("[DEBUG] settings log_min_duration_statement is : %v", opts.LogMinDurationStatement)
+	}
+
+	if d.HasChange("log_min_error_statement") {
+		opts.LogMinErrorStatement = d.Get("log_min_error_statement").(string)
+	}
+	if d.HasChange("track_functions") {
+		opts.TrackFunctions = d.Get("track_functions").(string)
 	}
 
 	if ok := d.HasChange("log_statement"); ok {

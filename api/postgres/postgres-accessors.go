@@ -1080,3 +1080,11 @@ func (s *SettingsRequest) GetLogMinDurationStatement() int {
 	}
 	return *s.LogMinDurationStatement
 }
+
+// GetValue returns the Value field if it's non-nil, zero value otherwise.
+func (s *StringSetting) GetValue() string {
+	if s == nil || s.Value == nil {
+		return ""
+	}
+	return *s.Value
+}
