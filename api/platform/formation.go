@@ -1,7 +1,13 @@
 package platform
 
 import (
+	"context"
+	"fmt"
+	"net/http"
+	"net/url"
+
 	"github.com/davidji99/simpleresty"
+	"github.com/go-resty/resty/v2"
 	"time"
 )
 
@@ -45,17 +51,13 @@ type FormationDockerUpdateOpts struct {
 // Reference: https://devcenter.heroku.com/articles/container-registry-and-runtime#api
 func (p *Platform) FormationContainerBatchUpdate(appIdOrName string, opts *FormationDockerBatchUpdateOpts) (
 	[]*Formation, *simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
 
 	var result []*Formation
 
-	urlStr := p.http.RequestURL("/apps/%s/formation", appIdOrName)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", DockerReleasesAcceptHeader)
+	urlStr := p.docker.RequestURL("/apps/%s/formation", appIdOrName)
 
 	// Execute the request
-	response, updateErr := p.http.Patch(urlStr, &result, opts)
+	response, updateErr := p.docker.Patch(urlStr, &result, opts)
 
 	return result, response, updateErr
 }
@@ -65,15 +67,39 @@ func (p *Platform) FormationContainerBatchUpdate(appIdOrName string, opts *Forma
 // To destroy an existing process type's container, pass in `nil` for the `docker_image` field in the request body.
 func (p *Platform) FormationContainerUpdate(appIdOrName string, processType string, opts *FormationDockerUpdateOpts) (
 	*simpleresty.Response, error) {
-	defer p.resetAcceptHeader()
 
-	urlStr := p.http.RequestURL("/apps/%s/formation/%s", appIdOrName, processType)
-
-	// TODO: remove custom Accept headers when APIs fully launch.
-	p.http.SetHeader("Accept", DockerReleasesAcceptHeader)
+	urlStr := p.docker.RequestURL("/apps/%s/formation/%s", appIdOrName, processType)
 
 	// Execute the request
-	response, updateErr := p.http.Patch(urlStr, nil, opts)
+	response, updateErr := p.docker.Patch(urlStr, nil, opts)
 
 	return response, updateErr
+}
+
+func (p *Platform) GetContainerFormation(ctx context.Context, app, process string) (*Formation, *resty.Response, error) {
+	path := p.docker.RequestURL("/apps/%s/formation/%s", url.PathEscape(app), url.PathEscape(process))
+	var formation Formation
+	resp, err := p.docker.R().SetContext(ctx).SetResult(&formation).Get(path)
+	if err != nil {
+		return nil, resp, err
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return nil, resp, fmt.Errorf("read container formation %s: %s", process, resp.Status())
+	}
+	return &formation, resp, nil
+}
+
+func (p *Platform) RemoveContainerFormation(ctx context.Context, app, process, etag string) error {
+	if etag == "" {
+		return fmt.Errorf("missing ETag for container formation %s", process)
+	}
+	path := p.docker.RequestURL("/apps/%s/formation/%s", url.PathEscape(app), url.PathEscape(process))
+	resp, err := p.docker.R().SetContext(ctx).SetHeader("If-Match", etag).SetBody(map[string]any{"docker_image": nil}).Patch(path)
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("remove container formation %s: %s", process, resp.Status())
+	}
+	return nil
 }

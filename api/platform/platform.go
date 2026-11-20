@@ -24,13 +24,16 @@ const (
 type Platform struct {
 	http     *simpleresty.Client
 	webhooks *simpleresty.Client
+	docker   *simpleresty.Client
 }
 
 // New constructs a client to interface with the Heroku Platform APIs.
 func New(config *config2.Config) *Platform {
 	webhooks := newPlatformClient(config)
 	webhooks.SetHeader("Accept", WebhooksAcceptHeader)
-	return &Platform{http: newPlatformClient(config), webhooks: webhooks}
+	docker := newPlatformClient(config)
+	docker.SetHeader("Accept", DockerReleasesAcceptHeader)
+	return &Platform{http: newPlatformClient(config), webhooks: webhooks, docker: docker}
 }
 
 func newPlatformClient(config *config2.Config) *simpleresty.Client {

@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -56,6 +57,8 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 				ValidateFunc: validateImageID,
 			},
 
+			"last_applied_image_id": {Type: schema.TypeString, Computed: true},
+
 			//"container": {
 			//	Type:     schema.TypeSet,
 			//	Required: true,
@@ -82,9 +85,11 @@ func resourceHerokuxAppContainerRelease() *schema.Resource {
 	}
 }
 
+var fullContainerDigest = regexp.MustCompile(`^sha256:[A-Fa-f0-9]{64}$`)
+
 func validateImageID(v interface{}, k string) (ws []string, errors []error) {
 	name := v.(string)
-	if !regexp.MustCompile(`^sha256:[A-Fa-f0-9]{64}$`).MatchString(name) {
+	if !fullContainerDigest.MatchString(name) {
 		errors = append(errors, fmt.Errorf("invalid image ID"))
 	}
 	return
@@ -105,8 +110,18 @@ func resourceHerokuxAppContainerReleaseImport(ctx context.Context, d *schema.Res
 
 	d.Set("app_id", appID)
 	d.Set("process_type", processType)
-	d.Set("image_id", imageID)
-
+	if !fullContainerDigest.MatchString(imageID) {
+		return nil, fmt.Errorf("invalid import image digest")
+	}
+	if err := d.Set("last_applied_image_id", imageID); err != nil {
+		return nil, err
+	}
+	if ds := resourceHerokuxAppContainerReleaseRead(ctx, d, meta); ds.HasError() {
+		return nil, fmt.Errorf("import container release: %s", ds[0].Summary)
+	}
+	if d.Id() == "" || !strings.EqualFold(d.Get("image_id").(string), imageID) {
+		return nil, fmt.Errorf("the imported digest does not match the deployed %s image", processType)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -123,55 +138,80 @@ func resourceHerokuxAppContainerReleaseCreate(ctx context.Context, d *schema.Res
 }
 
 func resourceHerokuxAppContainerReleaseRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
-	if parseErr != nil {
-		return diag.FromErr(parseErr)
+	app, process, id, _, err := observedContainerImage(ctx, d, meta.(*Config))
+	if err != nil {
+		return diag.FromErr(err)
 	}
-	appID := compositeID[0]
-	processType := compositeID[1]
-
-	d.Set("app_id", appID)
-	d.Set("process_type", processType)
-	d.Set("image_id", d.Get("image_id").(string))
-
+	if id == "" {
+		d.SetId("")
+		return nil
+	}
+	// Legacy state held only the last deployed or imported image_id.
+	if d.Get("last_applied_image_id") == "" {
+		legacy := d.Get("image_id").(string)
+		if !fullContainerDigest.MatchString(legacy) {
+			return diag.Errorf("release state has no verified image digest; verify and reimport the deployment")
+		}
+		if err := d.Set("last_applied_image_id", legacy); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	for key, value := range map[string]string{"app_id": app, "process_type": process, "image_id": id} {
+		if err := d.Set(key, value); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 	return nil
 }
 
-func resourceHerokuxAppContainerReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	releaseErr := releaseContainer(ctx, d, meta)
-	if releaseErr != nil {
-		return releaseErr
+func observedContainerImage(ctx context.Context, d *schema.ResourceData, cfg *Config) (app, process, digest, etag string, err error) {
+	ids, err := tfph.ParseCompositeID(d.Id(), 2)
+	if err != nil {
+		return "", "", "", "", err
 	}
+	app, process = ids[0], ids[1]
+	formation, resp, err := cfg.API.Platform.GetContainerFormation(ctx, app, process)
+	if resp != nil && resp.StatusCode() == http.StatusNotFound {
+		// A missing process is conclusive only while the app is still visible.
+		_, err = cfg.PlatformAPI.AppInfo(ctx, app)
+		return app, process, "", "", err
+	}
+	if err != nil {
+		return app, process, "", "", err
+	}
+	digest = formation.GetDockerImage().GetID()
+	if formation.GetType() != process || formation.App.ID == nil || *formation.App.ID != app || !fullContainerDigest.MatchString(digest) {
+		return app, process, "", "", fmt.Errorf("Heroku did not identify the deployed image for %s/%s with a full digest; verify the formation before proceeding", app, process)
+	}
+	return app, process, digest, resp.Header().Get("ETag"), nil
+}
 
+func resourceHerokuxAppContainerReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if ds := releaseContainer(ctx, d, meta); ds.HasError() {
+		return ds
+	}
 	return resourceHerokuxAppContainerReleaseRead(ctx, d, meta)
 }
 
 func resourceHerokuxAppContainerReleaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-	config := meta.(*Config)
-	clientAPI := config.API
-
-	// The resource will destroy the container upon deletion similar to the `heroku container:rm PROCESS_Type` command.
-	compositeID, parseErr := tfph.ParseCompositeID(d.Id(), 2)
-	if parseErr != nil {
-		return diag.FromErr(parseErr)
+	cfg := meta.(*Config)
+	app, process, current, etag, err := observedContainerImage(ctx, d, cfg)
+	if err != nil {
+		return diag.FromErr(err)
 	}
-	appID := compositeID[0]
-	processType := compositeID[1]
-
-	_, updateErr := clientAPI.Platform.FormationContainerUpdate(appID, processType,
-		&platform.FormationDockerUpdateOpts{DockerImageID: nil})
-	if updateErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("Unable to destroy release containers for %s on %s", processType, appID),
-			Detail:   updateErr.Error(),
-		})
-		return diags
+	if current != "" {
+		owned := d.Get("last_applied_image_id").(string)
+		if owned == "" {
+			owned = d.Get("image_id").(string)
+		}
+		if !strings.EqualFold(current, owned) {
+			return diag.Errorf("preserved %s/%s: deployed image %s differs from recorded image %s. Verify the deployment and explicitly reimport it or remove this entry from state", app, process, current, owned)
+		}
+		if err := cfg.API.Platform.RemoveContainerFormation(ctx, app, process, etag); err != nil {
+			return diag.FromErr(err)
+		}
 	}
-
 	d.SetId("")
-
 	return nil
 }
 
@@ -238,6 +278,9 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 		return diag.Errorf("error waiting for %s container release on app %s to succeed", imageOpts.Type, appID)
 	}
 
+	if err := d.Set("last_applied_image_id", *imageOpts.DockerImageID); err != nil {
+		return diag.FromErr(err)
+	}
 	log.Printf("[DEBUG] Released %s container on app %s", imageOpts.Type, appID)
 
 	return diags
