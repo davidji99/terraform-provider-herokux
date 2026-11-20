@@ -3,6 +3,8 @@ package herokux
 import (
 	"context"
 	"log"
+	"regexp"
+	"strings"
 
 	"github.com/davidji99/terraform-provider-herokux/api/redis"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -17,6 +19,23 @@ var (
 	redisKeystoreEvents = []string{
 		"K", "E", "g", "$", "l", "s", "h", "z", "t", "x", "e", "m", "A", redis.DisableNotifyKeyspaceEvents}
 )
+
+// Redis can reorder flags and abbreviate the standard event classes as A.
+func equivalentRedisNotificationFlags(a, b string) bool {
+	expand := func(flags string) string {
+		if flags == redis.DisableNotifyKeyspaceEvents {
+			return ""
+		}
+		return strings.ReplaceAll(flags, "A", "g$lshztxe")
+	}
+	a, b = expand(a), expand(b)
+	for _, flag := range "KEg$lshztxem" {
+		if strings.ContainsRune(a, flag) != strings.ContainsRune(b, flag) {
+			return false
+		}
+	}
+	return true
+}
 
 func resourceHerokuxRedisConfig() *schema.Resource {
 	return &schema.Resource{
@@ -49,7 +68,17 @@ func resourceHerokuxRedisConfig() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.StringInSlice(redisKeystoreEvents, false),
+				ValidateFunc: validation.StringMatch(regexp.MustCompile(`^(disabled|[KEg$lshztxemA]*)$`), "use Redis notification flags, an empty string, or disabled"),
+				StateFunc: func(v interface{}) string {
+					if v == "" {
+						return redis.DisableNotifyKeyspaceEvents
+					}
+					return v.(string)
+				},
+				DiffSuppressFunc: func(_ string, old, next string, d *schema.ResourceData) bool {
+					return d.Id() != "" && equivalentRedisNotificationFlags(old, next)
+				},
+				DiffSuppressOnRefresh: true,
 			},
 
 			"timeout": {
@@ -91,7 +120,7 @@ func resourceHerokuxRedisConfigUpdate(ctx context.Context, d *schema.ResourceDat
 		opts.MaxmemoryPolicy = vs
 	}
 
-	if v, ok := d.GetOk("notify_keyspace_events"); ok {
+	if v, ok := d.GetOkExists("notify_keyspace_events"); ok {
 		vs := v.(string)
 		if vs == redis.DisableNotifyKeyspaceEvents {
 			// Set the opt value to empty string ""
