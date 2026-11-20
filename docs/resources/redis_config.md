@@ -56,7 +56,7 @@ The following arguments are supported:
     * `volatile-lfu` will evict using approximated LFU among the keys with an expire set.
     * `allkeys-lfu` will evict any key using approximated LFU.
 * `notify_keyspace_events` - (Optional) `<string>` Enable specific [keyspace notifications](https://redis.io/topics/notifications)
-configuration. Heroku, by default, sets this to `disabled`. Valid options are as follows:
+configuration. Combine flags, for example `KEA`, or use `""` or `disabled` to turn notifications off. Flag order does not affect the configuration.
     * `K` Keyspace events, published with `__keyspace@<db>__` prefix.
     * `E` Keyevent events, published with `__keyevent@<db>__` prefix.
     * `g` Generic commands (non-type specific) like DEL, EXPIRE, RENAME, ....
