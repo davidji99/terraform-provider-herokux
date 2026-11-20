@@ -230,8 +230,8 @@ func releaseContainer(ctx context.Context, d *schema.ResourceData, meta interfac
 	if len(releases) != 0 {
 		previous = releases[0].Version
 	}
-	if err := clientAPI.Platform.ReleaseContainerImage(ctx, appID, process, image); err != nil {
-		return diag.FromErr(err)
+	if releaseErr := clientAPI.Platform.ReleaseContainerImage(ctx, appID, process, image); releaseErr != nil {
+		return diag.FromErr(releaseErr)
 	}
 	d.SetId(appID + ":" + process)
 	log.Printf("[INFO] Begin checking if %s container release on app %s is successful", process, appID)
