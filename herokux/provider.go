@@ -334,6 +334,7 @@ func New() *schema.Provider {
 			"herokux_redis_maintenance_window":           resourceHerokuxRedisMaintenanceWindow(),
 			"herokux_scheduler_job":                      resourceHerokuxSchedulerJob(),
 			"herokux_shield_private_space":               resourceHerokuxShieldPrivateSpace(),
+			"herokux_team_oauth_authorization":           resourceHerokuxTeamOAuthAuthorization(),
 
 			//"herokux_postgres":                  resourceHerokuxPostgres(),
 		},
