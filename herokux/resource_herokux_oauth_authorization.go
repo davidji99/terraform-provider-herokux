@@ -20,6 +20,9 @@ const (
 	OneWeekInSeconds = 604800
 )
 
+var validateOAuthScope = validation.StringInSlice([]string{"global", "read",
+	"write", "read-protected", "write-protected", "identity"}, false)
+
 func resourceHerokuxOauthAuthorization() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceHerokuxOauthAuthorizationCreate,
@@ -39,9 +42,8 @@ func resourceHerokuxOauthAuthorization() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Elem: &schema.Schema{
-					Type: schema.TypeString,
-					ValidateFunc: validation.StringInSlice([]string{"global", "read",
-						"write", "read-protected", "write-protected", "identity"}, false),
+					Type:         schema.TypeString,
+					ValidateFunc: validateOAuthScope,
 				},
 				Description: "Set custom OAuth scopes",
 			},
