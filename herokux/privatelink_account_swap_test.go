@@ -131,8 +131,8 @@ resource "herokux_privatelink" "test" {
 							}
 						}
 					}
-					raw, err := os.ReadFile(filepath.Join(dir, "terraform.tfstate"))
-					require.NoError(t, err)
+					raw, readErr := os.ReadFile(filepath.Join(dir, "terraform.tfstate"))
+					require.NoError(t, readErr)
 					require.NoError(t, json.Unmarshal(raw, &state))
 					attrs := state.Resources[0].Instances[0].Attributes
 					require.ElementsMatch(t, want, attrs.Observed)

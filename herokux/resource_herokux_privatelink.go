@@ -201,7 +201,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 		previous = oldRaw.(*schema.Set) // State from providers predating observed_allowed_accounts.
 	}
 	waitFor := pending.(*schema.Set).Intersection(desired).Union(add).Union(desired.Difference(previous))
-	if err := d.Set("pending_account_additions", waitFor); err != nil {
+	if err = d.Set("pending_account_additions", waitFor); err != nil {
 		return diag.FromErr(err)
 	}
 	if add.Len() > 0 {
@@ -219,7 +219,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 	if remove.Len() > 0 {
-		if err := ctx.Err(); err != nil {
+		if err = ctx.Err(); err != nil {
 			return diag.FromErr(err)
 		}
 		_, _, err = cfg.API.Postgres.RemovePrivatelinkAllowedAccounts(d.Id(), &postgres.PrivatelinkRequest{AllowedAccounts: formatSetListToStringList(remove.List())})
