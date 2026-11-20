@@ -16,7 +16,7 @@ Credentials created by this resource do not have any permissions by default. To 
 please use the Heroku CLI (`heroku pg:psql`) or visit the UI for further action.
 
 -> **IMPORTANT!**
-Please be very careful when deleting this resource as any deleted credentials are NOT recoverable and invalidated immediately.
+Terraform checks the database’s add-on attachments before deleting a credential. If any apps still use it, the error lists the apps to detach it from. After detaching, run Terraform again. Deleting the credential invalidates it immediately.
 Furthermore, this resource renders the `secrets.username` & `secrets.password` attributes in plain-text in your state file.
 Please ensure that your state file is properly secured and encrypted at rest.
 
