@@ -1053,3 +1053,11 @@ func (s *SettingsRequest) GetLogLockWaits() bool {
 	}
 	return *s.LogLockWaits
 }
+
+// GetLogMinDurationStatement returns the LogMinDurationStatement field if it's non-nil, zero value otherwise.
+func (s *SettingsRequest) GetLogMinDurationStatement() int {
+	if s == nil || s.LogMinDurationStatement == nil {
+		return 0
+	}
+	return *s.LogMinDurationStatement
+}

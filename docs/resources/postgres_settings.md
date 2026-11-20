@@ -61,6 +61,8 @@ resource "herokux_postgres_settings" "foobar" {
 
 ## Argument Reference
 
+Only configured settings are sent on creation. Explicit `false` disables a logging switch, and `0` enables logging of every statement duration.
+
 The following arguments are supported:
 
 * `postgres_id` - (Required) `<string>` The UUID or name of a Heroku postgres addon.
