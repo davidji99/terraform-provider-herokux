@@ -2,6 +2,7 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/davidji99/tfph"
 	"log"
@@ -45,11 +46,14 @@ func resourceHerokuxKafkaConsumerGroup() *schema.Resource {
 }
 
 func resourceHerokuxKafkaConsumerGroupImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.SetId(d.Id())
+	importID := d.Id()
 
 	readErr := resourceHerokuxKafkaConsumerGroupRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf("unable to import existing MTLS configuration")
+		return nil, fmt.Errorf("unable to import Kafka consumer group %s: %s", importID, readErr[0].Summary)
+	}
+	if d.Id() == "" {
+		return nil, fmt.Errorf("Kafka consumer group %s not found", importID)
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -102,6 +106,10 @@ func resourceHerokuxKafkaConsumerGroupRead(ctx context.Context, d *schema.Resour
 	}
 
 	group, _, getErr := client.Kafka.GetConsumerGroupByName(result[0], result[1])
+	if errors.Is(getErr, kafka.ErrConsumerGroupNotFound) && !d.IsNewResource() {
+		d.SetId("")
+		return nil
+	}
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
