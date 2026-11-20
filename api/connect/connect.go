@@ -20,6 +20,15 @@ func New(config *config2.Config) *Connect {
 	return c
 }
 
+// ForConnection returns a regional client dedicated to a single resource operation.
+func (c *Connect) ForConnection(appID, connectID string) (*Connect, error) {
+	regional := New(c.config)
+	if err := regional.SetRootAPIBaseURL(appID, connectID); err != nil {
+		return nil, err
+	}
+	return regional, nil
+}
+
 // SetRootAPIBaseURL determines and sets the client's base URL based on the specified appID & connectID arguments.
 //
 // This is required.
