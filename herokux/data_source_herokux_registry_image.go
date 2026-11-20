@@ -3,6 +3,7 @@ package herokux
 import (
 	"context"
 	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -71,14 +72,21 @@ func dataSourceHerokuxRegistryImageRead(ctx context.Context, d *schema.ResourceD
 		return diags
 	}
 
+	digest, layers, err := image.ReleaseImage()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if !fullContainerDigest.MatchString(digest) {
+		return diag.Errorf("registry manifest for %s/%s has an invalid image digest", appID, processType)
+	}
 	d.SetId(fmt.Sprintf("%s:%s:%s", appID, processType, dockerTag))
 	d.Set("app_id", appID)
 	d.Set("process_type", processType)
 	d.Set("docker_tag", dockerTag)
 	d.Set("size", image.GetConfig().GetSize())
 	d.Set("schema_version", image.GetSchemaVersion())
-	d.Set("digest", image.GetConfig().GetDigest())
-	d.Set("number_of_layers", len(image.Layers))
+	d.Set("digest", digest)
+	d.Set("number_of_layers", layers)
 
 	return diags
 }

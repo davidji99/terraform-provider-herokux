@@ -2,6 +2,12 @@ package herokux
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"runtime"
+
 	"github.com/bgentry/go-netrc/netrc"
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api"
@@ -9,11 +15,6 @@ import (
 	"github.com/davidji99/terraform-provider-herokux/version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/mitchellh/go-homedir"
-	"log"
-	"net/http"
-	"net/url"
-	"os"
-	"runtime"
 )
 
 const (
@@ -134,6 +135,8 @@ func (c *Config) initializeAPI() error {
 		config.MetricsBaseURL(c.metricsURL),
 		config.PostgresAdvancedBaseURL(c.postgresAdvancedURL),
 		config.PostgresBaseURL(c.postgresURL),
+		config.KafkaBaseURL(c.postgresURL),
+		config.DataBaseURL(c.dataURL),
 		config.PlatformBaseURL(c.platformURL),
 		config.RedisBaseURL(c.redisURL),
 		config.ConnectCentralBaseURL(c.connectCentralURL),

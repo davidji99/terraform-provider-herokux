@@ -3,6 +3,9 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
@@ -11,8 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"time"
 )
 
 func resourceHerokuxPostgresMTLSIPRule() *schema.Resource {
@@ -127,6 +128,11 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(createErr)
 	}
 
+	if ipRule.GetID() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the IP rule")
+	}
+	d.SetId(fmt.Sprintf("%s:%s", dbName, ipRule.GetID()))
+
 	log.Printf("[DEBUG] Waiting for MTLS IP rule on %s to be authorized", dbName)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{general.MTLSIPRuleStatuses.AUTHORIZING.ToString()},
@@ -139,8 +145,6 @@ func resourceHerokuxPostgresMTLSIPRuleCreate(ctx context.Context, d *schema.Reso
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for MTLS IP rule to be authorized on %s: %s", dbName, err.Error())
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", dbName, ipRule.GetID()))
 
 	return resourceHerokuxPostgresMTLSIPRuleRead(ctx, d, meta)
 }
@@ -155,7 +159,7 @@ func resourceHerokuxPostgresMTLSIPRuleRead(ctx context.Context, d *schema.Resour
 
 	ipRule, response, getErr := client.Postgres.GetMTLSIPRule(ids[0], ids[1])
 	if getErr != nil {
-		if response.StatusCode == 404 {
+		if response != nil && response.StatusCode == 404 {
 			log.Printf("[WARN] MTLS IP rule for %s not found, removing from state", ids[0])
 			d.SetId("")
 			return nil

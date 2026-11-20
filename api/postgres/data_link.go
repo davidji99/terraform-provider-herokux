@@ -1,10 +1,14 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
-	"github.com/davidji99/simpleresty"
 	"time"
+
+	"github.com/davidji99/simpleresty"
 )
+
+var ErrDataLinkNotFound = errors.New("data link not found")
 
 // DataLink represents a data link between two postgres databases.
 type DataLink struct {
@@ -39,6 +43,16 @@ func (p *Postgres) ListDataLink(localDbID string) ([]*DataLink, *simpleresty.Res
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
+	if getErr == nil {
+		if result == nil {
+			return nil, response, fmt.Errorf("missing link list for %s", localDbID)
+		}
+		for _, link := range result {
+			if link.GetID() == "" || link.GetName() == "" {
+				return nil, response, fmt.Errorf("invalid link in list for %s", localDbID)
+			}
+		}
+	}
 
 	return result, response, getErr
 }
@@ -72,7 +86,7 @@ func (p *Postgres) FindDataLinkByName(localDbID, dataLinkName string) (*DataLink
 		}
 	}
 
-	return nil, nil, fmt.Errorf("did not find data link by name %s", dataLinkName)
+	return nil, nil, fmt.Errorf("%w: %s", ErrDataLinkNotFound, dataLinkName)
 }
 
 // CreateDataLink creates a data link between two databases.

@@ -2,13 +2,13 @@ package herokux
 
 import (
 	"context"
+	"log"
+	"regexp"
+
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
-	"time"
 )
 
 func dataSourceHerokuxSpaceApps() *schema.Resource {
@@ -61,13 +61,11 @@ func dataSourceHerokuxSpaceAppsRead(ctx context.Context, d *schema.ResourceData,
 	var diags diag.Diagnostics
 	var appsFiltered []heroku.App
 
-	platformAPI := meta.(*Config).PlatformAPI
+	platformAPI := meta.(*Config).API.Platform
 	spaceRegex := d.Get("space_regex").(string)
 	log.Printf("[DEBUG] space_regex: %s", spaceRegex)
 
-	// Return all addons that the authenticated token can access
-	// TODO: figure out a way to paginate.
-	allApps, appsListErr := platformAPI.AppList(ctx, &heroku.ListRange{Max: 1000, Field: "id"})
+	allApps, appsListErr := platformAPI.ListApps(ctx)
 	if appsListErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -93,9 +91,6 @@ func dataSourceHerokuxSpaceAppsRead(ctx context.Context, d *schema.ResourceData,
 
 	log.Printf("[DEBUG] Number of apps after filtering by space name: %d", len(appsFiltered))
 
-	// Set data source to be a random ID given this data source encompasses multiple appsFiltered.
-	d.SetId(time.Now().String())
-
 	var apps []map[string]string
 
 	for _, app := range appsFiltered {
@@ -108,7 +103,10 @@ func dataSourceHerokuxSpaceAppsRead(ctx context.Context, d *schema.ResourceData,
 		})
 	}
 
-	d.Set("apps", apps)
+	if err := d.Set("apps", apps); err != nil {
+		return diag.FromErr(err)
+	}
+	d.SetId("space_regex:" + spaceRegex)
 
 	return nil
 }

@@ -130,12 +130,12 @@ The following arguments are supported:
 * `metrics_api_url` - (Optional) Custom Metrics API url.
   Can also be sourced from the `HEROKUX_METRICS_API_URL` environment variable.
 
-* `postgres_api_url` - (Optional) Custom Postgres API url.
+* `postgres_api_url` - (Optional) Custom API URL for classic Postgres and Kafka.
   Can also be sourced from the `HEROKUX_POSTGRES_API_URL` environment variable.
 
 * `postgres_advanced_api_url` (optional) overrides the shared Data REST endpoint used by Postgres Advanced and Data Maintenance. Defaults to `https://api.data.heroku.com` and can be set with `HEROKUX_POSTGRES_ADVANCED_API_URL`.
 
-* `data_api_url` - (Optional) Custom Data API url.
+* `data_api_url` - (Optional) Custom Data GraphQL API URL for Dataclips.
   Can also be sourced from the `HEROKUX_DATA_API_URL` environment variable.
 
 * `platform_api_url` - (Optional) Custom Platform API url.

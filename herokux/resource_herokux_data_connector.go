@@ -3,6 +3,11 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"reflect"
+	"slices"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/tfph"
@@ -10,10 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"reflect"
-	"slices"
-	"time"
 )
 
 func resourceHerokuxDataConnector() *schema.Resource {
@@ -149,9 +150,12 @@ func resourceHerokuxDataConnectorImport(ctx context.Context, d *schema.ResourceD
 
 	readErr := resourceHerokuxDataConnectorRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf("unable to import: %s", readErr[0].Detail)
+		return nil, fmt.Errorf("unable to import: %s", readErr[0].Summary)
 	}
 
+	if d.Id() == "" {
+		return nil, fmt.Errorf("data connector %s no longer exists", dataConnectorID)
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -216,6 +220,11 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(createErr)
 	}
 
+	if dc.GetID() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the data connector")
+	}
+	d.SetId(dc.GetID())
+
 	log.Printf("[DEBUG] Waiting Data Connector %s to be provisioned", dc.GetID())
 
 	stateConf := &resource.StateChangeConf{
@@ -231,8 +240,6 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 	}
 
 	log.Printf("[DEBUG] Created Data Connector %s", dc.GetID())
-
-	d.SetId(dc.GetID())
 
 	// Execute additional changes if needed.
 
@@ -261,7 +268,11 @@ func resourceHerokuxDataConnectorCreate(ctx context.Context, d *schema.ResourceD
 func resourceHerokuxDataConnectorRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*Config).API
 
-	dc, _, getErr := client.Postgres.GetDataConnector(d.Id())
+	dc, response, getErr := client.Postgres.GetDataConnector(d.Id())
+	if getErr != nil && response != nil && response.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
@@ -440,7 +451,11 @@ func resourceHerokuxDataConnectorDelete(ctx context.Context, d *schema.ResourceD
 
 	log.Printf("[DEBUG] Deleting Data Connector %s", d.Id())
 
-	_, _, deleteErr := client.Postgres.DeleteDataConnector(d.Id())
+	_, response, deleteErr := client.Postgres.DeleteDataConnector(d.Id())
+	if deleteErr != nil && response != nil && response.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
 	if deleteErr != nil {
 		return diag.FromErr(deleteErr)
 	}
@@ -471,7 +486,7 @@ func DataConnectorDeleteStateRefreshFunc(client *api.Client, dcID string) resour
 		// Check the status of the data connector.
 		dc, response, getErr := client.Postgres.GetDataConnector(dcID)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if response != nil && response.StatusCode == 404 {
 				// A 404 means the data connector has been successfully deleted
 				return postgres.DataConnector{}, postgres.DataConnectorStatuses.DELETED.ToString(), nil
 			}

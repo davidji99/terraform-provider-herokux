@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/davidji99/simpleresty"
 )
 
@@ -41,6 +43,9 @@ func (p *Postgres) GetMTLSCert(dbNameOrID, certID string) (*MTLSCert, *simpleres
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
 
+	if getErr == nil && (result.GetID() != certID || result.GetStatus() == nil || *result.GetStatus() == "") {
+		return nil, response, fmt.Errorf("incomplete mTLS response for %s", certID)
+	}
 	return result, response, getErr
 }
 

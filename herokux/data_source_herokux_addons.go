@@ -2,13 +2,11 @@ package herokux
 
 import (
 	"context"
-	heroku "github.com/davidji99/heroku-go/v5"
+	"regexp"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
-	"time"
 )
 
 func dataSourceHerokuxAddons() *schema.Resource {
@@ -61,89 +59,26 @@ func dataSourceHerokuxAddons() *schema.Resource {
 }
 
 func dataSourceHerokuxAddonsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
-
-	platformAPI := meta.(*Config).PlatformAPI
-
-	var isFilterByApp, isFilterByAddonName bool
-	var filterByAppRegex, filterByAddonName string
-
+	allAddons, err := meta.(*Config).API.Platform.ListAddons(ctx, "")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	id := "all"
+	var appFilter, addonFilter *regexp.Regexp
 	if v, ok := d.GetOk("app_name_regex"); ok {
-		isFilterByApp = true
-		filterByAppRegex = v.(string)
-		log.Printf("[DEBUG] app_name_regex: %s", filterByAppRegex)
+		appFilter = regexp.MustCompile(v.(string))
+		id = "app_name_regex:" + v.(string)
 	}
-
 	if v, ok := d.GetOk("addon_name_regex"); ok {
-		isFilterByAddonName = true
-		filterByAddonName = v.(string)
-		log.Printf("[DEBUG] addon_name_regex: %s", filterByAddonName)
+		addonFilter = regexp.MustCompile(v.(string))
+		id = "addon_name_regex:" + v.(string)
 	}
 
-	// Return all addons that the authenticated token can access
-	// TODO: figure out a way to paginate.
-	allAddons, addonListErr := platformAPI.AddOnList(ctx, &heroku.ListRange{Max: 1000, Field: "id"})
-	if addonListErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to retrieve addons",
-			Detail:   addonListErr.Error(),
-		})
-		return diags
-	}
-
-	log.Printf("[DEBUG] Found %d addons", len(allAddons))
-
-	// Set data source to be a random ID given this data source encompasses multiple addons.
-	d.SetId(time.Now().String())
-
-	if !isFilterByApp && !isFilterByAddonName {
-		// If no filtering, set all addons in state
-		setDataAddonsInState(d, allAddons)
-		return nil
-	}
-
-	if isFilterByApp {
-		var allAddonsFiltered heroku.AddOnListResult
-		regex := regexp.MustCompile(filterByAppRegex)
-
-		for _, addon := range allAddons {
-			if regex.MatchString(addon.App.Name) {
-				allAddonsFiltered = append(allAddonsFiltered, addon)
-			}
-		}
-
-		log.Printf("[DEBUG] Number of addons after filtering by app name: %d", len(allAddonsFiltered))
-
-		setDataAddonsInState(d, allAddonsFiltered)
-
-		return nil
-	}
-
-	if isFilterByAddonName {
-		var allAddonsFiltered heroku.AddOnListResult
-		regex := regexp.MustCompile(filterByAddonName)
-
-		for _, addon := range allAddons {
-			if regex.MatchString(addon.Name) {
-				allAddonsFiltered = append(allAddonsFiltered, addon)
-			}
-		}
-
-		log.Printf("[DEBUG] Number of addons after filtering by addon name: %d", len(allAddonsFiltered))
-
-		setDataAddonsInState(d, allAddonsFiltered)
-
-		return nil
-	}
-
-	return nil
-}
-
-func setDataAddonsInState(d *schema.ResourceData, allAddons heroku.AddOnListResult) {
 	var addons []map[string]string
-
 	for _, addon := range allAddons {
+		if (appFilter != nil && !appFilter.MatchString(addon.App.Name)) || (addonFilter != nil && !addonFilter.MatchString(addon.Name)) {
+			continue
+		}
 		addons = append(addons, map[string]string{
 			"app_id":   addon.App.ID,
 			"app_name": addon.App.Name,
@@ -152,5 +87,9 @@ func setDataAddonsInState(d *schema.ResourceData, allAddons heroku.AddOnListResu
 		})
 	}
 
-	d.Set("addons", addons)
+	if err := d.Set("addons", addons); err != nil {
+		return diag.FromErr(err)
+	}
+	d.SetId(id)
+	return nil
 }

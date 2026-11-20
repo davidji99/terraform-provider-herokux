@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"fmt"
 	"github.com/davidji99/simpleresty"
 	"time"
 )
@@ -109,6 +110,9 @@ func (p *Postgres) GetDataConnector(id string) (*DataConnector, *simpleresty.Res
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
 
+	if getErr == nil && (result == nil || result.GetID() != id || result.Status == "") {
+		return nil, response, fmt.Errorf("incomplete data connector response for %s", id)
+	}
 	return result, response, getErr
 }
 

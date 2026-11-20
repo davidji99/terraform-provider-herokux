@@ -1,6 +1,10 @@
 package platform
 
-import "github.com/davidji99/simpleresty"
+import (
+	"fmt"
+
+	"github.com/davidji99/simpleresty"
+)
 
 // GetSpaceLogDrain returns a space's log drain if available.
 func (p *Platform) GetSpaceLogDrain(spaceID string) (*LogDrain, *simpleresty.Response, error) {
@@ -10,6 +14,9 @@ func (p *Platform) GetSpaceLogDrain(spaceID string) (*LogDrain, *simpleresty.Res
 	// Execute the request
 	response, getErr := p.space.Get(urlStr, &result, nil)
 
+	if getErr != nil && response != nil {
+		return nil, response, fmt.Errorf("space log drain: HTTP %d", response.StatusCode)
+	}
 	return result, response, getErr
 }
 
@@ -29,5 +36,8 @@ func (p *Platform) SetSpaceLogDrain(spaceID string, url string) (*LogDrain, *sim
 	// Execute the request
 	response, getErr := p.space.Put(urlStr, &result, opts)
 
+	if getErr != nil && response != nil {
+		return nil, response, fmt.Errorf("space log drain: HTTP %d", response.StatusCode)
+	}
 	return result, response, getErr
 }

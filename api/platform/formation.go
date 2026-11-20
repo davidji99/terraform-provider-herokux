@@ -1,8 +1,14 @@
 package platform
 
 import (
-	"github.com/davidji99/simpleresty"
+	"context"
+	"fmt"
+	"net/http"
+	"net/url"
 	"time"
+
+	"github.com/davidji99/simpleresty"
+	"github.com/go-resty/resty/v2"
 )
 
 // Formation represents an app formation.
@@ -66,4 +72,46 @@ func (p *Platform) FormationContainerUpdate(appIdOrName string, processType stri
 	response, updateErr := p.formation.Patch(urlStr, nil, opts)
 
 	return response, updateErr
+}
+
+// ReleaseContainerImage only needs the PATCH status. Heroku can omit the formation list.
+func (p *Platform) ReleaseContainerImage(ctx context.Context, app, process, image string) error {
+	path := p.formation.RequestURL("/apps/%s/formation", url.PathEscape(app))
+	opts := FormationDockerBatchUpdateOpts{Updates: []FormationDockerUpdateOpts{{Type: process, DockerImageID: &image}}}
+	resp, err := p.formation.R().SetContext(ctx).SetBody(opts).Patch(path)
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("releasing %s on %s: %s", process, app, resp.Status())
+	}
+	return nil
+}
+
+func (p *Platform) GetContainerFormation(ctx context.Context, app, process string) (*Formation, *resty.Response, error) {
+	path := p.formation.RequestURL("/apps/%s/formation/%s", url.PathEscape(app), url.PathEscape(process))
+	var formation Formation
+	resp, err := p.formation.R().SetContext(ctx).SetResult(&formation).Get(path)
+	if err != nil {
+		return nil, resp, err
+	}
+	if resp.StatusCode() != http.StatusOK {
+		return nil, resp, fmt.Errorf("read container formation %s: %s", process, resp.Status())
+	}
+	return &formation, resp, nil
+}
+
+func (p *Platform) RemoveContainerFormation(ctx context.Context, app, process, etag string) error {
+	if len(etag) < 2 || etag[0] != '"' || etag[len(etag)-1] != '"' {
+		return fmt.Errorf("missing strong ETag for container formation %s", process)
+	}
+	path := p.formation.RequestURL("/apps/%s/formation/%s", url.PathEscape(app), url.PathEscape(process))
+	resp, err := p.formation.R().SetContext(ctx).SetHeader("If-Match", etag).SetBody(map[string]any{"docker_image": nil}).Patch(path)
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccess() {
+		return fmt.Errorf("remove container formation %s: %s", process, resp.Status())
+	}
+	return nil
 }

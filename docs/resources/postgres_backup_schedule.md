@@ -53,7 +53,7 @@ The following arguments are supported:
 
 * `postgres_id` - (Required) `<string>` The UUID or name for a Postgres database.
 * `hour` - (Required) `<integer>` Hour at which to run the backup. Acceptable values are between `0` & `23`.
-* `timezone` - (Optional) Time zone for the local backup hour. Defaults to `UTC`. Supply a full name such as `America/Los_Angeles` or a case-insensitive Heroku CLI alias. Terraform sends and stores the expanded zone name. For example, both `PST` and `PDT` follow Los Angeles local time throughout the year. [Heroku CLI alias table](https://github.com/heroku/cli/blob/v11.14.0/src/commands/pg/backups/schedule.ts)
+* `timezone` - (Optional) Time zone for the local backup hour. Defaults to `UTC`. Supply a full name such as `America/Los_Angeles` or a case-insensitive Heroku CLI alias. Heroku validates the zone name when it schedules the backup. Terraform sends and stores the expanded zone name. For example, both `PST` and `PDT` follow Los Angeles local time throughout the year. [Heroku CLI alias table](https://github.com/heroku/cli/blob/v11.14.0/src/commands/pg/backups/schedule.ts)
 
 | CLI aliases | Time zone |
 | --- | --- |

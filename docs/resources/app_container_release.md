@@ -15,8 +15,9 @@ For more information regarding building and pushing image(s),
 please visit the [Container Registry & Runtime](https://devcenter.heroku.com/articles/container-registry-and-runtime#build-an-image-and-push) article.
 
 -> **IMPORTANT!**
-Please be advised that this resource will destroy the container (or dyno) on the application
-if it is removed from a configuration.
+Destroy removes the process type from the app. Terraform checks that the deployed image matches the last image it applied or imported and sends the formation ETag with the removal. If another deployment replaced the image, destroy returns an error and preserves the process.
+
+If Heroku omits the image digest, refresh warns and keeps the recorded value. Import requires a matching digest, and destroy requires both a matching digest and an ETag.
 
 ### Resource Timeouts
 This resource checks the status of an app container release modification. The default timeout is 20 minutes,
@@ -89,7 +90,7 @@ For more information regarding how to retrieve this value, visit [this article](
 
 The following attributes are exported:
 
-N/A
+* `last_applied_image_id` records the image digest Terraform last deployed or imported.
 
 ## Import
 

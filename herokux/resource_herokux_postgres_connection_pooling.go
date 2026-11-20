@@ -2,8 +2,11 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"regexp"
 	"time"
 
@@ -70,6 +73,9 @@ func resourceHerokuxPostgresConnectionPoolingImport(ctx context.Context, d *sche
 	if ds := resourceHerokuxPostgresConnectionPoolingRead(ctx, d, meta); ds.HasError() {
 		return nil, fmt.Errorf("import connection pool: %s", ds[0].Summary)
 	}
+	if d.Id() == "" {
+		return nil, fmt.Errorf("connection pool attachment not found")
+	}
 	return []*schema.ResourceData{d}, nil
 }
 
@@ -102,8 +108,12 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 		return diag.Errorf("unable to determine connection pooling")
 	}
 
-	if dbInfo.Values[0] != "Available" {
-		return diag.Errorf("Connection pooling not available on database %s. Status is %s", postgresID, dbInfo.Values[0])
+	status, err := dbInfo.FirstString()
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if status != "Available" {
+		return diag.Errorf("Connection pooling not available on database %s. Status is %s", postgresID, status)
 	}
 
 	log.Printf("[DEBUG] Enabling postgres connection pooling on postgres %s", postgresID)
@@ -118,54 +128,38 @@ func resourceHerokuxPostgresConnectionPoolingCreate(ctx context.Context, d *sche
 		return diags
 	}
 
-	log.Printf("[DEBUG] Waiting for app %s to be restarted after setting config var", appID)
-
-	releases, listErr := platformAPI.ReleaseList(context.TODO(), appID,
-		&heroku.ListRange{Descending: true, Field: "version", Max: 1},
-	)
-	if listErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to retrieve releases for app %s", appID),
-			Detail:   listErr.Error(),
-		})
-		return diags
+	if attachment.ID == "" {
+		return diag.Errorf("Heroku returned no attachment ID after enabling pooling on %s", postgresID)
 	}
-
-	if len(releases) == 0 {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to verify app %s restarted", appID),
-			Detail:   "could not find relevant release",
-		})
-		return diags
-	}
-
-	stateConf := &resource.StateChangeConf{
-		Pending:      []string{"pending"},
-		Target:       []string{"succeeded"},
-		Refresh:      releaseStateRefreshFunc(platformAPI, appID, releases[0].ID),
+	d.SetId(attachment.ID)
+	wait := &resource.StateChangeConf{
+		Target: []string{"attached"},
+		Refresh: func() (any, string, error) {
+			a, err := getPoolingAttachment(ctx, platformAPI, d.Id())
+			if err != nil || a == nil {
+				return nil, "", err
+			}
+			return a, "attached", nil
+		},
 		Timeout:      20 * time.Minute,
 		PollInterval: 5 * time.Second,
 	}
-
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for app %s to be restarted after enabling connection pooling on database %s: %s", appID, postgresID, err.Error())
+	result, err := wait.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("waiting for connection pool attachment %s: %s", d.Id(), err)
 	}
-
-	log.Printf("[DEBUG] Enabled postgres connection pooling on postgres %s", postgresID)
-
-	d.SetId(attachment.ID)
-
-	return resourceHerokuxPostgresConnectionPoolingRead(ctx, d, meta)
+	return setPoolingAttachment(d, result.(*heroku.AddOnAttachment))
 }
 
 func getPoolingAttachment(ctx context.Context, client *heroku.Service, id string) (*heroku.AddOnAttachment, error) {
 	attachment, err := client.AddOnAttachmentInfo(ctx, id)
+	if platformNotFound(err) {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}
-	if attachment.ID != id || attachment.Namespace == nil || *attachment.Namespace != "connection-pooling:default" || attachment.Addon.ID == "" {
+	if attachment.ID != id || attachment.Namespace == nil || *attachment.Namespace != "connection-pooling:default" || attachment.Addon.ID == "" || attachment.App.ID == "" || attachment.Name == "" {
 		return nil, fmt.Errorf("attachment %s is not a verified default-credential connection pool; check the attachment ID before managing it", id)
 	}
 	addon, err := client.AddOnInfo(ctx, attachment.Addon.ID)
@@ -184,10 +178,23 @@ func resourceHerokuxPostgresConnectionPoolingRead(ctx context.Context, d *schema
 		return diag.FromErr(err)
 	}
 
-	d.Set("postgres_id", attachment.Addon.ID)
-	d.Set("app_id", attachment.App.ID)
-	d.Set("name", attachment.Name)
-	d.Set("config_var", fmt.Sprintf("%s_URL", attachment.Name))
+	if attachment == nil {
+		d.SetId("")
+		return nil
+	}
+	return setPoolingAttachment(d, attachment)
+}
+
+func setPoolingAttachment(d *schema.ResourceData, attachment *heroku.AddOnAttachment) diag.Diagnostics {
+	postgresRef := attachment.Addon.ID
+	if configured := d.Get("postgres_id").(string); configured != "" && configured == attachment.Addon.Name {
+		postgresRef = configured
+	}
+	for key, value := range map[string]string{"postgres_id": postgresRef, "app_id": attachment.App.ID, "name": attachment.Name, "config_var": attachment.Name + "_URL"} {
+		if err := d.Set(key, value); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
 	return nil
 }
@@ -199,12 +206,17 @@ func resourceHerokuxPostgresConnectionPoolingDelete(ctx context.Context, d *sche
 
 	log.Printf("[DEBUG] Deleting postgres connection pooling %s", d.Id())
 
-	if _, err := getPoolingAttachment(ctx, client, d.Id()); err != nil {
+	attachment, err := getPoolingAttachment(ctx, client, d.Id())
+	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	_, deleteErr := client.AddOnAttachmentDelete(ctx, d.Id())
-	if deleteErr != nil {
+	if attachment == nil {
+		d.SetId("")
+		return nil
+	}
+	deleteErr := client.Delete(ctx, nil, "/addon-attachments/"+url.PathEscape(d.Id()))
+	if deleteErr != nil && !platformNotFound(deleteErr) {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  fmt.Sprintf("unable to removing connection pooling (attachment) %s", d.Id()),
@@ -220,16 +232,7 @@ func resourceHerokuxPostgresConnectionPoolingDelete(ctx context.Context, d *sche
 	return nil
 }
 
-func releaseStateRefreshFunc(client *heroku.Service, appID, releaseID string) resource.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		release, err := client.ReleaseInfo(context.TODO(), appID, releaseID)
-
-		if err != nil {
-			return nil, "", err
-		}
-
-		// The type conversion here can be dropped when the vendored version of
-		// heroku-go is updated.
-		return (*heroku.Release)(release), release.Status, nil
-	}
+func platformNotFound(err error) bool {
+	var apiErr heroku.Error
+	return errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound
 }

@@ -1,13 +1,41 @@
 package registry
 
-import "github.com/davidji99/simpleresty"
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+
+	"github.com/davidji99/simpleresty"
+)
 
 // Manifest represents a docker image data. This struct is only returned via a specific header, DistributionManifestAcceptHeader.
 type Manifest struct {
+	History []struct {
+		Compatibility string `json:"v1Compatibility"`
+	} `json:"history,omitempty"`
+	FSLayers      []struct{}       `json:"fsLayers,omitempty"`
 	SchemaVersion *int             `json:"schemaVersion,omitempty"`
 	MediaType     *string          `json:"mediaType,omitempty"`
 	Config        *ManifestConfig  `json:"config,omitempty"`
 	Layers        []*ManifestLayer `json:"layers,omitempty"`
+}
+
+// ReleaseImage returns the config digest used by container:release and the layer count.
+func (m *Manifest) ReleaseImage() (string, int, error) {
+	switch m.GetSchemaVersion() {
+	case 1:
+		var config struct {
+			ID string `json:"id"`
+		}
+		if len(m.History) == 0 || json.Unmarshal([]byte(m.History[0].Compatibility), &config) != nil || config.ID == "" {
+			return "", 0, fmt.Errorf("missing or invalid Docker v1 image history")
+		}
+		return "sha256:" + strings.TrimPrefix(config.ID, "sha256:"), len(m.FSLayers), nil
+	case 2:
+		return m.GetConfig().GetDigest(), len(m.Layers), nil
+	default:
+		return "", 0, fmt.Errorf("unsupported Docker manifest schema version %d", m.GetSchemaVersion())
+	}
 }
 
 // ManifestConfig is a config for a manifest.

@@ -25,8 +25,9 @@ func New() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"api_key": {
-				Type:     schema.TypeString,
-				Optional: true,
+				Sensitive: true,
+				Type:      schema.TypeString,
+				Optional:  true,
 				// Same environment variable to keep things consistent with the Heroku provider.
 				DefaultFunc: schema.EnvDefaultFunc("HEROKU_API_KEY", nil),
 			},
@@ -94,9 +95,10 @@ func New() *schema.Provider {
 			},
 
 			"headers": {
-				Type:     schema.TypeMap,
-				Elem:     schema.TypeString,
-				Optional: true,
+				Sensitive: true,
+				Type:      schema.TypeMap,
+				Elem:      schema.TypeString,
+				Optional:  true,
 			},
 
 			"timeouts": {

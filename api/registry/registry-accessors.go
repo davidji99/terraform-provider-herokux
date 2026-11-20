@@ -13,6 +13,28 @@ func (m *Manifest) GetConfig() *ManifestConfig {
 	return m.Config
 }
 
+// HasFSLayers checks if Manifest has any FSLayers.
+func (m *Manifest) HasFSLayers() bool {
+	if m == nil || m.FSLayers == nil {
+		return false
+	}
+	if len(m.FSLayers) == 0 {
+		return false
+	}
+	return true
+}
+
+// HasHistory checks if Manifest has any History.
+func (m *Manifest) HasHistory() bool {
+	if m == nil || m.History == nil {
+		return false
+	}
+	if len(m.History) == 0 {
+		return false
+	}
+	return true
+}
+
 // HasLayers checks if Manifest has any Layers.
 func (m *Manifest) HasLayers() bool {
 	if m == nil || m.Layers == nil {

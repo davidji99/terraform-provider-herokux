@@ -2,16 +2,18 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	heroku "github.com/davidji99/heroku-go/v5"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"strings"
-	"time"
 )
 
 var (
@@ -53,6 +55,7 @@ func resourceHerokuxShieldPrivateSpace() *schema.Resource {
 			},
 
 			"log_drain": {
+				Sensitive:    true,
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.StringIsNotEmpty,
@@ -116,7 +119,7 @@ func resourceHerokuxShieldPrivateSpaceImport(ctx context.Context, d *schema.Reso
 	config := meta.(*Config)
 	client := config.PlatformAPI
 
-	space, getErr := client.SpaceInfo(context.TODO(), d.Id())
+	space, getErr := client.SpaceInfo(ctx, d.Id())
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -136,7 +139,6 @@ func resourceHerokuxShieldPrivateSpaceImport(ctx context.Context, d *schema.Reso
 }
 
 func resourceHerokuxShieldPrivateSpaceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	var diags diag.Diagnostics
 	config := meta.(*Config)
 	client := config.PlatformAPI
 	opts := heroku.SpaceCreateOpts{}
@@ -173,7 +175,6 @@ func resourceHerokuxShieldPrivateSpaceCreate(ctx context.Context, d *schema.Reso
 
 	if v, ok := d.GetOk("log_drain"); ok {
 		vs := v.(string)
-		log.Printf("[DEBUG] new shield private space log_drain: %s", vs)
 		opts.LogDrainURL = vs
 	}
 
@@ -183,16 +184,19 @@ func resourceHerokuxShieldPrivateSpaceCreate(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Creating new Shield Private Space")
 
-	space, createErr := client.SpaceCreate(context.TODO(), opts)
+	space, createErr := client.SpaceCreate(ctx, opts)
 	if createErr != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  "Unable to create new Shield Private Space",
-			Detail:   createErr.Error(),
-		})
-
-		return diags
+		var apiErr heroku.Error
+		if errors.As(createErr, &apiErr) {
+			return diag.Errorf("unable to create Shield Private Space: HTTP %d", apiErr.StatusCode)
+		}
+		return diag.FromErr(createErr)
 	}
+
+	if space.ID == "" {
+		return diag.Errorf("Heroku returned no ID after creating the Shield Private Space")
+	}
+	d.SetId(space.ID)
 
 	log.Printf("[DEBUG] Waiting for shield private space %s to be allocated", space.ID)
 
@@ -207,8 +211,6 @@ func resourceHerokuxShieldPrivateSpaceCreate(ctx context.Context, d *schema.Reso
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for shield private space %s to be allocated: %s", space.ID, err.Error())
 	}
-
-	d.SetId(space.ID)
 
 	log.Printf("[DEBUG] Created new Shield Private Space")
 
@@ -239,6 +241,10 @@ func resourceHerokuxShieldPrivateSpaceRead(ctx context.Context, d *schema.Resour
 	api := config.API
 
 	space, readErr := platformAPI.SpaceInfo(ctx, d.Id())
+	if platformNotFound(readErr) {
+		d.SetId("")
+		return nil
+	}
 	if readErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -348,7 +354,6 @@ func resourceHerokuxShieldPrivateSpaceUpdate(ctx context.Context, d *schema.Reso
 	// Update the Space's log drain
 	if d.HasChange("log_drain") {
 		url := d.Get("log_drain").(string)
-		log.Printf("[DEBUG] updated shield private space log_drain: %s", url)
 
 		log.Printf("[DEBUG] Updating Shield Private Space %s log drain", d.Id())
 		_, _, updateErr := api.Platform.SetSpaceLogDrain(d.Id(), url)
@@ -372,7 +377,7 @@ func resourceHerokuxShieldPrivateSpaceDelete(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Deleting Shield Private Space: %s", d.Id())
 
-	_, deleteErr := client.SpaceDelete(context.TODO(), d.Id())
+	_, deleteErr := client.SpaceDelete(ctx, d.Id())
 	if deleteErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,

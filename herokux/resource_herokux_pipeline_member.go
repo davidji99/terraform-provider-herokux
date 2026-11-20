@@ -3,13 +3,14 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/platform"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
 )
 
 func resourceHerokuxPipelineMember() *schema.Resource {
@@ -156,6 +157,11 @@ func resourceHerokuxPipelineMemberRead(ctx context.Context, d *schema.ResourceDa
 		return diags
 	}
 
+	// Mutations address the membership UUID. A re-added user has a different membership.
+	if membership.GetID() != d.Id() {
+		d.SetId("")
+		return nil
+	}
 	d.Set("pipeline_id", membership.GetPipeline().ID)
 	d.Set("email", membership.GetUser().GetEmail())
 	setPermissionsInState(d, membership.Permissions)

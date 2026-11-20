@@ -27,7 +27,7 @@ func TestPostgresPoolingAttachmentIdentity(t *testing.T) {
 				case "/addon-attachments/attachment":
 					if r.Method == http.MethodDelete {
 						deletes++
-						_ = json.NewEncoder(w).Encode(map[string]string{"id": "attachment"})
+						w.WriteHeader(http.StatusNoContent)
 						return
 					}
 					_ = json.NewEncoder(w).Encode(map[string]any{"id": "attachment", "name": tc.alias, "namespace": tc.namespace, "addon": map[string]string{"id": "db"}, "app": map[string]string{"id": "app"}})

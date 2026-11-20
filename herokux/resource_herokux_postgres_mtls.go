@@ -86,6 +86,11 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(enableErr)
 	}
 
+	if newMTLS.GetAddon() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the mTLS endpoint")
+	}
+	d.SetId(newMTLS.GetAddon())
+
 	log.Printf("[DEBUG] Waiting for MTLS configuration on %s to be operational", dbName)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{postgres.MTLSConfigStatuses.PROVISIONING.ToString(), postgres.MTLSConfigStatuses.SERVERERROR.ToString()},
@@ -98,9 +103,6 @@ func resourceHerokuxPostgresMTLSProvision(ctx context.Context, d *schema.Resourc
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for MTLS to be operational on %s: %s", dbName, err.Error())
 	}
-
-	// Set the resource ID to be the database name
-	d.SetId(newMTLS.GetAddon())
 
 	// Refresh state
 	readErr := resourceHerokuxPostgresMTLSRead(ctx, d, meta)
@@ -132,7 +134,7 @@ func resourceHerokuxPostgresMTLSRead(ctx context.Context, d *schema.ResourceData
 
 	mtls, response, getErr := client.Postgres.GetMTLS(d.Id())
 	if getErr != nil {
-		if response.StatusCode == 404 {
+		if response != nil && response.StatusCode == 404 {
 			log.Printf("[WARN] MTLS configuration for %s not found, removing from state", d.Id())
 			d.SetId("")
 			return nil
@@ -205,7 +207,7 @@ func MTLSDeletionStateRefreshFunc(client *api.Client, dbName string) resource.St
 	return func() (interface{}, string, error) {
 		mtlsConfig, response, getErr := client.Postgres.GetMTLS(dbName)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if response != nil && response.StatusCode == 404 {
 				// 404 means the MTLS configuration was deleted
 				return postgres.MTLS{}, postgres.MTLSConfigStatuses.DEPROVISIONED.ToString(), nil
 			}

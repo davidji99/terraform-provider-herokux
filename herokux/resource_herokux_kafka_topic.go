@@ -2,14 +2,15 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/davidji99/tfph"
 	"log"
 	"regexp"
 	"time"
 
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,10 +58,16 @@ func resourceHerokuxKafkaTopic() *schema.Resource {
 			},
 
 			"retention_time": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				Default:      "1d",
-				ValidateFunc: validateRetentionTime,
+				Type:                  schema.TypeString,
+				Optional:              true,
+				Default:               "1d",
+				ValidateFunc:          validateRetentionTime,
+				DiffSuppressOnRefresh: true,
+				DiffSuppressFunc: func(_ string, old, new string, _ *schema.ResourceData) bool {
+					a, oldErr := kafka.ConvertDurationToMilliseconds(old)
+					b, newErr := kafka.ConvertDurationToMilliseconds(new)
+					return oldErr == nil && newErr == nil && a == b
+				},
 			},
 
 			"compaction": {
@@ -124,11 +131,12 @@ func topicRetentionMS(client *kafka.Kafka, clusterID, duration string) (*int, er
 }
 
 func resourceHerokuxKafkaTopicImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
-	d.SetId(d.Id())
-
 	readErr := resourceHerokuxKafkaTopicRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf("unable to import resource")
+		return nil, fmt.Errorf("import Kafka topic: %s", readErr[0].Summary)
+	}
+	if d.Id() == "" {
+		return nil, fmt.Errorf("Kafka topic not found")
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -183,6 +191,7 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 		return diag.FromErr(createErr)
 	}
 
+	d.SetId(fmt.Sprintf("%s:%s", kafkaID, opts.Name))
 	log.Printf("[DEBUG] Waiting for Kafka topic %s to be ready", opts.Name)
 
 	stateConf := &resource.StateChangeConf{
@@ -197,8 +206,6 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error waiting for topic to be ready on %s: %s", opts.Name, err.Error())
 	}
 
-	d.SetId(fmt.Sprintf("%s:%s", kafkaID, opts.Name))
-
 	return resourceHerokuxKafkaTopicRead(ctx, d, meta)
 }
 
@@ -207,9 +214,9 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 //  2. the number of partitions matches the specified count.
 func topicCreationStateRefreshFunc(client *api.Client, kafkaID, topicName string, partitionCount int) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		topic, response, getErr := client.Kafka.GetTopicByName(kafkaID, topicName)
+		topic, _, getErr := client.Kafka.GetTopicByName(kafkaID, topicName)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if errors.Is(getErr, kafka.ErrTopicNotFound) {
 				// this means the topic hasn't been created just yet
 				return nil, kafka.TopicStatuses.PENDING.ToString(), nil
 			}
@@ -237,6 +244,10 @@ func resourceHerokuxKafkaTopicRead(ctx context.Context, d *schema.ResourceData, 
 	name := result[1]
 
 	topic, _, getErr := client.Kafka.GetTopicByName(kafkaID, name)
+	if errors.Is(getErr, kafka.ErrTopicNotFound) {
+		d.SetId("")
+		return nil
+	}
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
@@ -279,10 +290,9 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		opts.Name = vs
 	}
 
-	if v, ok := d.GetOk("compaction"); ok {
-		vs := v.(bool)
-		log.Printf("[DEBUG] topic compaction is : %v", vs)
-		opts.Compaction = vs
+	opts.Compaction = d.Get("compaction").(bool)
+	if d.HasChange("compaction") {
+		checkFuncs = append(checkFuncs, func(t *kafka.Topic) bool { return t.GetCompaction() == opts.Compaction })
 	}
 
 	if v, ok := d.GetOk("retention_time"); ok {
@@ -310,6 +320,7 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		vs := d.Get("replication_factor").(int)
 		log.Printf("[DEBUG] topic new replication_factor is : %v", vs)
 		opts.ReplicationFactor = vs
+		checkFuncs = append(checkFuncs, func(t *kafka.Topic) bool { return t.GetReplicationFactor() == vs })
 	}
 
 	log.Printf("[DEBUG] updating topic %s with %v", opts.Name, opts)
@@ -324,7 +335,7 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		Pending:      []string{kafka.TopicStatuses.UPDATING.ToString()},
 		Target:       []string{kafka.TopicStatuses.UPDATED.ToString()},
 		Refresh:      topicUpdateStateRefreshFunc(client, kafkaID, opts.Name, checkFuncs),
-		Timeout:      time.Duration(config.KafkaTopicCreateVerifyTimeout) * time.Minute,
+		Timeout:      time.Duration(config.KafkaTopicUpdateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
 

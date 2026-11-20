@@ -1,9 +1,11 @@
 package platform
 
 import (
+	"context"
 	"fmt"
-	"github.com/davidji99/simpleresty"
 	"time"
+
+	"github.com/davidji99/simpleresty"
 )
 
 // PipelineMembership represents a Heroku user's membership on a pipeline.
@@ -25,14 +27,7 @@ type PipelineMembershipRequestOpts struct {
 
 // ListPipelineMembers returns all members added to a pipeline.
 func (p *Platform) ListPipelineMembers(pipelineID string) ([]*PipelineMembership, *simpleresty.Response, error) {
-	var result []*PipelineMembership
-
-	urlStr := p.pipelines.RequestURL("/pipelines/%s/ephemeral-app-collaborators", pipelineID)
-
-	// Execute the request
-	response, addErr := p.pipelines.Get(urlStr, &result, nil)
-
-	return result, response, addErr
+	return listPages[*PipelineMembership](context.Background(), p.pipelines, p.pipelines.RequestURL("/pipelines/%s/ephemeral-app-collaborators", pipelineID))
 }
 
 // FindPipelineMembersByEmail retrieves a membership to a pipeline by email.
@@ -45,6 +40,9 @@ func (p *Platform) FindPipelineMembersByEmail(pipelineID, email string) (*Pipeli
 	}
 
 	for _, m := range members {
+		if m.GetUser().GetEmail() == "" || m.GetID() == "" || m.GetPipeline() == nil || m.GetPipeline().Pipeline == nil || m.GetPipeline().ID != pipelineID {
+			return nil, listResponse, fmt.Errorf("invalid membership on pipeline %s", pipelineID)
+		}
 		if m.GetUser().GetEmail() == email {
 			return m, nil, nil
 		}
