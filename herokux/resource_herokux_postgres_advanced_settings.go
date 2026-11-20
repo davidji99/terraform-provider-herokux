@@ -117,7 +117,7 @@ func applyAdvancedSettings(ctx context.Context, d *schema.ResourceData, meta any
 	}
 	d.SetId(db)
 	// A successful PUT acknowledges the update before GET necessarily reflects it.
-	err = retry.RetryContext(ctx, timeout, func() *retry.RetryError {
+	waitErr := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
 		current, err := client.GetSettings(ctx, db)
 		if err != nil {
 			return retry.NonRetryableError(err)
@@ -133,8 +133,8 @@ func applyAdvancedSettings(ctx context.Context, d *schema.ResourceData, meta any
 		}
 		return nil
 	})
-	if err != nil {
+	if waitErr != nil {
 		d.Partial(true)
 	}
-	return diag.FromErr(err)
+	return diag.FromErr(waitErr)
 }
