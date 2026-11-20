@@ -66,11 +66,9 @@ func resourceHerokuxAppWebhook() *schema.Resource {
 				Sensitive:    true,
 				ValidateFunc: validation.StringIsNotEmpty,
 			},
-
-			//"auth_header": {
-			//	Type: schema.TypeMap,
-			//	Optional: true,
-			//},
+			"authorization": {
+				Type: schema.TypeString, Optional: true, Sensitive: true, ValidateFunc: validation.StringIsNotEmpty,
+			},
 
 			"signing_secret": {
 				Type:      schema.TypeString,
@@ -194,7 +192,18 @@ func resourceHerokuxAppWebhookRead(ctx context.Context, d *schema.ResourceData, 
 func resourceHerokuxAppWebhookUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
-	opts := constructAppWebhookOpts(d)
+	changes := map[string]any{}
+	for _, key := range []string{"url", "level", "name", "secret", "authorization"} {
+		if d.HasChange(key) {
+			changes[key] = d.Get(key)
+		}
+	}
+	if changes["authorization"] == "" {
+		changes["authorization"] = nil
+	}
+	if d.HasChange("event_types") {
+		changes["include"] = d.Get("event_types").(*schema.Set).List()
+	}
 	appID := getAppID(d)
 
 	result, parseErr := tfph.ParseCompositeID(d.Id(), 2)
@@ -206,8 +215,9 @@ func resourceHerokuxAppWebhookUpdate(ctx context.Context, d *schema.ResourceData
 
 	log.Printf("[DEBUG] Updating webhook %s on app %s", webhookID, appID)
 
-	_, _, updateErr := client.Platform.UpdateAppWebhook(appID, webhookID, opts)
+	_, _, updateErr := client.Platform.PatchAppWebhook(appID, webhookID, changes)
 	if updateErr != nil {
+		d.Partial(true)
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "Unable to update app webhook",
@@ -253,7 +263,7 @@ func resourceHerokuxAppWebhookDelete(ctx context.Context, d *schema.ResourceData
 }
 
 func constructAppWebhookOpts(d *schema.ResourceData) *platform.AppWebhookRequest {
-	opts := &platform.AppWebhookRequest{}
+	opts := &platform.AppWebhookRequest{Authorization: d.Get("authorization").(string)}
 
 	if v, ok := d.GetOk("level"); ok {
 		vs := v.(string)
@@ -286,7 +296,6 @@ func constructAppWebhookOpts(d *schema.ResourceData) *platform.AppWebhookRequest
 
 	if v, ok := d.GetOk("secret"); ok {
 		vs := v.(string)
-		log.Printf("[DEBUG] webhook secret is : %v", vs)
 		opts.Secret = vs
 	}
 

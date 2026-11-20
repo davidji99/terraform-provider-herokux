@@ -1,6 +1,7 @@
 package platform
 
 import (
+	"fmt"
 	"github.com/davidji99/simpleresty"
 	"time"
 )
@@ -75,17 +76,26 @@ func (p *Platform) CreateAppWebhook(appID string, opts *AppWebhookRequest) (*App
 
 	// Execute the request
 	response, getErr := p.webhooks.Post(urlStr, &result, opts)
+	if getErr != nil && response != nil {
+		return nil, response, fmt.Errorf("create app webhook: HTTP %d", response.StatusCode)
+	}
 
 	return result, response, getErr
 }
 
 // UpdateAppWebhook modifies an existing app webhook.
 func (p *Platform) UpdateAppWebhook(appID, webhookID string, opts *AppWebhookRequest) (*AppWebhook, *simpleresty.Response, error) {
+	return p.PatchAppWebhook(appID, webhookID, opts)
+}
+
+// PatchAppWebhook supports changed fields including an explicit null authorization.
+func (p *Platform) PatchAppWebhook(appID, webhookID string, changes any) (*AppWebhook, *simpleresty.Response, error) {
 	var result *AppWebhook
 	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks/%s", appID, webhookID)
-
-	// Execute the request
-	response, getErr := p.webhooks.Patch(urlStr, &result, opts)
+	response, getErr := p.webhooks.Patch(urlStr, &result, changes)
+	if getErr != nil && response != nil {
+		return nil, response, fmt.Errorf("update app webhook: HTTP %d", response.StatusCode)
+	}
 
 	return result, response, getErr
 }

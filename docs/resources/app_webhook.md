@@ -49,6 +49,7 @@ you want to subscribe to notifications for. Valid options are:
     `api:dyno`, `api:formation`, `api:release`, `api:sni-endpoint`, `api:ssl-endpoint`.
 * `name` - (Optional) `<string>` Name of the webhook. Name must only include lowercase letters, numbers, and dashes.
 If not set, Heroku will randomly generate a webhook name.
+* `authorization` - (Optional) Sensitive value for the HTTP `Authorization` header sent to the receiver. Removing a previously configured value clears the header. Heroku does not return it on import. Terraform stores configured credentials in state.
 * `secret` - (Optional) `<string>` A value that Heroku will use to sign all webhook notification requests
 (the signature is included in the request’s `Heroku-Webhook-Hmac-SHA256` header). If you omit this attribute,
 this resource will generate a secret which will never be show again. This attribute is marked as `Sensitive`
