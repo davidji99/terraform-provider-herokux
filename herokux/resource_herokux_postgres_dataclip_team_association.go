@@ -135,9 +135,15 @@ func resourceHerokuxPostgresDataclipTeamAssociationRead(ctx context.Context, d *
 		return diags
 	}
 
+	if dataclip.GetID() != d.Get("dataclip_id").(string) || dataclip.TeamShares == nil {
+		return diag.Errorf("incomplete team share list for dataclip %s", dataclipSlug)
+	}
 	var teamShare *data.PostgresDataclipTeamShare
 
 	for _, team := range dataclip.TeamShares {
+		if team.GetID() == "" {
+			return diag.Errorf("dataclip %s returned a team share without an ID", dataclipSlug)
+		}
 		if team.GetID() == d.Id() {
 			teamShare = team
 			break
@@ -145,12 +151,11 @@ func resourceHerokuxPostgresDataclipTeamAssociationRead(ctx context.Context, d *
 	}
 
 	if teamShare == nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  fmt.Sprintf("unable to find dataclip teamshare ID %s postgres dataclip %s", d.Id(), dataclip.GetID()),
-			Detail:   "this occurred during state refresh of the [herokux_postgres_dataclip_team_association] resource",
-		})
-		return diags
+		if d.IsNewResource() {
+			return diag.Errorf("new team share %s not found on dataclip %s", d.Id(), dataclipSlug)
+		}
+		d.SetId("")
+		return nil
 	}
 
 	d.Set("dataclip_slug", dataclipSlug)

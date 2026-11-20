@@ -11,6 +11,8 @@ Provides a resource to manage the association of a Heroku team and Heroku Postgr
 This resource manages the [association](https://devcenter.heroku.com/articles/dataclips#sharing-with-individuals-and-teams)
 of a Heroku team and Heroku Postgres dataclip.
 
+Revoking the team share outside Terraform clears its stored association on the next refresh. Keeping the resource in configuration plans to grant access again.
+
 -> **IMPORTANT!**
 All members of the selected team can view the dataclip.
 
