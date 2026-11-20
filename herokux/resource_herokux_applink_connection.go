@@ -18,6 +18,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+var errAppLinkDisconnected = errors.New("AppLink connection is disconnected; reconnect it before importing or applying an update")
+
 const appLinkLoginURL = "https://login.salesforce.com"
 
 func resourceHerokuxAppLinkConnection() *schema.Resource {
@@ -39,6 +41,9 @@ func resourceHerokuxAppLinkConnection() *schema.Resource {
 				}
 				if v.IsNull() {
 					return fmt.Errorf("%s is required to create an AppLink connection", k)
+				}
+				if k == "jwt_private_key_wo" && v.IsKnown() {
+					return validateAppLinkPrivateKey(v.AsString())
 				}
 			}
 			return nil
@@ -97,21 +102,25 @@ func appLinkPrivateKey(d *schema.ResourceData) (string, error) {
 		return "", errors.New("jwt_private_key_wo is required to create an AppLink connection")
 	}
 	key := v.AsString()
+	return key, validateAppLinkPrivateKey(key)
+}
+
+func validateAppLinkPrivateKey(key string) error {
 	block, rest := pem.Decode([]byte(key))
 	if block != nil && strings.TrimSpace(string(rest)) == "" {
 		switch block.Type {
 		case "RSA PRIVATE KEY":
 			if _, err := x509.ParsePKCS1PrivateKey(block.Bytes); err == nil {
-				return key, nil
+				return nil
 			}
 		case "PRIVATE KEY":
 			parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 			if _, ok := parsed.(*rsa.PrivateKey); err == nil && ok {
-				return key, nil
+				return nil
 			}
 		}
 	}
-	return "", errors.New("jwt_private_key_wo must be an unencrypted RSA private key in PEM format")
+	return errors.New("jwt_private_key_wo must be an unencrypted RSA private key in PEM format")
 }
 
 func (id appLinkID) verify(c applink.Connection, expected string) error {
@@ -202,8 +211,12 @@ func createAppLinkConnection(ctx context.Context, d *schema.ResourceData, meta a
 }
 
 func (id appLinkID) wait(ctx context.Context, s *applink.Session, expected string, deleting bool) (applink.Connection, error) {
+	lookup := id.name
+	if deleting {
+		lookup = expected
+	}
 	for {
-		c, err := s.Get(ctx, id.name)
+		c, err := s.Get(ctx, lookup)
 		switch {
 		case errors.Is(err, applink.ErrNotFound):
 			if deleting {
@@ -254,6 +267,9 @@ func (id appLinkID) refresh(ctx context.Context, client *applink.Client, d *sche
 	if err = id.verify(c, expected); err != nil {
 		return err
 	}
+	if c.Status == "disconnected" {
+		return errAppLinkDisconnected
+	}
 	return id.save(d, c)
 }
 
@@ -278,7 +294,7 @@ func readAppLinkConnection(ctx context.Context, d *schema.ResourceData, meta any
 		return diag.Errorf("missing remote AppLink connection ID in state; import the connection")
 	}
 	err = id.refresh(ctx, meta.(*Config).API.AppLink, d, expected)
-	if errors.Is(err, applink.ErrNotFound) {
+	if errors.Is(err, applink.ErrNotFound) || errors.Is(err, errAppLinkDisconnected) {
 		d.SetId("")
 		return nil
 	}
@@ -325,7 +341,7 @@ func deleteAppLinkConnection(ctx context.Context, d *schema.ResourceData, meta a
 	}
 	if c.Status != "disconnected" {
 		if c.Status != "disconnecting" {
-			err = s.Disconnect(ctx, id.name)
+			err = s.Disconnect(ctx, expected)
 			if errors.Is(err, applink.ErrNotFound) {
 				d.SetId("")
 				return nil

@@ -201,13 +201,13 @@ func (s *Session) Create(ctx context.Context, name, clientID, username, loginURL
 	return conn, err
 }
 
-func (s *Session) Get(ctx context.Context, name string) (Connection, error) {
+func (s *Session) Get(ctx context.Context, idOrName string) (Connection, error) {
 	var conn Connection
-	_, err := s.client.request(ctx, http.MethodGet, s.path()+url.PathEscape(name), s.headers, nil, &conn, true)
+	_, err := s.client.request(ctx, http.MethodGet, s.path()+url.PathEscape(idOrName), s.headers, nil, &conn, true)
 	return conn, err
 }
 
-func (s *Session) Disconnect(ctx context.Context, name string) error {
-	_, err := s.client.request(ctx, http.MethodDelete, s.path()+url.PathEscape(name), s.headers, nil, nil, true)
+func (s *Session) Disconnect(ctx context.Context, idOrName string) error {
+	_, err := s.client.request(ctx, http.MethodDelete, s.path()+url.PathEscape(idOrName), s.headers, nil, nil, true)
 	return err
 }
