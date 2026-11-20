@@ -14,7 +14,7 @@ for a Heroku postgres database.
 Maintenance windows are 4 hours long. Heroku attempts to begin the maintenance as close to the beginning of the specified window as possible.
 The duration of the maintenance can vary, but usually, your database is only offline for 10 – 60 seconds.
 
-Note that the window you specify must end before the required by time indicated by the `heroku pg:maintenance` command.
+Note that the window you specify must end before the required by time indicated by the `heroku data:maintenances:info` command.
 
 -> **IMPORTANT!**
 It is not possible to delete a maintenance window, so the resource will just be removed from state upon deletion.
@@ -49,6 +49,8 @@ The following arguments are supported:
 * `postgres_id` - (Required) `<string>` The UUID or name of a Heroku postgres addon.
 * `window` - (Required) `<string>` The day-of-week and time (UTC) at which the window begins.
 For example: `Sundays 10:30`. Note: the `s` attached to the word `Sunday` is required.
+
+The provider resolves the add-on name or UUID through the Platform API and manages the UTC window through the [Data Maintenance API](https://devcenter.heroku.com/articles/data-maintenance-cli-commands). Existing resource and import IDs retain the identifier you supplied. If you use a custom Data REST endpoint, set `postgres_advanced_api_url` on the provider. Its default is `https://api.data.heroku.com`.
 
 ## Import
 

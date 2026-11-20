@@ -54,3 +54,7 @@ resource "herokux_postgres_maintenance_window" "foobar" {
 }
 `, postgresID, window)
 }
+
+func TestPostgresStructuredMaintenanceWindow(t *testing.T) {
+	testStructuredMaintenanceWindow(t, resourceHerokuxPostgresMaintenanceWindow(), "postgres_id", "heroku-postgresql")
+}
