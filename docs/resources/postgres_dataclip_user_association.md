@@ -11,6 +11,8 @@ Provides a resource to manage the association of a Heroku user and Heroku Postgr
 This resource manages the [association](https://devcenter.heroku.com/articles/dataclips#sharing-with-individuals-and-teams)
 of a Heroku user and Heroku Postgres dataclip.
 
+Revoking the user share outside Terraform clears its stored association on the next refresh. Keeping the resource in configuration plans to grant access again.
+
 -> **IMPORTANT!**
 You can share dataclip results with any email address. However, that email address must be associated with a Heroku account
 for the recipient to be able to access the dataclip’s results. This resource's underlying APIs do not return any errors
