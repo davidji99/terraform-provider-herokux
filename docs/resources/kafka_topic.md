@@ -13,8 +13,7 @@ This resource manages topics in an existing Heroku Kafka instance.
 -> **IMPORTANT!**
 Design Kafka topics carefully. Parameters like retention or compaction can be changed relatively easily,
 and replication can be changed with some additional care, but partitions CANNOT currently be changed after creation.
-Compaction and time-based retention are mutually exclusive configurations for a given topic,
-though different topics within a cluster may have a mix of these configurations.
+Dedicated clusters can use compaction together with timed retention.
 
 ### Resources
 Configuring Kafka topics is very dependent on your Kafka addon plan.
@@ -82,7 +81,7 @@ of producers and consumers that can work on a given topic, increasing parallelis
 The upper limit is the number of brokers available for your Kafka plan.
 * `retention_time` - (Optional) `<string>` How long to keep messages before they are cleaned up and removed.
 Please note the following:
-    * Default and minimum value is "1d" or equivalent in other units of duration. Each Heroku Kafka plan has different maximum retention times.
+    * The default is `1d`. Dedicated clusters support retention down to `6h`. Basic clusters require at least `1d`. Each Heroku Kafka plan has different maximum retention times.
     * Acceptable values follow this format: `<NUMERICAL_DIGITS><ms|s|m|h|d|w>`. For example:
         * "6w" is six weeks.
         * "13d" is thirteen days.

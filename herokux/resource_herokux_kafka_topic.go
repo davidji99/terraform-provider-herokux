@@ -82,28 +82,45 @@ func resourceHerokuxKafkaTopic() *schema.Resource {
 	}
 }
 
+var topicRetentionFormat = regexp.MustCompile(kafka.RetentionTimeDurationRegexStricter)
+
 func validateRetentionTime(v interface{}, k string) (ws []string, errors []error) {
 	duration := v.(string)
 
-	// First validate the retention time is defined in a supported value.
-	if !regexp.MustCompile(kafka.RetentionTimeDuragionRegexStricterWithDisable).MatchString(duration) {
-		errors = append(errors, fmt.Errorf(
-			"Unsupported retention time %s. Format needs to be in `##ms|s|m|h|d|w` or `disable`", duration))
+	if duration == kafka.RetentionTimeDisableVal {
 		return
 	}
-
-	// Do not test for retention time minimum if the value is 'disable'
-	if duration != kafka.RetentionTimeDisableVal {
-		// Then verify that the retention time is set to a value that's at least 24 hours.
-		minRetentionTime, _ := kafka.ConvertDurationToMilliseconds("24h")
-		durationInt, _ := kafka.ConvertDurationToMilliseconds(duration)
-
-		if durationInt < minRetentionTime {
-			errors = append(errors, fmt.Errorf("you must specify a retention time that is at least 24 hours equivalent or greater"))
-		}
+	if !topicRetentionFormat.MatchString(duration) {
+		return nil, []error{fmt.Errorf("%s must be a duration in ms, s, m, h, d or w, or disable", k)}
 	}
-
+	ms, err := kafka.ConvertDurationToMilliseconds(duration)
+	if err != nil {
+		return nil, []error{err}
+	}
+	if int64(ms) < (6 * time.Hour).Milliseconds() {
+		return nil, []error{fmt.Errorf("%s must be at least 6 hours", k)}
+	}
 	return
+}
+
+func topicRetentionMS(client *kafka.Kafka, clusterID, duration string) (*int, error) {
+	if duration == kafka.RetentionTimeDisableVal {
+		return nil, nil
+	}
+	ms, err := kafka.ConvertDurationToMilliseconds(duration)
+	if err != nil {
+		return nil, err
+	}
+	cluster, _, err := client.Get(clusterID)
+	if err != nil {
+		return nil, err
+	}
+	// Heroku calls this limit minimum_retention_ms in the cluster response.
+	minimum := cluster.GetLimits().GetMinimumReplicationMS()
+	if int64(ms) < minimum {
+		return nil, fmt.Errorf("retention %s is below this Kafka cluster's minimum of %d ms", duration, minimum)
+	}
+	return &ms, nil
 }
 
 func resourceHerokuxKafkaTopicImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
@@ -146,20 +163,11 @@ func resourceHerokuxKafkaTopicCreate(ctx context.Context, d *schema.ResourceData
 		duration := v.(string)
 		log.Printf("[DEBUG] topic retention_time (string) is : %v", duration)
 
-		// Convert the duration to milliseconds as that's what is supported by the API
-		// unless the attribute value is `disable`. If it is disable,
-		// then set the opts.RetentionTimeMS to nil.
-		if duration == kafka.RetentionTimeDisableVal {
-			opts.RetentionTimeMS = nil
-			log.Printf("[DEBUG] topic new retention_time (int) is : %v", "nil")
-		} else {
-			ms, conErr := kafka.ConvertDurationToMilliseconds(duration)
-			if conErr != nil {
-				return diag.FromErr(conErr)
-			}
-			opts.RetentionTimeMS = &ms
-			log.Printf("[DEBUG] topic new retention_time (int) is : %v", ms)
+		ms, err := topicRetentionMS(client.Kafka, kafkaID, duration)
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		opts.RetentionTimeMS = ms
 	}
 
 	if v, ok := d.GetOk("compaction"); ok {
@@ -281,23 +289,12 @@ func resourceHerokuxKafkaTopicUpdate(ctx context.Context, d *schema.ResourceData
 		duration := v.(string)
 		log.Printf("[DEBUG] topic retention_time (string) is : %v", duration)
 
-		// Convert the duration to milliseconds as that's what is supported by the API
-		// unless the attribute value is `disable`. If it is disable,
-		// then set the opts.RetentionTimeMS to nil.
-		var targetRetentionTime int
-		if duration == kafka.RetentionTimeDisableVal {
-			opts.RetentionTimeMS = nil
-			targetRetentionTime = 0
-			log.Printf("[DEBUG] topic new retention_time (int) is : %v", "nil")
-		} else {
-			ms, conErr := kafka.ConvertDurationToMilliseconds(duration)
-			if conErr != nil {
-				return diag.FromErr(conErr)
-			}
-			opts.RetentionTimeMS = &ms
-			targetRetentionTime = ms
-			log.Printf("[DEBUG] topic new retention_time (int) is : %v", ms)
+		ms, err := topicRetentionMS(client.Kafka, kafkaID, duration)
+		if err != nil {
+			return diag.FromErr(err)
 		}
+		opts.RetentionTimeMS = ms
+		targetRetentionTime := opts.GetRetentionTimeMS()
 
 		// The API generally requires retention_time being set in the PUT request body but if there's an update,
 		// the resource needs to poll to check that the new retention time is applied correctly.
