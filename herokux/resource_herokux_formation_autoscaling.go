@@ -148,16 +148,7 @@ func resourceHerokuxFormationAutoscalingCreate(ctx context.Context, d *schema.Re
 
 	opts.Name = metrics.FormationMonitorNames.LatencyScale
 
-	notificationChannels := make([]string, 0)
-	if v, ok := d.GetOk("notification_channels"); ok {
-		raw := v.([]interface{})
-
-		for _, r := range raw {
-			notificationChannels = append(notificationChannels, r.(string))
-		}
-	}
-	log.Printf("[DEBUG] notification_channels is : %v", notificationChannels)
-	opts.NotificationChannels = notificationChannels
+	opts.NotificationChannels = formatSetListToStringList(d.Get("notification_channels").([]interface{}))
 
 	log.Printf("[DEBUG] Creating formation autoscaling for app %s", appID)
 
@@ -247,20 +238,9 @@ func resourceHerokuxFormationAutoscalingUpdate(ctx context.Context, d *schema.Re
 
 	opts := constructAutoscalingOpts(d)
 
-	notificationChannels := make([]string, 0)
-	if ok := d.HasChange("notification_channels"); ok {
-		_, n := d.GetChange("notification_channels")
-		if n != nil {
-			raw := n.([]interface{})
-
-			for _, r := range raw {
-				notificationChannels = append(notificationChannels, r.(string))
-			}
-		}
+	if d.HasChange("notification_channels") {
+		opts.NotificationChannels = formatSetListToStringList(d.Get("notification_channels").([]interface{}))
 	}
-
-	log.Printf("[DEBUG] new notification_channels is : %v", notificationChannels)
-	opts.NotificationChannels = notificationChannels
 
 	log.Printf("[DEBUG] Updating formation autoscaling for app %s, formation: %s, monitor %s", appID, processType, monitorID)
 

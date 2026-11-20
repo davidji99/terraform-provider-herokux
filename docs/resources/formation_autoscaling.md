@@ -126,7 +126,7 @@ The following arguments are supported:
 * `dyno_size` - (Required) `<string>` The size of dyno. (Example: “performance-l”). Capitalization does not matter.
 Only specify dyno sizes that can be autoscaled. You can only modify dynos of the same type.
 * `notification_channels` - (Optional) `<list(string)>` Channels you want to be notified if autoscaling occurs
-for a dyno formation. The only currently valid value is `["app"]` or `[]`, which will turn on email notifications.
+for a dyno formation. Set `["app"]` to enable email notifications or `[]` to clear the recipients. Updating other autoscaling settings preserves the channels.
 * `notification_period` - (Optional) `<integer>` Not sure what this does at the moment. Default value is `0`.
 
 ## Attributes Reference
