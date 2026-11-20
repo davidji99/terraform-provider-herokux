@@ -242,6 +242,14 @@ func resourceHerokuxPostgresCredentialDelete(ctx context.Context, d *schema.Reso
 	postgresID := result[0]
 	credName := result[1]
 
+	apps, err := client.Platform.PostgresCredentialApps(ctx, postgresID, credName)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	if len(apps) > 0 {
+		return diag.Errorf("detach Postgres credential %q from these apps before deleting it: %s", credName, strings.Join(apps, ", "))
+	}
+
 	log.Printf("[DEBUG] Deleting postgres credential %s", credName)
 
 	_, _, deleteErr := client.Postgres.DeleteCredential(postgresID, credName)
