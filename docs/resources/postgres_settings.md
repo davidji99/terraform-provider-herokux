@@ -56,6 +56,8 @@ resource "herokux_postgres_settings" "foobar" {
   log_connections = false
   log_min_duration_statement = 123
   log_statement = "none"
+  log_min_error_statement = "error"
+  track_functions = "pl"
 }
 ```
 
@@ -72,6 +74,8 @@ The following arguments are supported:
 * `log_min_duration_statement` - `<integer>` Causes the duration of each completed statement to be logged
   if the statement ran for at least the specified number of milliseconds. A value of `0` will log everything,
   and a value of `-1` will disable logging.
+* `log_min_error_statement` - (Optional) Minimum error severity at which Postgres logs the SQL statement that caused the error. Accepts `error`, `log`, `fatal`, or `panic`. [Heroku error logging](https://devcenter.heroku.com/articles/heroku-postgres-settings#log-min-error-statement)
+* `track_functions` - (Optional) Selects which functions contribute call counts and execution times to `pg_stat_user_functions`. Use `none` to disable tracking, `pl` for procedural-language functions, or `all` to include SQL and C functions. [Heroku function tracking](https://devcenter.heroku.com/articles/heroku-postgres-settings#track-functions)
 * `log_statement` - `<string>` Controls which normal SQL statements are logged. This feature is useful
   when hunting a bug that involves complex queries or inspecting queries made by your app or any database user.
   Valid values for log-statement are:
