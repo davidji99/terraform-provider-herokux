@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"reflect"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/davidji99/terraform-provider-herokux/api/connect"
@@ -38,7 +39,7 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 					return nil
 				}
 			}
-			for _, key := range []string{"ownership_recorded", "mapping_data", "mapping_object_names", "mapping_ids"} {
+			for _, key := range []string{"ownership_recorded", "mapping_data", "mapping_object_names", "mapping_ids", "pending_mapping_ids"} {
 				if err := d.SetNewComputed(key); err != nil {
 					return err
 				}
@@ -71,6 +72,9 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 				},
 			},
 
+			"pending_mapping_ids": {
+				Type: schema.TypeMap, Computed: true, Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"ownership_recorded": {Type: schema.TypeBool, Computed: true},
 			"mapping_ids": {
 				Type: schema.TypeList,
@@ -95,10 +99,12 @@ func resourceHerokuxConnectMappings() *schema.Resource {
 			},
 		},
 	}
-	// V0 and V1 have the same attributes. Only the meaning of recorded ownership changes.
+	// Decode the original v0 shape before resetting its connection-wide ownership.
+	v0 := &schema.Resource{Schema: maps.Clone(r.Schema), Timeouts: r.Timeouts}
+	delete(v0.Schema, "pending_mapping_ids")
 	r.StateUpgraders = []schema.StateUpgrader{{
 		Version: 0,
-		Type:    r.CoreConfigSchema().ImpliedType(),
+		Type:    v0.CoreConfigSchema().ImpliedType(),
 		Upgrade: func(_ context.Context, state map[string]any, _ any) (map[string]any, error) {
 			if state["ownership_recorded"] != true {
 				delete(state, "mapping_data")
@@ -152,16 +158,18 @@ func connectMappingIDs(client *connect.Connect, id string) (map[string]string, e
 	if err != nil {
 		return nil, err
 	}
-	if conn == nil {
-		return nil, fmt.Errorf("empty response for Connect connection %s", id)
+	if conn == nil || conn.Mappings == nil {
+		return nil, fmt.Errorf("missing mappings list for Connect connection %s", id)
 	}
 	ids := make(map[string]string, len(conn.Mappings))
+	seen := make(map[string]bool, len(conn.Mappings))
 	for _, m := range conn.Mappings {
 		name, id := m.GetObjectName(), m.GetID()
-		if name == "" || id == "" || ids[name] != "" {
+		if strings.TrimSpace(name) == "" || strings.TrimSpace(id) == "" || ids[name] != "" || seen[id] {
 			return nil, fmt.Errorf("invalid or duplicate mapping identity for %q", name)
 		}
 		ids[name] = id
+		seen[id] = true
 	}
 	return ids, nil
 }
@@ -185,7 +193,7 @@ func configuredMappingNames(document string) (map[string]string, error) {
 	return names, nil
 }
 
-func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta interface{}) (diags diag.Diagnostics) {
 	// Keep the prior ownership and document if reconciliation fails partway.
 	if d.Id() != "" {
 		d.Partial(true)
@@ -206,6 +214,13 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 	oldRecorded, _ := d.GetChange("ownership_recorded")
+	priorPending, _ := d.GetChange("pending_mapping_ids")
+	for name, id := range priorPending.(map[string]any) {
+		_, requested := desired[name]
+		if id == "" || !requested || before[name] != id {
+			return interruptedConnectImport(d.Id())
+		}
+	}
 	if oldRecorded != true && len(desired) == 0 {
 		d.SetId(id)
 		d.Partial(false)
@@ -220,8 +235,27 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	if len(desired) > 0 {
-		if _, err = client.ImportMappings(id, []byte(document)); err != nil {
-			return diag.FromErr(err)
+		response, importErr := client.ImportMappings(id, []byte(document))
+		// A lost response can mean Heroku accepted the import.
+		if importErr != nil && response != nil && response.StatusCode >= 400 && response.StatusCode < 500 {
+			return diag.FromErr(importErr)
+		}
+		if oldRecorded != true {
+			for name := range desired {
+				desired[name] = before[name]
+			}
+			d.SetId(id)
+			defer func() {
+				if diags.HasError() {
+					d.Partial(false)
+					diags = append(diags, diag.FromErr(d.Set("pending_mapping_ids", desired))...)
+					diags = append(diags, unownedConnectMappingState(d)...)
+					diags = append(diags, interruptedConnectImport(id)...)
+				}
+			}()
+		}
+		if importErr != nil {
+			return diag.FromErr(importErr)
 		}
 	}
 	d.SetId(id)
@@ -261,6 +295,9 @@ func applyConnectMappings(ctx context.Context, d *schema.ResourceData, meta inte
 	if ds := readConnectMappingExport(d, client, current); ds.HasError() {
 		return ds
 	}
+	if err := d.Set("pending_mapping_ids", map[string]string{}); err != nil {
+		return diag.FromErr(err)
+	}
 	if err := d.Set("ownership_recorded", true); err != nil {
 		return diag.FromErr(err)
 	}
@@ -296,6 +333,10 @@ func unownedConnectMappingState(d *schema.ResourceData) diag.Diagnostics {
 	return diag.FromErr(d.Set("ownership_recorded", false))
 }
 
+func interruptedConnectImport(id string) diag.Diagnostics {
+	return diag.Errorf("mapping ownership is unconfirmed after an interrupted import on %s; inspect pending_mapping_ids and verify the objects in Heroku, then remove this state entry, import the connection by app UUID and Connect UUID, and apply the verified mappings", id)
+}
+
 func resourceHerokuxConnectMappingsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client, err := meta.(*Config).API.Connect.ForConnection(getAppID(d), getConnectID(d))
 	if err != nil {
@@ -303,6 +344,9 @@ func resourceHerokuxConnectMappingsRead(_ context.Context, d *schema.ResourceDat
 	}
 	current, err := connectMappingIDs(client, d.Id())
 	if err != nil {
+		return diag.FromErr(err)
+	}
+	if err := d.Set("pending_mapping_ids", d.Get("pending_mapping_ids")); err != nil {
 		return diag.FromErr(err)
 	}
 	if !d.Get("ownership_recorded").(bool) {
@@ -353,6 +397,9 @@ func deleteOwnedMapping(client *connect.Connect, id string) error {
 }
 
 func resourceHerokuxConnectMappingsDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	if pending := d.Get("pending_mapping_ids").(map[string]any); len(pending) != 0 {
+		return interruptedConnectImport(d.Id())
+	}
 	if !d.Get("ownership_recorded").(bool) {
 		d.SetId("")
 		return diag.Diagnostics{{Severity: diag.Warning, Summary: "Preserved Connect mappings because their ownership had not been established by a configured apply."}}

@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/davidji99/terraform-provider-herokux/api"
@@ -22,10 +23,12 @@ const (
 )
 
 type connectMappingFixture struct {
-	ids        map[string]string
-	writes     []string
-	failImport bool
-	meta       *Config
+	mu                                      sync.Mutex
+	ids                                     map[string]string
+	writes                                  []string
+	failImport                              bool
+	inventoryBody, afterImportInventoryBody string
+	meta                                    *Config
 }
 
 func newConnectMappingFixture(t *testing.T, ids map[string]string) *connectMappingFixture {
@@ -34,6 +37,8 @@ func newConnectMappingFixture(t *testing.T, ids map[string]string) *connectMappi
 	const app, conn = connectFixtureApp, connectFixtureID
 	prefix := "/api/v3/connections/" + conn
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		f.mu.Lock()
+		defer f.mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		rows := []map[string]string{}
 		for _, name := range slices.Sorted(maps.Keys(f.ids)) {
@@ -43,6 +48,10 @@ func newConnectMappingFixture(t *testing.T, ids map[string]string) *connectMappi
 		case r.URL.Path == "/auth/"+app:
 			fmt.Fprintf(w, `{"connections":[{"id":%q,"region_url":%q}]}`, conn, "http://"+r.Host)
 		case r.URL.Path == prefix:
+			if f.inventoryBody != "" {
+				fmt.Fprint(w, f.inventoryBody)
+				return
+			}
 			_ = json.NewEncoder(w).Encode(map[string]any{"app_id": app, "addon_id": conn, "mappings": rows})
 		case r.URL.Path == prefix+"/actions/export":
 			for _, row := range rows {
@@ -66,6 +75,7 @@ func newConnectMappingFixture(t *testing.T, ids map[string]string) *connectMappi
 					f.ids[name] = "id-" + name
 				}
 			}
+			f.inventoryBody = f.afterImportInventoryBody
 			fmt.Fprint(w, "{}")
 		case r.Method == "DELETE" && strings.HasPrefix(r.URL.Path, "/api/v3/mappings/"):
 			id := strings.TrimPrefix(r.URL.Path, "/api/v3/mappings/")
@@ -200,4 +210,27 @@ func TestConnectMappingOwnership(t *testing.T) {
 	apply(false) // Removing the last owned mapping must still delete it.
 	require.Equal(t, []string{"delete id-Lead"}, f.writes)
 	require.Equal(t, map[string]string{"Contact": "external"}, f.ids)
+}
+
+func TestConnectMappingInventory(t *testing.T) {
+	f := newConnectMappingFixture(t, map[string]string{})
+	r := resourceHerokuxConnectMappings()
+	d := r.Data(nil)
+	d.SetId(connectFixtureID)
+	require.NoError(t, d.Set("app_id", connectFixtureApp))
+	require.NoError(t, d.Set("connect_id", connectFixtureID))
+	require.NoError(t, d.Set("ownership_recorded", true))
+	require.NoError(t, setConnectMappingOwnership(d, map[string]string{"Account": "account-id"}))
+	for _, body := range []string{`{}`, `{"mappings":null}`, `{"mappings":[{"id":"account-id","object_name":"Account"},null]}`} {
+		f.inventoryBody = body
+		require.True(t, r.ReadContext(t.Context(), d, f.meta).HasError())
+		require.True(t, r.DeleteContext(t.Context(), d, f.meta).HasError())
+		require.Equal(t, connectFixtureID, d.Id())
+		require.Empty(t, f.writes)
+	}
+	f.inventoryBody = `{"mappings":[]}`
+	require.Empty(t, r.ReadContext(t.Context(), d, f.meta))
+	require.Empty(t, r.DeleteContext(t.Context(), d, f.meta))
+	require.Empty(t, d.Id())
+	require.Empty(t, f.writes)
 }

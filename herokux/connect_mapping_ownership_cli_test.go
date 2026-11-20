@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
+
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -145,3 +147,45 @@ const connectMappingsV0StateFormat = `{
     }}]
   }]
 }`
+
+func TestConnectInterruptedImportTerraformCLI(t *testing.T) {
+	f := newConnectMappingFixture(t, map[string]string{"Account": "account-id", "Contact": "external"})
+	dir := t.TempDir()
+	run := localTerraformCLI(t, dir, f.meta)
+	const addr = "herokux_connect_mappings.test"
+	source := fmt.Sprintf(`terraform {
+  required_providers { herokux = { source = "davidji99/herokux" } }
+}
+resource "herokux_connect_mappings" "test" {
+  app_id = %q
+  connect_id = %q
+  mappings = jsonencode({mappings = [{object_name="Account"},{object_name="Lead"}]})
+}`, connectFixtureApp, connectFixtureID)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "main.tf"), []byte(source), 0600))
+	f.afterImportInventoryBody = `{}`
+	require.Contains(t, string(run(1, "apply", "-auto-approve", "-no-color")), "interrupted import")
+	require.Equal(t, []string{"import Account", "import Lead"}, f.writes)
+	var state struct {
+		Resources []struct {
+			Instances []struct{ Attributes map[string]any }
+		}
+	}
+	raw, err := os.ReadFile(filepath.Join(dir, "terraform.tfstate"))
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(raw, &state))
+	attrs := state.Resources[0].Instances[0].Attributes
+	require.Equal(t, connectFixtureID, attrs["id"])
+	require.Equal(t, map[string]any{"Account": "account-id", "Lead": ""}, attrs["pending_mapping_ids"])
+	f.mu.Lock()
+	f.inventoryBody, f.afterImportInventoryBody = "", ""
+	f.ids["Lead"] = "other-id"
+	f.mu.Unlock()
+	require.Contains(t, string(run(1, "destroy", "-auto-approve", "-no-color")), "interrupted import")
+	require.Equal(t, addr, strings.TrimSpace(string(run(0, "state", "list"))))
+	require.Equal(t, []string{"import Account", "import Lead"}, f.writes)
+	run(0, "state", "rm", addr)
+	run(0, "import", addr, connectFixtureApp+":"+connectFixtureID)
+	run(0, "apply", "-auto-approve")
+	run(0, "destroy", "-auto-approve")
+	require.Equal(t, map[string]string{"Contact": "external"}, f.ids)
+}
