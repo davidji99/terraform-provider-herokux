@@ -21,6 +21,14 @@ func resourceHerokuxPrivatelink() *schema.Resource {
 		UpdateContext: resourceHerokuxPrivatelinkUpdate,
 		DeleteContext: resourceHerokuxPrivatelinkDelete,
 
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+			if d.HasChange("allowed_accounts") {
+				// An interrupted update must be able to record its unverified additions in state.
+				return d.SetNewComputed("pending_account_additions")
+			}
+			return nil
+		},
+
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceHerokuxPrivatelinkImport,
 		},
@@ -42,6 +50,12 @@ func resourceHerokuxPrivatelink() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
+			},
+
+			"pending_account_additions": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
 			"status": {
@@ -120,6 +134,16 @@ func resourceHerokuxPrivatelinkRead(ctx context.Context, d *schema.ResourceData,
 		return diag.FromErr(readErr)
 	}
 
+	if pl == nil {
+		return diag.Errorf("empty PrivateLink response for %s", d.Id())
+	}
+	pending := d.Get("pending_account_additions").(*schema.Set)
+	if privatelinkAccountsActive(pl, pending) {
+		if err := d.Set("pending_account_additions", nil); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// Construct an array to store the allowed accounts account_id
 	accountIDs := make([]string, 0)
 	for _, aa := range pl.AllowedAccounts {
@@ -138,77 +162,61 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 	config := meta.(*Config)
 	client := config.API
 
-	// The only updateable attribute for this resource is `allowed_accounts`. However, adding and removing `allowed_accounts`
-	// require different request types. Adding accounts requires a PUT but removing accounts requires a PATCH.
-	// Therefore, this resource needs to keep track of accounts being added and removed concurrently.
-	toAdd := make([]string, 0)
-	toRemove := make([]string, 0)
+	oldRaw, newRaw := d.GetChange("allowed_accounts")
+	old, desired := oldRaw.(*schema.Set), newRaw.(*schema.Set)
+	toAdd := desired.Difference(old)
+	toRemove := old.Difference(desired)
+	// After a failed swap, refresh may already list the new accounts while they are still provisioning.
+	pending, _ := d.GetChange("pending_account_additions")
+	waitFor := pending.(*schema.Set).Intersection(desired).Union(toAdd)
 
-	if d.HasChange("allowed_accounts") {
-		o, n := d.GetChange("allowed_accounts")
-		old := o.(*schema.Set).List()
-		oldF := formatSetListToStringList(old)
-		new := n.(*schema.Set).List()
-		newF := formatSetListToStringList(new)
-
-		// Determine the accounts to be removed
-		for _, id := range oldF {
-			if !stringArrayContains(newF, id) {
-				toRemove = append(toRemove, id)
-			}
-		}
-
-		// Determine the accounts to be added
-		for _, id := range newF {
-			if !stringArrayContains(oldF, id) {
-				toAdd = append(toAdd, id)
-			}
+	if toRemove.Len() > 0 && waitFor.Len() > 0 {
+		if err := d.Set("pending_account_additions", waitFor); err != nil {
+			return diag.FromErr(err)
 		}
 	}
 
-	log.Printf("[DEBUG] List of account IDs to be removed %v", toRemove)
-	log.Printf("[DEBUG] List of account IDs to be added %v", toAdd)
-
-	if len(toRemove) > 0 {
-		log.Printf("[DEBUG] Removing the following account ids %v from %s", toRemove, d.Id())
-
-		_, _, removeErr := client.Postgres.RemovePrivatelinkAllowedAccounts(d.Id(),
-			&postgres.PrivatelinkRequest{AllowedAccounts: toRemove})
-
-		if removeErr != nil {
-			return diag.FromErr(removeErr)
+	if toAdd.Len() > 0 {
+		_, _, err := client.Postgres.AddPrivatelinkAllowedAccounts(d.Id(), &postgres.PrivatelinkRequest{AllowedAccounts: formatSetListToStringList(toAdd.List())})
+		if err != nil {
+			return diag.FromErr(err)
 		}
-		log.Printf("[DEBUG] Removed the following account ids %v from %s", toRemove, d.Id())
 	}
-
-	if len(toAdd) > 0 {
-		log.Printf("[DEBUG] Adding the following account ids %v to %s", toAdd, d.Id())
-
-		_, _, addErr := client.Postgres.AddPrivatelinkAllowedAccounts(d.Id(),
-			&postgres.PrivatelinkRequest{AllowedAccounts: toAdd})
-
-		if addErr != nil {
-			return diag.FromErr(addErr)
-		}
-		log.Printf("[DEBUG] Added the following account ids %v to %s", toAdd, d.Id())
-
-		// The resource only needs to wait for newly added account ids to become `Active`.
-		log.Printf("[DEBUG] Waiting for added account IDS on %s to become active", d.Id())
-
-		stateConf := &resource.StateChangeConf{
+	if waitFor.Len() > 0 {
+		stateConf := resource.StateChangeConf{
 			Pending:      []string{data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString()},
 			Target:       []string{data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString()},
-			Refresh:      PrivatelinkUpdateStateRefreshFunc(client, d.Id()),
+			Refresh:      privatelinkUpdateStateRefreshFunc(client, d.Id(), waitFor),
 			Timeout:      time.Duration(config.PrivatelinkAllowedAccountsAddVerifyTimeout) * time.Minute,
 			PollInterval: StateRefreshPollInterval,
 		}
-
 		if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-			return diag.Errorf("error waiting for account ids to become active on %s: %s", d.Id(), err.Error())
+			return diag.Errorf("error waiting for account ids to become active on %s: %s", d.Id(), err)
 		}
 	}
-
+	if toRemove.Len() > 0 {
+		if err := ctx.Err(); err != nil {
+			return diag.FromErr(err)
+		}
+		_, _, err := client.Postgres.RemovePrivatelinkAllowedAccounts(d.Id(), &postgres.PrivatelinkRequest{AllowedAccounts: formatSetListToStringList(toRemove.List())})
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+	if err := d.Set("pending_account_additions", nil); err != nil {
+		return diag.FromErr(err)
+	}
 	return resourceHerokuxPrivatelinkRead(ctx, d, meta)
+}
+
+func privatelinkAccountsActive(pl *postgres.Privatelink, requested *schema.Set) bool {
+	pending := schema.NewSet(requested.F, requested.List())
+	for _, a := range pl.AllowedAccounts {
+		if a != nil && a.Status == data.PrivatelinkAllowedAccountStatuses.ACTIVE {
+			pending.Remove(a.GetAccountID())
+		}
+	}
+	return pending.Len() == 0
 }
 
 func formatSetListToStringList(raw []interface{}) []string {
@@ -249,18 +257,27 @@ func resourceHerokuxPrivatelinkDelete(ctx context.Context, d *schema.ResourceDat
 }
 
 func PrivatelinkUpdateStateRefreshFunc(client *api.Client, addonID string) resource.StateRefreshFunc {
+	return privatelinkUpdateStateRefreshFunc(client, addonID, nil)
+}
+
+func privatelinkUpdateStateRefreshFunc(client *api.Client, addonID string, required *schema.Set) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		pl, _, getErr := client.Postgres.GetPrivatelink(addonID)
 		if getErr != nil {
 			return nil, data.PrivatelinkAllowedAccountStatuses.UNKNOWN.ToString(), getErr
 		}
 
-		if !checkAccountsAreActive(pl) {
-			log.Printf("[DEBUG] Still waiting for privatelink allowed accounts on %s to become active", addonID)
-			return pl, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString(), nil
+		if pl == nil {
+			return nil, "", fmt.Errorf("empty PrivateLink response for %s", addonID)
 		}
-
-		return pl, data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString(), nil
+		if required != nil {
+			if privatelinkAccountsActive(pl, required) {
+				return pl, data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString(), nil
+			}
+		} else if checkAccountsAreActive(pl) {
+			return pl, data.PrivatelinkAllowedAccountStatuses.ACTIVE.ToString(), nil
+		}
+		return pl, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString(), nil
 	}
 }
 
