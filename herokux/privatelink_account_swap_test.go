@@ -1,6 +1,7 @@
 package herokux
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -216,4 +219,128 @@ resource "herokux_privatelink" "test" {
 			require.True(t, diff.Empty())
 		})
 	}
+}
+
+func TestPrivatelinkSavedPlanDriftTerraformCLI(t *testing.T) {
+	const addon = "6fae1ee0-c034-4775-a798-890bc64f98eb"
+	const keep, add, external = "100000000001", "100000000002", "100000000003"
+	accounts := map[string]bool{keep: true}
+	var writes []string
+	var mu sync.Mutex
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		if r.Method == http.MethodGet {
+			rows := []map[string]string{}
+			for id := range accounts {
+				rows = append(rows, map[string]string{"account_id": id, "status": "Active"})
+			}
+			assert.NoError(t, json.NewEncoder(w).Encode(map[string]any{"addon": map[string]string{"uuid": addon}, "allowed_accounts": rows, "status": "Operational"}))
+			return
+		}
+		var body struct {
+			Accounts []string `json:"allowed_accounts"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Error(err)
+			w.WriteHeader(400)
+			return
+		}
+		for _, id := range body.Accounts {
+			writes = append(writes, r.Method+" "+id)
+			switch r.Method {
+			case http.MethodPut:
+				accounts[id] = true
+			case http.MethodPatch:
+				delete(accounts, id)
+			default:
+				t.Errorf("unexpected method %s", r.Method)
+			}
+		}
+		w.WriteHeader(http.StatusAccepted)
+		fmt.Fprint(w, "{}")
+	}))
+	defer srv.Close()
+	client, err := api.New(config.PostgresBaseURL(srv.URL))
+	require.NoError(t, err)
+	dir := t.TempDir()
+	run := localTerraformCLI(t, dir, &Config{API: client, PrivatelinkAllowedAccountsAddVerifyTimeout: 1, PrivatelinkAllowedAccountsRemoveVerifyTimeout: 1})
+	source := fmt.Sprintf(`terraform {
+  required_providers { herokux = { source = "davidji99/herokux" } }
+}
+resource "herokux_privatelink" "test" {
+  addon_id = %q
+  allowed_accounts = [%q, %q]
+}`, addon, keep, add)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "main.tf"), []byte(source), 0600))
+	run(0, "import", "herokux_privatelink.test", addon)
+	run(0, "plan", "-out=add-only")
+	mu.Lock()
+	accounts[external] = true
+	mu.Unlock()
+	require.Contains(t, string(run(1, "apply", "-no-color", "add-only")), "fresh plan")
+	mu.Lock()
+	assert.Empty(t, writes)
+	assert.True(t, accounts[external])
+	mu.Unlock()
+
+	plan := run(2, "plan", "-no-color", "-detailed-exitcode", "-out=reviewed")
+	require.Contains(t, string(plan), external)
+	run(0, "apply", "reviewed")
+	mu.Lock()
+	defer mu.Unlock()
+	require.Equal(t, []string{"PUT " + add, "PATCH " + external}, writes)
+	require.Equal(t, map[string]bool{keep: true, add: true}, accounts)
+}
+
+func TestPrivatelinkVerificationDeadline(t *testing.T) {
+	const addon = "6fae1ee0-c034-4775-a798-890bc64f98eb"
+	const response = `{"addon":{"uuid":"` + addon + `"},"allowed_accounts":[{"account_id":"100000000002","status":"Active"}]}`
+	t.Run("deadline interrupts in-flight GET", func(t *testing.T) {
+		aborted := make(chan struct{})
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			select {
+			case <-r.Context().Done():
+				close(aborted)
+			case <-time.After(3 * time.Second):
+				w.Header().Set("Content-Type", "application/json")
+				fmt.Fprint(w, response)
+			}
+		}))
+		defer srv.Close()
+		client, err := api.New(config.PostgresBaseURL(srv.URL))
+		require.NoError(t, err)
+		d := resourceHerokuxPrivatelink().Data(nil)
+		d.SetId(addon)
+		err = waitForPrivatelinkAccounts(t.Context(), d, client, 250*time.Millisecond, func(*postgres.Privatelink, *schema.Set) bool {
+			t.Error("expired activation poll reached readiness check")
+			return true
+		})
+		require.ErrorIs(t, err, context.DeadlineExceeded)
+		select {
+		case <-aborted:
+		case <-time.After(2 * time.Second):
+			t.Fatal("verification deadline did not cancel the server request")
+		}
+		require.NoError(t, t.Context().Err())
+	})
+	t.Run("cancel before accepting readiness", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(w, response)
+		}))
+		defer srv.Close()
+		client, err := api.New(config.PostgresBaseURL(srv.URL))
+		require.NoError(t, err)
+		d := resourceHerokuxPrivatelink().Data(nil)
+		d.SetId(addon)
+		ctx, cancel := context.WithCancel(t.Context())
+		defer cancel()
+		err = waitForPrivatelinkAccounts(ctx, d, client, time.Minute, func(*postgres.Privatelink, *schema.Set) bool {
+			cancel()
+			return true
+		})
+		require.ErrorIs(t, err, context.Canceled)
+	})
 }

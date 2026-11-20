@@ -138,8 +138,8 @@ func resourceHerokuxPrivatelinkCreate(ctx context.Context, d *schema.ResourceDat
 
 // Keep the observed set separate: the SDK restores a known, configured TypeSet
 // from the plan even when Apply returns an error.
-func observePrivatelinkAccounts(d *schema.ResourceData, client *api.Client) (*postgres.Privatelink, *schema.Set, error) {
-	pl, _, err := client.Postgres.GetPrivatelink(d.Id())
+func observePrivatelinkAccounts(ctx context.Context, d *schema.ResourceData, client *api.Client) (*postgres.Privatelink, *schema.Set, error) {
+	pl, _, err := client.Postgres.GetPrivatelinkContext(ctx, d.Id())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -166,7 +166,7 @@ func observePrivatelinkAccounts(d *schema.ResourceData, client *api.Client) (*po
 }
 
 func resourceHerokuxPrivatelinkRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	pl, accounts, err := observePrivatelinkAccounts(d, meta.(*Config).API)
+	pl, accounts, err := observePrivatelinkAccounts(ctx, d, meta.(*Config).API)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -191,7 +191,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 	if err := d.Set("pending_account_additions", pending); err != nil {
 		return diag.FromErr(err)
 	}
-	_, current, err := observePrivatelinkAccounts(d, cfg.API)
+	_, current, err := observePrivatelinkAccounts(ctx, d, cfg.API)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -199,6 +199,9 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 	previous := observed.(*schema.Set)
 	if previous.Len() == 0 {
 		previous = oldRaw.(*schema.Set) // State from providers predating observed_allowed_accounts.
+	}
+	if unplanned := remove.Difference(previous); unplanned.Len() > 0 {
+		return diag.Errorf("PrivateLink accounts %v were granted after the saved observation; review a fresh plan before removing them", unplanned.List())
 	}
 	waitFor := pending.(*schema.Set).Intersection(desired).Union(add).Union(desired.Difference(previous))
 	if err = d.Set("pending_account_additions", waitFor); err != nil {
@@ -211,7 +214,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 		}
 	}
 	if waitFor.Len() > 0 {
-		err = waitForPrivatelinkAccounts(ctx, d, cfg.API, cfg.PrivatelinkAllowedAccountsAddVerifyTimeout, func(pl *postgres.Privatelink, _ *schema.Set) bool {
+		err = waitForPrivatelinkAccounts(ctx, d, cfg.API, time.Duration(cfg.PrivatelinkAllowedAccountsAddVerifyTimeout)*time.Minute, func(pl *postgres.Privatelink, _ *schema.Set) bool {
 			return privatelinkAccountsActive(pl, waitFor)
 		})
 		if err != nil {
@@ -227,7 +230,7 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 			return diag.FromErr(err)
 		}
 	}
-	err = waitForPrivatelinkAccounts(ctx, d, cfg.API, cfg.PrivatelinkAllowedAccountsRemoveVerifyTimeout, func(pl *postgres.Privatelink, accounts *schema.Set) bool {
+	err = waitForPrivatelinkAccounts(ctx, d, cfg.API, time.Duration(cfg.PrivatelinkAllowedAccountsRemoveVerifyTimeout)*time.Minute, func(pl *postgres.Privatelink, accounts *schema.Set) bool {
 		return accounts.Equal(desired) && privatelinkAccountsActive(pl, waitFor)
 	})
 	if err != nil {
@@ -236,19 +239,19 @@ func resourceHerokuxPrivatelinkUpdate(ctx context.Context, d *schema.ResourceDat
 	return diag.FromErr(d.Set("pending_account_additions", nil))
 }
 
-func waitForPrivatelinkAccounts(ctx context.Context, d *schema.ResourceData, client *api.Client, minutes int64, ready func(*postgres.Privatelink, *schema.Set) bool) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(minutes)*time.Minute)
+func waitForPrivatelinkAccounts(ctx context.Context, d *schema.ResourceData, client *api.Client, timeout time.Duration, ready func(*postgres.Privatelink, *schema.Set) bool) error {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	for {
 		if err := ctx.Err(); err != nil {
 			return fmt.Errorf("waiting for PrivateLink accounts on %s: %w", d.Id(), err)
 		}
-		pl, accounts, err := observePrivatelinkAccounts(d, client)
+		pl, accounts, err := observePrivatelinkAccounts(ctx, d, client)
 		if err != nil {
 			return err
 		}
 		if ready(pl, accounts) {
-			return nil
+			return ctx.Err()
 		}
 		select {
 		case <-ctx.Done():

@@ -75,7 +75,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `status` - The status of privatelink configuration.
-* `observed_allowed_accounts` - The complete set of AWS accounts most recently verified with Heroku. After an interrupted update, a retry reconciles this observation with the configured allowlist, including when planning with `-refresh=false`.
+* `observed_allowed_accounts` - The complete set of AWS accounts most recently verified with Heroku. After an interrupted update, a retry reconciles this observation with the configured allowlist, including when planning with `-refresh=false`. If the pre-update lookup finds an account outside the saved plan that would be revoked, Terraform stops before changing access. Review a fresh plan to approve the revocation.
 * `pending_account_additions` - Account IDs from an interrupted swap whose activation Terraform has yet to confirm. Terraform checks these IDs again when retrying the swap.
 * `service_name` - The privatelink endpoint service name.
 
