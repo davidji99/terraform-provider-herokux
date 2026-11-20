@@ -59,7 +59,7 @@ type SettingsRequest struct {
 	// LogMinDurationStatement is the duration of each completed statement will be logged if the statement completes
 	// after the time specified by a value. This value needs to specified as a whole number, in milliseconds.
 	// A value of `0` logs all queries and `-1` disables logging.
-	LogMinDurationStatement int `json:"log_min_duration_statement,omitempty"`
+	LogMinDurationStatement *int `json:"log_min_duration_statement,omitempty"`
 
 	// LogStatement defines which statements are logged.
 	// Valid values are:

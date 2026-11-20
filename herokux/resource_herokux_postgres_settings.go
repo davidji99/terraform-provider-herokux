@@ -82,20 +82,21 @@ func resourceHerokuxPostgresSettingsCreate(ctx context.Context, d *schema.Resour
 	opts := &postgres.SettingsRequest{}
 	postgresID := getPostgresID(d)
 
-	if v, ok := d.GetOk("log_lock_waits"); ok {
+	if v, ok := d.GetOkExists("log_lock_waits"); ok {
 		vb := v.(bool)
 		opts.LogLockWaits = &vb
 		log.Printf("[DEBUG] settings log_lock_waits is : %v", opts.LogLockWaits)
 	}
 
-	if v, ok := d.GetOk("log_connections"); ok {
+	if v, ok := d.GetOkExists("log_connections"); ok {
 		vb := v.(bool)
 		opts.LogConnections = &vb
 		log.Printf("[DEBUG] settings log_connections is : %v", opts.LogConnections)
 	}
 
-	if v, ok := d.GetOk("log_min_duration_statement"); ok {
-		opts.LogMinDurationStatement = v.(int)
+	if v, ok := d.GetOkExists("log_min_duration_statement"); ok {
+		duration := v.(int)
+		opts.LogMinDurationStatement = &duration
 		log.Printf("[DEBUG] settings log_min_duration_statement is : %v", opts.LogMinDurationStatement)
 	}
 
@@ -156,7 +157,8 @@ func resourceHerokuxPostgresSettingsUpdate(ctx context.Context, d *schema.Resour
 	}
 
 	if ok := d.HasChange("log_min_duration_statement"); ok {
-		opts.LogMinDurationStatement = d.Get("log_min_duration_statement").(int)
+		duration := d.Get("log_min_duration_statement").(int)
+		opts.LogMinDurationStatement = &duration
 		log.Printf("[DEBUG] settings log_min_duration_statement is : %v", opts.LogMinDurationStatement)
 	}
 
