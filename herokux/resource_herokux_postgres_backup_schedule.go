@@ -89,9 +89,9 @@ func resourceHerokuxPostgresBackupScheduleImport(ctx context.Context, d *schema.
 
 	d.SetId(schedule[0].GetID())
 
-	retrieveErr := retrieveSetBackupSchedule(d, meta, postgresID, schedule[0].GetID())
+	retrieveErr := setBackupScheduleToState(d, postgresID, schedule[0])
 	if retrieveErr.HasError() {
-		return nil, fmt.Errorf("unable to import backup schedule: %v", retrieveErr[0].Detail)
+		return nil, fmt.Errorf("unable to import backup schedule: %v", retrieveErr[0].Summary)
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -132,16 +132,15 @@ func resourceHerokuxPostgresBackupScheduleCreate(ctx context.Context, d *schema.
 
 	d.SetId(bs.GetID())
 
-	return resourceHerokuxPostgresBackupScheduleRead(ctx, d, meta)
+	return readBackupSchedule(d, meta, false)
 }
 
 func resourceHerokuxPostgresBackupScheduleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	postgresID := getPostgresID(d)
-
-	return retrieveSetBackupSchedule(d, meta, postgresID, d.Id())
+	return readBackupSchedule(d, meta, true)
 }
 
-func retrieveSetBackupSchedule(d *schema.ResourceData, meta interface{}, postgresID, scheduleID string) diag.Diagnostics {
+func readBackupSchedule(d *schema.ResourceData, meta interface{}, allowMissing bool) diag.Diagnostics {
+	postgresID := getPostgresID(d)
 	var diags diag.Diagnostics
 	client := meta.(*Config).API
 
@@ -155,23 +154,15 @@ func retrieveSetBackupSchedule(d *schema.ResourceData, meta interface{}, postgre
 		return diags
 	}
 
-	// API does not have a list endpoint despite backup schedules having unique UUIDs.
-	// Instead, loop through all backup schedules and find the correct one by the schedule UUID.
-	notFound := true
 	for _, s := range schedules {
-		if s.GetID() == scheduleID {
-			notFound = false
-			setErr := setBackupScheduleToState(d, postgresID, s)
-			if setErr != nil {
-				return setErr
-			}
+		if s.GetID() == d.Id() {
+			return setBackupScheduleToState(d, postgresID, s)
 		}
 	}
-
-	if notFound {
-		return diag.Errorf("backup schedule %s not found", d.Id())
+	if !allowMissing {
+		return diag.Errorf("backup schedule %s not found after scheduling", d.Id())
 	}
-
+	d.SetId("")
 	return nil
 }
 

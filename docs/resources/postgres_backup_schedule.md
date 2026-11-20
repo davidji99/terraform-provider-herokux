@@ -11,6 +11,8 @@ Provides a resource to manage a backup schedule for a Postgres database.
 This resource manages a [backup schedule](https://devcenter.heroku.com/articles/heroku-postgres-backups#scheduling-backups)
 for a Postgres database.
 
+When a schedule is removed outside Terraform, refresh clears its stored ID. If the resource is still configured, the next plan schedules a backup again.
+
 By default, this resource is configured to work with Heroku Postgres professional plans. If you wish to set backup
 schedules for Heroku Postgres starter plans, please set the
 [`postgres_api_url` attribute](https://registry.terraform.io/providers/davidji99/herokux/latest/docs#postgres_api_url)
