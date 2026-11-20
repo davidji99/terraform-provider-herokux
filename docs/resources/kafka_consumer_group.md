@@ -10,6 +10,8 @@ description: |-
 
 This resource manages consumer groups in an existing Heroku Kafka instance.
 
+When a consumer group is removed outside Terraform, refresh clears its stored ID. If the resource is still configured, the next plan recreates the group.
+
 ### Resource Timeouts
 This resource checks the status of the creation or deletion action.
 Both checks' default timeout is 10 minutes, which can be customized via the

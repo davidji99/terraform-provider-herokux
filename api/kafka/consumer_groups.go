@@ -1,9 +1,12 @@
 package kafka
 
 import (
+	"errors"
 	"fmt"
 	"github.com/davidji99/simpleresty"
 )
+
+var ErrConsumerGroupNotFound = errors.New("consumer group not found")
 
 // ConsumerGroups represents a list of consumer groups.
 type ConsumerGroups struct {
@@ -35,9 +38,19 @@ func (k *Kafka) ListConsumerGroups(clusterID string) (*ConsumerGroups, *simplere
 	urlStr := k.http.RequestURL("/data/kafka/v0/clusters/%s/consumer_groups", clusterID)
 
 	// Execute the request
-	response, getErr := k.http.Get(urlStr, &result, nil)
-
-	return result, response, getErr
+	response, err := k.http.Get(urlStr, &result, nil)
+	if err != nil {
+		return nil, response, err
+	}
+	if result == nil || result.ConsumerGroups == nil {
+		return nil, response, fmt.Errorf("missing consumer_groups list on %s", clusterID)
+	}
+	for _, group := range result.ConsumerGroups {
+		if group.GetName() == "" {
+			return nil, response, fmt.Errorf("consumer group without a name on %s", clusterID)
+		}
+	}
+	return result, response, nil
 }
 
 func (k *Kafka) GetConsumerGroupByName(clusterID, groupName string) (*ConsumerGroup, *simpleresty.Response, error) {
@@ -52,7 +65,7 @@ func (k *Kafka) GetConsumerGroupByName(clusterID, groupName string) (*ConsumerGr
 		}
 	}
 
-	return nil, nil, fmt.Errorf("%s not found", groupName)
+	return nil, nil, fmt.Errorf("%w: %s", ErrConsumerGroupNotFound, groupName)
 }
 
 // CreateConsumerGroup creates a single consumer group.
