@@ -3,6 +3,7 @@ package kafka
 import (
 	"fmt"
 	"github.com/elliotchance/orderedmap/v2"
+	"math"
 	"regexp"
 	"strconv"
 )
@@ -50,7 +51,10 @@ func ConvertDurationToMilliseconds(d string) (int, error) {
 	}
 
 	var multiplier int
-	magnitude, _ := strconv.Atoi(result[1])
+	magnitude, err := strconv.Atoi(result[1])
+	if err != nil {
+		return 0, fmt.Errorf("invalid duration %q: %w", d, err)
+	}
 	unit := result[2]
 
 	switch unit {
@@ -70,6 +74,9 @@ func ConvertDurationToMilliseconds(d string) (int, error) {
 		return 0, nil
 	}
 
+	if magnitude > math.MaxInt/multiplier {
+		return 0, fmt.Errorf("duration %q overflows milliseconds", d)
+	}
 	return multiplier * magnitude, nil
 }
 

@@ -1,0 +1,46 @@
+package herokux
+
+import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/davidji99/terraform-provider-herokux/api"
+	"github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	"github.com/stretchr/testify/require"
+)
+
+func TestKafkaTopicRetentionLimits(t *testing.T) {
+	for _, tc := range []struct {
+		minimum int
+		value   string
+		valid   bool
+	}{
+		{21600000, "6h", true}, {86400000, "6h", false}, {21600000, "5h", false}, {86400000, "1d", true}, {86400000, "disable", true},
+	} {
+		t.Run(fmt.Sprintf("%d_%s", tc.minimum, tc.value), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/data/kafka/v0/clusters/cluster" {
+					t.Errorf("unexpected path %s", r.URL.Path)
+				}
+				w.Header().Set("Content-Type", "application/json")
+				fmt.Fprintf(w, `{"limits":{"minimum_retention_ms":%d}}`, tc.minimum)
+			}))
+			defer server.Close()
+			c, err := api.New(config.KafkaBaseURL(server.URL))
+			require.NoError(t, err)
+			_, errs := validateRetentionTime(tc.value, "retention_time")
+			ms, err := topicRetentionMS(c.Kafka, "cluster", tc.value)
+			require.Equal(t, tc.valid, len(errs) == 0 && err == nil)
+			if tc.value == "disable" {
+				require.Nil(t, ms)
+			}
+		})
+	}
+	for _, bad := range []string{"6hgarbage", "xdisable", "999999999999999999w"} {
+		_, errs := validateRetentionTime(bad, "retention_time")
+		require.NotEmpty(t, errs)
+	}
+	require.Equal(t, "1d", resourceHerokuxKafkaTopic().Schema["retention_time"].Default)
+}
