@@ -10,6 +10,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
@@ -43,6 +44,7 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 				Optional:     true,
 				Default:      "UTC",
 				ValidateFunc: validateBackupScheduleTimezone,
+				StateFunc:    func(v interface{}) string { return backupScheduleTimezone(v.(string)) },
 			},
 
 			"name": {
@@ -63,10 +65,32 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 	}
 }
 
+// pg:backups:schedule expands these aliases before sending the local backup hour to Heroku.
+func backupScheduleTimezone(zone string) string {
+	switch strings.ToUpper(zone) {
+	case "BST", "GMT":
+		return "Europe/London"
+	case "CDT", "CST":
+		return "America/Chicago"
+	case "CEST", "CET":
+		return "Europe/Paris"
+	case "EDT", "EST":
+		return "America/New_York"
+	case "MDT", "MST":
+		return "America/Boise"
+	case "PDT", "PST":
+		return "America/Los_Angeles"
+	case "Z":
+		return "UTC"
+	default:
+		return zone
+	}
+}
+
 func validateBackupScheduleTimezone(v interface{}, k string) (ws []string, errors []error) {
-	timezone := v.(string)
+	timezone := backupScheduleTimezone(v.(string))
 	if !regexp.MustCompile(`^UTC|[a-zA-Z]+/[a-zA-Z_]+$`).MatchString(timezone) {
-		errors = append(errors, fmt.Errorf("invalid timezone format. Timezone should be in full TZ format (Africa/Cairo) or UTC"))
+		errors = append(errors, fmt.Errorf("invalid timezone format: use a full time zone name (Africa/Cairo), UTC, or a Heroku backup CLI alias"))
 	}
 	return
 }
@@ -111,9 +135,8 @@ func resourceHerokuxPostgresBackupScheduleCreate(ctx context.Context, d *schema.
 	}
 
 	if v, ok := d.GetOk("timezone"); ok {
-		vs := v.(string)
-		log.Printf("[DEBUG] backup_schedule timezone is : %v", vs)
-		opts.Timezone = vs
+		opts.Timezone = backupScheduleTimezone(v.(string))
+		log.Printf("[DEBUG] backup_schedule timezone is : %v", opts.Timezone)
 	}
 
 	log.Printf("[DEBUG] Creating postgres backup schedule on %s", postgresID)
@@ -170,7 +193,7 @@ func setBackupScheduleToState(d *schema.ResourceData, postgresID string, schedul
 	var diags diag.Diagnostics
 
 	d.Set("postgres_id", postgresID)
-	d.Set("timezone", schedule.GetTimezone())
+	d.Set("timezone", backupScheduleTimezone(schedule.GetTimezone()))
 	d.Set("retain_weeks", schedule.GetRetainWeeks())
 	d.Set("retain_months", schedule.GetRetainMonths())
 	d.Set("name", schedule.GetName())
