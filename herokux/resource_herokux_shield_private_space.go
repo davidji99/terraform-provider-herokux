@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,14 @@ func resourceHerokuxShieldPrivateSpace() *schema.Resource {
 		ReadContext:   resourceHerokuxShieldPrivateSpaceRead,
 		UpdateContext: resourceHerokuxShieldPrivateSpaceUpdate,
 		DeleteContext: resourceHerokuxShieldPrivateSpaceDelete,
+
+		CustomizeDiff: func(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
+			previous, requested := d.GetChange("team_id")
+			if !d.NewValueKnown("team_id") || !strings.EqualFold(previous.(string), requested.(string)) {
+				return d.SetNewComputed("team_name")
+			}
+			return nil
+		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceHerokuxShieldPrivateSpaceImport,
@@ -52,8 +61,8 @@ func resourceHerokuxShieldPrivateSpace() *schema.Resource {
 			"team_id": {
 				Type:         schema.TypeString,
 				Required:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IsUUID,
+				StateFunc:    func(v interface{}) string { return strings.ToLower(v.(string)) },
 			},
 
 			"cidr": {
@@ -229,7 +238,7 @@ func resourceHerokuxShieldPrivateSpaceRead(ctx context.Context, d *schema.Resour
 	platformAPI := config.PlatformAPI
 	api := config.API
 
-	space, readErr := platformAPI.SpaceInfo(context.TODO(), d.Id())
+	space, readErr := platformAPI.SpaceInfo(ctx, d.Id())
 	if readErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -249,7 +258,7 @@ func resourceHerokuxShieldPrivateSpaceRead(ctx context.Context, d *schema.Resour
 		return diags
 	}
 
-	spaceNat, natReadErr := platformAPI.SpaceNATInfo(context.TODO(), d.Id())
+	spaceNat, natReadErr := platformAPI.SpaceNATInfo(ctx, d.Id())
 	if natReadErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
@@ -292,6 +301,31 @@ func resourceHerokuxShieldPrivateSpaceUpdate(ctx context.Context, d *schema.Reso
 	platformAPI := config.PlatformAPI
 	api := config.API
 
+	previous, requested := d.GetChange("team_id")
+	teamID := strings.ToLower(requested.(string))
+	if !strings.EqualFold(previous.(string), teamID) {
+		// Resolve and transfer before changing the name or drain so a rejection preserves prior state.
+		d.Partial(true)
+		team, err := platformAPI.TeamInfo(ctx, teamID)
+		if err != nil {
+			return diag.Errorf("unable to resolve destination team %s: %s", teamID, err)
+		}
+		if !strings.EqualFold(team.ID, teamID) || team.Name == "" {
+			return diag.Errorf("Heroku returned no matching destination team for %s", teamID)
+		}
+		transferred, err := platformAPI.SpaceTransferTransfer(ctx, d.Id(), heroku.SpaceTransferTransferOpts{NewOwner: team.Name})
+		if err != nil {
+			return diag.Errorf("unable to transfer Shield Private Space %s to team %s: %s", d.Id(), team.Name, err)
+		}
+		if !strings.EqualFold(transferred.ID, d.Id()) || !strings.EqualFold(transferred.Team.ID, team.ID) {
+			return diag.Errorf("Heroku did not confirm ownership of Shield Private Space %s by team %s; refresh the space before retrying", d.Id(), teamID)
+		}
+		d.Partial(false)
+		if err := d.Set("team_name", transferred.Team.Name); err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
 	// Update the Space itself
 	if d.HasChange("name") {
 		vs := d.Get("name").(string)
@@ -299,14 +333,14 @@ func resourceHerokuxShieldPrivateSpaceUpdate(ctx context.Context, d *schema.Reso
 		opts := heroku.SpaceUpdateOpts{Name: &vs}
 
 		log.Printf("[DEBUG] Updating Shield Private Space: %s", d.Id())
-		_, updateErr := platformAPI.SpaceUpdate(context.TODO(), d.Id(), opts)
+		_, updateErr := platformAPI.SpaceUpdate(ctx, d.Id(), opts)
 		if updateErr != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("Unable to update shield private space %s", d.Id()),
 				Detail:   updateErr.Error(),
 			})
-			return diags
+			return append(diags, resourceHerokuxShieldPrivateSpaceRead(ctx, d, meta)...)
 		}
 		log.Printf("[DEBUG] Updated Shield Private Space: %s", d.Id())
 	}
@@ -324,7 +358,7 @@ func resourceHerokuxShieldPrivateSpaceUpdate(ctx context.Context, d *schema.Reso
 				Summary:  fmt.Sprintf("Unable to update shield private space %s's log drain", d.Id()),
 				Detail:   updateErr.Error(),
 			})
-			return diags
+			return append(diags, resourceHerokuxShieldPrivateSpaceRead(ctx, d, meta)...)
 		}
 		log.Printf("[DEBUG] Updated Shield Private Space %s log drain", d.Id())
 	}
