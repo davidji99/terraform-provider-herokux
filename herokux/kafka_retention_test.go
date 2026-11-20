@@ -8,6 +8,8 @@ import (
 
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/pkg/config"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/stretchr/testify/require"
 )
 
@@ -43,4 +45,21 @@ func TestKafkaTopicRetentionLimits(t *testing.T) {
 		require.NotEmpty(t, errs)
 	}
 	require.Equal(t, "1d", resourceHerokuxKafkaTopic().Schema["retention_time"].Default)
+}
+
+func TestKafkaEquivalentRetentionPlan(t *testing.T) {
+	r := resourceHerokuxKafkaTopic()
+	args := map[string]any{"kafka_id": "6fae1ee0-c034-4775-a798-890bc64f98eb", "name": "orders", "partitions": 3, "retention_time": "24h"}
+	d := schema.TestResourceDataRaw(t, r.Schema, args)
+	d.SetId(args["kafka_id"].(string) + ":orders")
+	require.NoError(t, d.Set("retention_time", "1d"))
+	for _, tc := range []struct {
+		value    string
+		wantDiff bool
+	}{{"24h", false}, {"1440m", false}, {"2d", true}, {"disable", true}} {
+		args["retention_time"] = tc.value
+		plan, err := r.Diff(t.Context(), d.State(), terraform.NewResourceConfigRaw(args), nil)
+		require.NoError(t, err)
+		require.Equal(t, tc.wantDiff, !plan.Empty(), "%s: %v", tc.value, plan)
+	}
 }

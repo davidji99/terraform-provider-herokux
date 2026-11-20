@@ -114,6 +114,11 @@ func resourceHerokuxPostgresMTLSCertificateCreate(ctx context.Context, d *schema
 		return diag.FromErr(createErr)
 	}
 
+	if cert.GetID() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the certificate")
+	}
+	d.SetId(fmt.Sprintf("%s:%s", dbName, cert.GetID()))
+
 	log.Printf("[DEBUG] Waiting for MTLS certificate for %s to be ready", dbName)
 	stateConf := &resource.StateChangeConf{
 		Pending:      []string{postgres.MTLSCertStatuses.PENDING.ToString()},
@@ -126,8 +131,6 @@ func resourceHerokuxPostgresMTLSCertificateCreate(ctx context.Context, d *schema
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for MTLS certificate to be ready on %s: %s", dbName, err.Error())
 	}
-
-	d.SetId(fmt.Sprintf("%s:%s", dbName, cert.GetID()))
 
 	return resourceHerokuxPostgresMTLSCertificateRead(ctx, d, meta)
 }
@@ -142,7 +145,7 @@ func resourceHerokuxPostgresMTLSCertificateRead(ctx context.Context, d *schema.R
 
 	cert, response, getErr := client.Postgres.GetMTLSCert(ids[0], ids[1])
 	if getErr != nil {
-		if response.StatusCode == 404 {
+		if response != nil && response.StatusCode == 404 {
 			log.Printf("[WARN] MTLS certificate for %s not found, removing from state", ids[0])
 			d.SetId("")
 			return nil
@@ -217,7 +220,7 @@ func MTLSCertificateDeletionStateRefreshFunc(client *api.Client, dbName, certID 
 	return func() (interface{}, string, error) {
 		cert, response, getErr := client.Postgres.GetMTLSCert(dbName, certID)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if response != nil && response.StatusCode == 404 {
 				// 404 means the MTLS certificate was deleted
 				return postgres.MTLSCert{}, postgres.MTLSCertStatuses.DISABLED.ToString(), nil
 			}

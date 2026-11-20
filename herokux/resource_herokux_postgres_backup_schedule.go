@@ -3,15 +3,18 @@ package herokux
 import (
 	"context"
 	"fmt"
-	"github.com/davidji99/terraform-provider-herokux/api/postgres"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/davidji99/terraform-provider-herokux/api/postgres"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+var backupScheduleZonePattern = regexp.MustCompile(`^[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*$`)
 
 func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 	return &schema.Resource{
@@ -43,7 +46,7 @@ func resourceHerokuxPostgresBackupSchedule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "UTC",
-				ValidateFunc: validateBackupScheduleTimezone,
+				ValidateFunc: validation.StringMatch(backupScheduleZonePattern, "use a time zone name or a Heroku backup CLI alias"),
 				StateFunc:    func(v interface{}) string { return backupScheduleTimezone(v.(string)) },
 			},
 
@@ -85,14 +88,6 @@ func backupScheduleTimezone(zone string) string {
 	default:
 		return zone
 	}
-}
-
-func validateBackupScheduleTimezone(v interface{}, k string) (ws []string, errors []error) {
-	timezone := backupScheduleTimezone(v.(string))
-	if !regexp.MustCompile(`^UTC|[a-zA-Z]+/[a-zA-Z_]+$`).MatchString(timezone) {
-		errors = append(errors, fmt.Errorf("invalid timezone format: use a full time zone name (Africa/Cairo), UTC, or a Heroku backup CLI alias"))
-	}
-	return
 }
 
 func resourceHerokuxPostgresBackupScheduleImport(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {

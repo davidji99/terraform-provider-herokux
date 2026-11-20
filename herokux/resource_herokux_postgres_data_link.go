@@ -2,14 +2,16 @@ package herokux
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log"
+	"regexp"
+
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
 	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"regexp"
 )
 
 func resourceHerokuxPostgresDataLink() *schema.Resource {
@@ -79,7 +81,7 @@ func resourceHerokuxPostgresDataLinkImport(ctx context.Context, d *schema.Resour
 	}
 
 	readErr := resourceHerokuxPostgresDataLinkRead(ctx, d, meta)
-	if readErr.HasError() {
+	if readErr.HasError() || d.Id() == "" {
 		return nil, fmt.Errorf("unable to import data link")
 	}
 
@@ -150,7 +152,7 @@ func resourceHerokuxPostgresDataLinkRead(ctx context.Context, d *schema.Resource
 
 	link, response, getErr := client.Postgres.FindDataLinkByName(localDbID, linkName)
 	if getErr != nil {
-		if response.StatusCode == 404 {
+		if errors.Is(getErr, postgres.ErrDataLinkNotFound) || (response != nil && response.StatusCode == 404) {
 			log.Printf("[DEBUG] Data Link %s on %s not found. Removing from state", linkName, localDbID)
 			d.SetId("")
 

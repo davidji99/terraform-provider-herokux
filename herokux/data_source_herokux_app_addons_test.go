@@ -2,9 +2,10 @@ package herokux
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"regexp"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
 func TestAccDatasourceHerokuxAppAddons_Basic(t *testing.T) {
@@ -69,7 +70,7 @@ func TestAccDatasourceHerokuxAppAddons_NotFound(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config:      testAccCheckHerokuxAppAddons_Basic(appID, addonServiceName),
-				ExpectError: regexp.MustCompile(`Could not find the requested add-ons installed`),
+				ExpectError: regexp.MustCompile(`Could not find any 'non-existent' add-on installed`),
 			},
 		},
 	})

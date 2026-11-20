@@ -2,9 +2,12 @@ package platform
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/davidji99/simpleresty"
 	config2 "github.com/davidji99/terraform-provider-herokux/api/pkg/config"
-	"time"
+	"github.com/go-resty/resty/v2"
 )
 
 const (
@@ -32,8 +35,13 @@ type Platform struct {
 
 // New constructs a client to interface with the Heroku Platform APIs.
 func New(config *config2.Config) *Platform {
+	inventoryClient := newPlatformClient(config, DefaultAcceptHeader)
+	inventoryClient.SetRetryCount(10).SetRetryWaitTime(2 * time.Second).SetRetryMaxWaitTime(time.Minute).
+		AddRetryCondition(func(resp *resty.Response, _ error) bool {
+			return resp != nil && resp.StatusCode() == http.StatusTooManyRequests
+		})
 	return &Platform{
-		http:      newPlatformClient(config, DefaultAcceptHeader),
+		http:      inventoryClient,
 		webhooks:  newPlatformClient(config, WebhooksAcceptHeader),
 		teamOAuth: newPlatformClient(config, "application/vnd.heroku+json; version=3.sdk"),
 		space:     newPlatformClient(config, DogwoodAcceptHeader),

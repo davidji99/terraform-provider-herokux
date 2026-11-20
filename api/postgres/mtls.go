@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 )
@@ -38,7 +40,7 @@ func (p *Postgres) IsMTLSReady(nameOrID string) (bool, MTLSConfigStatus, error) 
 		return false, MTLSConfigStatuses.UNKNOWN, getErr
 	}
 
-	if mtlsConfig.GetStatus() == &MTLSConfigStatuses.OPERATIONAL {
+	if *mtlsConfig.GetStatus() == MTLSConfigStatuses.OPERATIONAL {
 		return true, MTLSConfigStatuses.OPERATIONAL, nil
 	}
 
@@ -65,6 +67,9 @@ func (p *Postgres) GetMTLS(nameOrID string) (*MTLS, *simpleresty.Response, error
 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
+	if getErr == nil && (result.GetStatus() == nil || *result.GetStatus() == "") {
+		return nil, response, fmt.Errorf("missing mTLS status for %s", nameOrID)
+	}
 
 	return result, response, getErr
 }

@@ -31,6 +31,9 @@ func TestPostgresBackupScheduleTimezoneAliases(t *testing.T) {
 		{"Z", "UTC"},
 		{"UTC", "UTC"},
 		{"Australia/Perth", "Australia/Perth"},
+		{"Etc/GMT+5", "Etc/GMT+5"},
+		{"America/Port-au-Prince", "America/Port-au-Prince"},
+		{"America/Indiana/Indianapolis", "America/Indiana/Indianapolis"},
 	} {
 		t.Run(tc.input, func(t *testing.T) {
 			zone := tc.zone

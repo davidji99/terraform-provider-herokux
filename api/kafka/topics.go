@@ -2,10 +2,13 @@ package kafka
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/davidji99/simpleresty"
 )
+
+var ErrTopicNotFound = errors.New("topic not found")
 
 // Topics represents a list of topics.
 type Topics struct {
@@ -80,20 +83,18 @@ func (k *Kafka) GetTopicByName(clusterID, topicName string) (*Topic, *simplerest
 		return nil, response, getErr
 	}
 
-	var topic *Topic
-	for _, t := range topics.Topics {
-		if t.GetName() == topicName {
-			topic = t
+	if topics == nil || topics.Topics == nil {
+		return nil, response, fmt.Errorf("missing topics list on cluster %s", clusterID)
+	}
+	for _, topic := range topics.Topics {
+		if topic.GetName() == "" {
+			return nil, response, fmt.Errorf("topic without a name on cluster %s", clusterID)
+		}
+		if topic.GetName() == topicName {
+			return topic, response, nil
 		}
 	}
-
-	r := &simpleresty.Response{}
-	if topic == nil {
-		r.StatusCode = 404
-		return nil, r, fmt.Errorf("no cluster topic named %s found on cluster %s", topicName, clusterID)
-	}
-
-	return topic, r, nil
+	return nil, &simpleresty.Response{StatusCode: 404}, fmt.Errorf("%w: %s on cluster %s", ErrTopicNotFound, topicName, clusterID)
 }
 
 // CreateTopic creates a cluster topic.

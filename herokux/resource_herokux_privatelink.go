@@ -3,6 +3,10 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"strings"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/data"
 	"github.com/davidji99/terraform-provider-herokux/api/postgres"
@@ -10,9 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"strings"
-	"time"
 )
 
 func resourceHerokuxPrivatelink() *schema.Resource {
@@ -117,21 +118,23 @@ func resourceHerokuxPrivatelinkCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.FromErr(createErr)
 	}
 
+	if pl.GetAddon().GetUUID() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the PrivateLink")
+	}
+	d.SetId(pl.GetAddon().GetUUID())
+
 	log.Printf("[DEBUG] Waiting for privatelink on %s to be provisioned", addonID)
 
-	stateConf := &resource.StateChangeConf{
+	wait := &resource.StateChangeConf{
 		Pending:      []string{data.PrivatelinkStatuses.PROVISIONING.ToString()},
 		Target:       []string{data.PrivatelinkStatuses.OPERATIONAL.ToString()},
-		Refresh:      PrivatelinkCreateStateRefreshFunc(client, addonID),
+		Refresh:      privatelinkProvisioning(ctx, client, addonID, d.Get("allowed_accounts").(*schema.Set)),
 		Timeout:      time.Duration(config.PrivatelinkCreateVerifyTimeout) * time.Minute,
 		PollInterval: StateRefreshPollInterval,
 	}
-
-	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
-		return diag.Errorf("error waiting for privatelink to be provisioned on %s: %s", addonID, err.Error())
+	if _, err := wait.WaitForStateContext(ctx); err != nil {
+		return diag.FromErr(err)
 	}
-
-	d.SetId(pl.GetAddon().GetUUID())
 
 	return resourceHerokuxPrivatelinkRead(ctx, d, meta)
 }
@@ -329,7 +332,7 @@ func PrivatelinkDeleteStateRefreshFunc(client *api.Client, addonID string) resou
 	return func() (interface{}, string, error) {
 		pl, response, getErr := client.Postgres.GetPrivatelink(addonID)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if response != nil && response.StatusCode == 404 {
 				// 404 means the privatelink was deleted
 				return pl, data.PrivatelinkStatuses.DEPROVISIONED.ToString(), nil
 			}
@@ -337,7 +340,10 @@ func PrivatelinkDeleteStateRefreshFunc(client *api.Client, addonID string) resou
 			return nil, postgres.MTLSCertStatuses.UNKNOWN.ToString(), getErr
 		}
 
-		if pl.Status.ToString() == data.PrivatelinkStatuses.DEPROVISIONED.ToString() && response.StatusCode == 200 {
+		if pl == nil || pl.Status == "" {
+			return nil, "", fmt.Errorf("missing PrivateLink status for %s", addonID)
+		}
+		if pl.Status == data.PrivatelinkStatuses.DEPROVISIONED || pl.Status == data.PrivatelinkStatuses.DEPROVISIONING {
 			// When a privatelink is deleted, the GET request still returns a 200 with a privatelink status of 'deprovisioned'.
 			// This doesn't mean the privatelink was deleted/deprovisioned fully, so this resource will indicate a status
 			// of deprovisioning until the GET request returns a 404.
@@ -350,37 +356,30 @@ func PrivatelinkDeleteStateRefreshFunc(client *api.Client, addonID string) resou
 }
 
 func PrivatelinkCreateStateRefreshFunc(client *api.Client, addonID string) resource.StateRefreshFunc {
+	return privatelinkProvisioning(context.Background(), client, addonID, nil)
+}
+
+func privatelinkProvisioning(ctx context.Context, client *api.Client, addonID string, desired *schema.Set) resource.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		// Check the status of both the privatelink and all allowed accounts.
-		pl, _, getErr := client.Postgres.GetPrivatelink(addonID)
-		if getErr != nil {
-			return nil, data.PrivatelinkStatuses.UNKNOWN.ToString(), getErr
+		pl, _, err := client.Postgres.GetPrivatelinkContext(ctx, addonID)
+		if err != nil {
+			return nil, "", err
 		}
-
-		if pl.Status.ToString() == data.PrivatelinkStatuses.PROVISIONING.ToString() {
-			log.Printf("[DEBUG] Still waiting for privatelink on %s to be provisioned", addonID)
-			return pl, pl.Status.ToString(), nil
+		if pl == nil || pl.Status == "" {
+			return nil, "", fmt.Errorf("missing PrivateLink status for %s", addonID)
 		}
-
-		if !checkAccountsAreActive(pl) {
-			log.Printf("[DEBUG] Still waiting for privatelink allowed accounts on %s to become active", addonID)
-			return pl, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString(), nil
+		if pl.Status == data.PrivatelinkStatuses.OPERATIONAL && (!checkAccountsAreActive(pl) || (desired != nil && !privatelinkAccountsActive(pl, desired))) {
+			return pl, data.PrivatelinkStatuses.PROVISIONING.ToString(), nil
 		}
-
-		return pl, data.PrivatelinkStatuses.OPERATIONAL.ToString(), nil
+		return pl, pl.Status.ToString(), nil
 	}
 }
 
 func checkAccountsAreActive(pl *postgres.Privatelink) bool {
-	// Loop through all the allowed accounts and gather their statuses.
-	// Store statuses in an array and check if the array has 'Provisioning' in it.
-	aaStatuses := make([]string, 0)
-
-	for _, aa := range pl.AllowedAccounts {
-		if aa.Status.ToString() == data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString() {
-			aaStatuses = append(aaStatuses, aa.Status.ToString())
+	for _, account := range pl.AllowedAccounts {
+		if account == nil || account.Status != data.PrivatelinkAllowedAccountStatuses.ACTIVE {
+			return false
 		}
 	}
-
-	return !stringArrayContains(aaStatuses, data.PrivatelinkAllowedAccountStatuses.PROVISIONING.ToString())
+	return len(pl.AllowedAccounts) != 0
 }

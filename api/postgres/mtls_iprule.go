@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"fmt"
+
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 )
@@ -24,6 +26,9 @@ func (p *Postgres) GetMTLSIPRule(dbNameOrID, ipRuleID string) (*general.MtlsIPRu
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
 
+	if getErr == nil && (result.GetID() != ipRuleID || result.GetStatus() == nil || *result.GetStatus() == "") {
+		return nil, response, fmt.Errorf("incomplete mTLS response for %s", ipRuleID)
+	}
 	return result, response, getErr
 }
 

@@ -1,6 +1,8 @@
 package kafka
 
 import (
+	"fmt"
+
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 )
@@ -24,6 +26,9 @@ func (k *Kafka) GetMTLSIPRule(kafkaID, ruleID string) (*general.MtlsIPRule, *sim
 	// Execute the request
 	response, getErr := k.http.Get(urlStr, &result, nil)
 
+	if getErr == nil && (result.GetID() != ruleID || result.GetStatus() == nil || *result.GetStatus() == "") {
+		return nil, response, fmt.Errorf("incomplete mTLS response for %s", ruleID)
+	}
 	return result, response, getErr
 }
 

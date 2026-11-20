@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+
 	"github.com/davidji99/simpleresty"
 )
 
@@ -36,7 +37,19 @@ type DatabaseInfo struct {
 	Values []interface{} `json:"values,omitempty"`
 }
 
+func (i *DatabaseInfo) FirstString() (string, error) {
+	if len(i.Values) > 0 {
+		if value, ok := i.Values[0].(string); ok && value != "" {
+			return value, nil
+		}
+	}
+	return "", fmt.Errorf("missing string value for database info %q", i.GetName())
+}
+
 func (d *Database) RetrieveSpecificInfo(name string) (*DatabaseInfo, error) {
+	if d == nil {
+		return nil, fmt.Errorf("database info missing from response")
+	}
 	for _, info := range d.Info {
 		if info.GetName() == name {
 			return info, nil

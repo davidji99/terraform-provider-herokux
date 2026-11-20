@@ -3,6 +3,9 @@ package herokux
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/davidji99/terraform-provider-herokux/api"
 	"github.com/davidji99/terraform-provider-herokux/api/general"
 	"github.com/davidji99/tfph"
@@ -10,8 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"log"
-	"time"
 )
 
 func resourceHerokuxKafkaMTLSIPRule() *schema.Resource {
@@ -126,6 +127,11 @@ func resourceHerokuxKafkaMTLSIPRuleCreate(ctx context.Context, d *schema.Resourc
 		return diags
 	}
 
+	if ipRule.GetID() == "" {
+		return diag.Errorf("Heroku returned no ID after creating the IP rule")
+	}
+	d.SetId(ipRule.GetID())
+
 	log.Printf("[DEBUG] Waiting for MTLS IP rule %s on kafka %s to be authorized", ipRule.GetID(), kafkaID)
 
 	stateConf := &resource.StateChangeConf{
@@ -143,8 +149,6 @@ func resourceHerokuxKafkaMTLSIPRuleCreate(ctx context.Context, d *schema.Resourc
 
 	log.Printf("[DEBUG] Created MTLS IP rule on kafka %s", kafkaID)
 
-	d.SetId(ipRule.GetID())
-
 	return resourceHerokuxKafkaMTLSIPRuleRead(ctx, d, meta)
 }
 
@@ -155,7 +159,7 @@ func resourceHerokuxKafkaMTLSIPRuleRead(ctx context.Context, d *schema.ResourceD
 
 	ipRule, response, getErr := client.Kafka.GetMTLSIPRule(kafkaID, d.Id())
 	if getErr != nil {
-		if response.StatusCode == 404 {
+		if response != nil && response.StatusCode == 404 {
 			log.Printf("[WARN] Kafka MTLS IP rule %s not found, removing from state", d.Id())
 			d.SetId("")
 			return nil

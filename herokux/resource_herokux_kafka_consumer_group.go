@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/davidji99/tfph"
 	"log"
 	"time"
 
 	"github.com/davidji99/simpleresty"
 	"github.com/davidji99/terraform-provider-herokux/api/kafka"
+	"github.com/davidji99/tfph"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -77,6 +77,8 @@ func resourceHerokuxKafkaConsumerGroupCreate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(createErr)
 	}
 
+	d.SetId(fmt.Sprintf("%s:%s", kafkaID, opts.Name))
+
 	log.Printf("[DEBUG] Waiting for Kafka consumer group %s to be ready", opts.Name)
 	stateConf := &resource.StateChangeConf{
 		Pending: []string{kafka.ConsumerGroupStatuses.PENDING.ToString()},
@@ -90,9 +92,6 @@ func resourceHerokuxKafkaConsumerGroupCreate(ctx context.Context, d *schema.Reso
 	if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 		return diag.Errorf("error waiting for consumer group to be ready on %s: %s", opts.Name, err.Error())
 	}
-
-	// Set the resource ID to be a composite of the kafka ID and group name.
-	d.SetId(fmt.Sprintf("%s:%s", kafkaID, opts.Name))
 
 	return resourceHerokuxKafkaConsumerGroupRead(ctx, d, meta)
 }

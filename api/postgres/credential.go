@@ -1,6 +1,10 @@
 package postgres
 
-import "github.com/davidji99/simpleresty"
+import (
+	"fmt"
+
+	"github.com/davidji99/simpleresty"
+)
 
 // Credential represents a credential for a postgres database.
 //
@@ -41,6 +45,9 @@ func (p *Postgres) GetCredential(nameOrID, credentialName string) (*Credential, 
 	// Execute the request
 	response, getErr := p.http.Get(urlStr, &result, nil)
 
+	if getErr == nil && (result == nil || result.GetName() != credentialName || result.State == "") {
+		return nil, response, fmt.Errorf("incomplete response for credential %s on %s", credentialName, nameOrID)
+	}
 	return result, response, getErr
 }
 

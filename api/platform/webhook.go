@@ -1,9 +1,11 @@
 package platform
 
 import (
+	"context"
 	"fmt"
-	"github.com/davidji99/simpleresty"
 	"time"
+
+	"github.com/davidji99/simpleresty"
 )
 
 const (
@@ -49,13 +51,7 @@ type AppWebhookRequest struct {
 
 // ListAppWebhooks lists all webhooks for an app.
 func (p *Platform) ListAppWebhooks(appID string) ([]*AppWebhook, *simpleresty.Response, error) {
-	var result []*AppWebhook
-	urlStr := p.webhooks.RequestURL("/apps/%s/webhooks", appID)
-
-	// Execute the request
-	response, getErr := p.webhooks.Get(urlStr, &result, nil)
-
-	return result, response, getErr
+	return listPages[*AppWebhook](context.Background(), p.webhooks, p.webhooks.RequestURL("/apps/%s/webhooks", appID))
 }
 
 // GetAppWebhook retrieves a single webhook.

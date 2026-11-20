@@ -104,6 +104,9 @@ func resourceHerokuxPostgresCredential() *schema.Resource {
 
 func validateCredentialName(v interface{}, k string) (ws []string, errors []error) {
 	name := v.(string)
+	if strings.EqualFold(name, "default") {
+		return nil, []error{fmt.Errorf("the default Postgres credential cannot be managed")}
+	}
 	if !regexp.MustCompile(ValidCredentialNameRegex).MatchString(name) {
 		errors = append(errors, fmt.Errorf("invalid name: name is restricted to alphanumeric characters(- and _ are also supported) and up to 50 characters"))
 	}
@@ -124,11 +127,12 @@ func resourceHerokuxPostgresCredentialImport(ctx context.Context, d *schema.Reso
 		return nil, fmt.Errorf("cannot import the 'default' credential")
 	}
 
-	d.SetId(d.Id())
-
 	readErr := resourceHerokuxPostgresCredentialRead(ctx, d, meta)
 	if readErr.HasError() {
-		return nil, fmt.Errorf("unable to import this credential")
+		return nil, fmt.Errorf("unable to read credential %s during import", credName)
+	}
+	if d.Id() == "" {
+		return nil, fmt.Errorf("credential %s not found", credName)
 	}
 
 	return []*schema.ResourceData{d}, nil
@@ -150,7 +154,7 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		log.Printf("[DEBUG] credential postgres_id is : %v", postgresID)
 	}
 
-	checkErr := checkDBForkFollowStatus(client, config, postgresID)
+	checkErr := checkDBForkFollowStatus(ctx, client, config, postgresID)
 	if checkErr != nil {
 		return checkErr
 	}
@@ -166,6 +170,9 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 		})
 		return diags
 	}
+
+	// Set the ID to be a composite of the postgres ID and the credential name.
+	d.SetId(fmt.Sprintf("%s:%s", postgresID, name))
 
 	log.Printf("[DEBUG] Waiting for postgres credential %s on postgres %s to be active", name, postgresID)
 
@@ -184,9 +191,6 @@ func resourceHerokuxPostgresCredentialCreate(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Created postgres credential %s on postgres %s", name, postgresID)
 
-	// Set the ID to be a composite of the postgres ID and the credential name.
-	d.SetId(fmt.Sprintf("%s:%s", postgresID, name))
-
 	return resourceHerokuxPostgresCredentialRead(ctx, d, meta)
 }
 
@@ -201,7 +205,11 @@ func resourceHerokuxPostgresCredentialRead(ctx context.Context, d *schema.Resour
 	postgresID := result[0]
 	credName := result[1]
 
-	cred, _, getErr := client.Postgres.GetCredential(postgresID, credName)
+	cred, response, getErr := client.Postgres.GetCredential(postgresID, credName)
+	if getErr != nil && response != nil && response.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
 	if getErr != nil {
 		return diag.FromErr(getErr)
 	}
@@ -241,6 +249,9 @@ func resourceHerokuxPostgresCredentialDelete(ctx context.Context, d *schema.Reso
 
 	postgresID := result[0]
 	credName := result[1]
+	if strings.EqualFold(credName, "default") {
+		return diag.Errorf("the default Postgres credential cannot be destroyed")
+	}
 
 	apps, err := client.Platform.PostgresCredentialApps(ctx, postgresID, credName)
 	if err != nil {
@@ -252,7 +263,11 @@ func resourceHerokuxPostgresCredentialDelete(ctx context.Context, d *schema.Reso
 
 	log.Printf("[DEBUG] Deleting postgres credential %s", credName)
 
-	_, _, deleteErr := client.Postgres.DeleteCredential(postgresID, credName)
+	_, response, deleteErr := client.Postgres.DeleteCredential(postgresID, credName)
+	if deleteErr != nil && response != nil && response.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
 	if deleteErr != nil {
 		return diag.FromErr(deleteErr)
 	}
@@ -296,7 +311,7 @@ func postgresCredentialDeletionStateRefreshFunc(client *api.Client, postgresID, 
 	return func() (interface{}, string, error) {
 		cred, response, getErr := client.Postgres.GetCredential(postgresID, credName)
 		if getErr != nil {
-			if response.StatusCode == 404 {
+			if response != nil && response.StatusCode == 404 {
 				return postgres.Credential{}, postgres.CredentialStates.DELETED.ToString(), nil
 			}
 			return nil, postgres.CredentialStates.UNKNOWN.ToString(), getErr
@@ -313,7 +328,7 @@ func postgresCredentialDeletionStateRefreshFunc(client *api.Client, postgresID, 
 
 // Check the state of the postgres DB to make sure it is in a state to accept credential creation requests.
 // BUT, only do this verification if the postgres plans type is either premium-#, private-#, or shield-#.
-func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID string) diag.Diagnostics {
+func checkDBForkFollowStatus(ctx context.Context, client *api.Client, config *Config, postgresID string) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	log.Printf("[DEBUG] Checking if Postgres %s is available for credential creation", postgresID)
@@ -340,10 +355,11 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 		return diags
 	}
 
-	var dbPlan string
-	for _, i := range dbPlanInfo.Values {
-		dbPlan = strings.ToLower(strings.Split(i.(string), " ")[0]) // returns "premium" from "Premium 0"
+	plan, err := dbPlanInfo.FirstString()
+	if err != nil {
+		return diag.FromErr(err)
 	}
+	dbPlan := strings.ToLower(strings.SplitN(plan, " ", 2)[0])
 
 	log.Printf("[DEBUG] Postgres %s's plan is %s", postgresID, dbPlan)
 
@@ -364,14 +380,20 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 				return nil, "Unknown", fmt.Errorf("can't get Fork/Follow info for Postgres %s to determine if it's available for credential creation",
 					postgresID)
 			}
-			forkFollowStatus := forkFollowInfo.Values[0].(string)
+			forkFollowStatus, err := forkFollowInfo.FirstString()
+			if err != nil {
+				return nil, "Unknown", err
+			}
 
 			haStatusInfo, haStatusInfoErr := db.RetrieveSpecificInfo(postgres.DatabaseInfoNames.HASTATUS.ToString())
 			if haStatusInfoErr != nil {
 				return nil, "Unknown", fmt.Errorf("can't get Fork/Follow info for Postgres %s to determine if it's available for credential creation",
 					postgresID)
 			}
-			haStatus := haStatusInfo.Values[0].(string)
+			haStatus, err := haStatusInfo.FirstString()
+			if err != nil {
+				return nil, "Unknown", err
+			}
 
 			if forkFollowStatus == postgres.DatabaseInfoStatuses.AVAILABLE.ToString() && haStatus == postgres.DatabaseInfoStatuses.AVAILABLE.ToString() {
 				log.Printf("[DEBUG] Postgres %s can now create credentials as Fork/Follow & HA statuses are now '%s' and '%s'",
@@ -393,7 +415,7 @@ func checkDBForkFollowStatus(client *api.Client, config *Config, postgresID stri
 			PollInterval: StateRefreshPollInterval,
 		}
 
-		if _, err := stateConf.WaitForStateContext(context.TODO()); err != nil {
+		if _, err := stateConf.WaitForStateContext(ctx); err != nil {
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
 				Summary:  fmt.Sprintf("unable to create credential on postgres %s", postgresID),

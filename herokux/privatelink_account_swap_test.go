@@ -344,3 +344,30 @@ func TestPrivatelinkVerificationDeadline(t *testing.T) {
 		require.ErrorIs(t, err, context.Canceled)
 	})
 }
+
+func TestPrivateLinkCreationWaitsForRequestedAccounts(t *testing.T) {
+	const addon = "6fae1ee0-c034-4775-a798-890bc64f98eb"
+	body := ""
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, body)
+	}))
+	defer srv.Close()
+	client, err := api.New(config.PostgresBaseURL(srv.URL))
+	require.NoError(t, err)
+	desired := schema.NewSet(schema.HashString, []any{"123456789012"})
+	poll := privatelinkProvisioning(t.Context(), client, addon, desired)
+	for _, tc := range []struct{ status, accounts, want string }{
+		{"Provisioning", "null", "Provisioning"},
+		{"Operational", "[]", "Provisioning"},
+		{"Operational", `[{"account_id":"999999999999","status":"Active"}]`, "Provisioning"},
+		{"Operational", `[{"account_id":"123456789012","status":"Unknown"}]`, "Provisioning"},
+		{"Operational", `[{"account_id":"123456789012","status":"Active"}]`, "Operational"},
+		{"Deprovisioned", "[]", "Deprovisioned"},
+	} {
+		body = fmt.Sprintf(`{"addon":{"uuid":%q},"status":%q,"allowed_accounts":%s}`, addon, tc.status, tc.accounts)
+		_, state, err := poll()
+		require.NoError(t, err)
+		require.Equal(t, tc.want, state)
+	}
+}
