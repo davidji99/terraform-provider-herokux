@@ -95,7 +95,7 @@ type FormationAutoscalingRequest struct {
 	ActionType           FormationMonitorActionType `json:"action_type,omitempty"`
 	Operation            string                     `json:"op,omitempty"`
 	Name                 FormationMonitorName       `json:"name,omitempty"`
-	NotificationChannels []string                   `json:"notification_channels"`
+	NotificationChannels []string                   `json:"notification_channels,omitzero"` // A non-nil empty list explicitly clears recipients.
 }
 
 // FormationAlertRequest represents a request to modify an alert for an app formation.
